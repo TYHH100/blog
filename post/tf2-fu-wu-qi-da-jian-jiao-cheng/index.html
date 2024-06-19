@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="shortcut icon" href="https://blog.tyhh10.xyz/favicon.ico" type="image/x-icon" />
+<meta name="viewport"content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+<meta name="apple-mobile-web-app-capable"content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style"content="black"/>
+<meta name="format-detection"content="telephone=no"/>
+<meta name="renderer"content="webkit">
+<meta name="description"content="你好呀(*´ω｀*)">
+<meta charset="UTF-8">
+<title>TF2服务器搭建教程(未完工) | 摸鱼馆</title>
+
+<link href="https://blog.tyhh10.xyz/styles/main.css" type="text/css" rel="stylesheet" /><link href="https://at.alicdn.com/t/font_1621793_zatzzgvf30g.css" type="text/css" rel="stylesheet" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css"><script async src="https://cdn.jsdelivr.net/npm/busuanzi@2.3.0/bsz.pure.mini.min.js"></script><script src="https://blog.tyhh10.xyz/media/js/magnify.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js"></script>
+<script type="text/javascript">function btn_toggle(){document.getElementById("hn").classList.contains("no-js")?document.getElementById("hn").classList.remove("no-js"):document.getElementById("hn").classList.add("no-js")}</script>
+
+
+
+<!-- DEMO CSS -->
+<style type="text/css">
+	
+</style>
+
+<link rel="canonical" href="https://blog.tyhh10.xyz/post/tf2-fu-wu-qi-da-jian-jiao-cheng/" />
+</head>
+<body>
+<div class="progress"></div><style>.progress{background:linear-gradient(to right,#87ceeb var(--scroll),transparent 0);background-repeat:no-repeat;position:fixed;width:100%;height:4px;z-index:1}</style><div class="darkmode-background"></div><div class="darkmode-layer"></div>
+<noscript><p class="warn" >本页面需要浏览器支持（启用）JavaScript</p></noscript><div class="header"><div class="logo_title"><div class="title animated fadeInDown"><a href="https://blog.tyhh10.xyz"><img alt="logo" style="display:inline-block;" src="https://blog.tyhh10.xyz/images/avatar.png"/></a><h1 title="摸鱼馆" class="weaklink"><a  href="/">摸鱼馆</a></h1>
+
+<div class="navbar weaklink">
+<div class="normal_nav">
+<div class="bitcron_nav_container"><div class="bitcron_nav"><div class="bitcron_nav"><div style="display:flex;justify-content:center;"><nav class="mixed_site_nav_wrap site_nav_wrap"><ul class="mixed_site_nav site_nav sm sm-base">	<li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/" class="selected active current nav__item" >首页</a></li><li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/archives" class="selected active current nav__item" >归档</a></li><li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/tags" class="selected active current nav__item" >标签</a></li><li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/post/about" class="selected active current nav__item" >关于</a></li></ul></nav>
+<div style="float:right;margin-top:1em"><form id="gridea-search-form" data-update="1578893743252" action="/search/index.html"><input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索..."></form></div><div style="margin-left:0.5em;margin-top:1.2em"><input id="switch_default" onclick="mobileBtn()" type="checkbox" class="switch_default"><label for="switch_default" class="toggleBtn"></label></div></div>
+<div class="clear clear_nav_inline_end"></div></div></div><div class="clear clear_nav_end"></div></div></div><div class="hamberger" href="javascript:void(0)" onclick="btn_toggle();"><i class="iconfont icon-category"></i></div></div></div></div>
+<div id="hn" class="no-js hidden_nav animated fadeInDown"><div class="bitcron_nav_container"><div class="bitcron_nav"><nav class="mixed_site_nav_wrap site_nav_wrap"><ul class="mixed_site_nav site_nav sm sm-base">	<li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/" class="selected active current nav__item" >首页</a></li><li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/archives" class="selected active current nav__item" >归档</a></li><li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/tags" class="selected active current nav__item" >标签</a></li><li><a id="d2ef19af68cc211e98f8a0242ac110003" href="/post/about" class="selected active current nav__item" >关于</a></li></ul><div class="clear clear_nav_inline_end"></div></nav></div><div class="clear clear_nav_end"></div></div>
+<div style="display:flex;justify-content:center;inline-block;text-align:center;margin-top:7%"><div><form id="gridea-search-form" data-update="1718782617957" action="/search/index.html"><input class="search-input" autocomplete="off" spellcheck="false" name="q"  placeholder="搜索..." /></form></div><div style="margin-left:0.5em"><input id="switch_default_h" onclick="mobileBtn()" type="checkbox" class="switch_default"><label for="switch_default" class="toggleBtn"></label></div></div>
+</div></div>
+<script>function enableDarkmode(){document.body.classList.add("darkmode"),document.getElementById("switch_default").checked=1,document.getElementById("switch_default_h").checked=1}function removeDarkmode(){document.body.classList.remove("darkmode"),document.getElementById("switch_default").checked=0,document.getElementById("switch_default_h").checked=0}function getCookie(a){var b,c=new RegExp("(^| )"+a+"=([^;]*)(;|$)");return(b=document.cookie.match(c))?unescape(b[2]):null}cookie=getCookie("darkmode"),"enable"==cookie&&enableDarkmode(),window.matchMedia("(prefers-color-scheme: dark)").matches&&"disable"!==cookie&&(enableDarkmode(),document.cookie="darkmode=enable; path=/");var mobileBtn=function(){1==document.getElementById("switch_default").checked?(enableDarkmode(),document.cookie="darkmode=enable; path=/"):(removeDarkmode(),document.cookie="darkmode=disable; path=/")};</script>
+
+
+<div class="main"><div class="main-inner"><div class="content">
+<article class="post">
+<h2 class="post_title sm_margin"><a>TF2服务器搭建教程(未完工)</a></h2>
+<script>function lan(){if(document.getElementById("lan").innerText=="繁"){var s=document.getElementById("tongwenlet_cn");if(s!=null){document.body.removeChild(s)}var s=document.createElement("script");s.language="javascript";s.type="text/javascript";s.src="https://cdn.jsdelivr.net/gh/qyxtim/Static@1.1/bookmarklet_tw.js";s.id="tongwenlet_cn";document.body.appendChild(s);document.getElementById("lan").innerHTML="简"}else{if(document.getElementById("lan").innerText=="簡"){var s=document.getElementById("tongwenlet_cn");if(s!=null){document.body.removeChild(s)}var s=document.createElement("script");s.language="javascript";s.type="text/javascript";s.src="https://cdn.jsdelivr.net/gh/qyxtim/Static@1.1/bookmarklet_cn.js";s.id="tongwenlet_cn";document.body.appendChild(s);document.getElementById("lan").innerHTML="繁"}}};</script>
+<section class="post_details"><i class="iconfont icon-calendar"></i><span style="margin-right:15px"> 2024-04-11</span><i class="iconfont icon-browse"></i><span style="margin-right:15px"> <span id="busuanzi_value_page_pv"></span> Views</span><i class="iconfont icon-category"></i><span class="weaklink" style="margin-right:15px">	<a href="https://blog.tyhh10.xyz/tag/6m71Wt0g4/" class="tag">教程</a> | 	<a href="https://blog.tyhh10.xyz/tag/ti2KoV4e6/" class="tag">服务器</a> | 	<a href="https://blog.tyhh10.xyz/tag/yu0u7aqw5/" class="tag">TF2</a></span><i class="iconfont icon-caret-down"></i><span style="margin-right:15px">1175字</span><i class="iconfont icon-naozhong"></i><span style="margin-right:15px">5 min read</span><a id="lan" href="javascript:void(0);"onclick="lan();"title="调整简繁体" style="margin-right:15px;">繁</a>
+</section>
+
+<img class="featureImg" alt="featureimg" src="https://blog.tyhh10.xyz/post-images/tf2-fu-wu-qi-da-jian-jiao-cheng.webp" referrerpolicy="no-referrer">
+
+<div style="display:flex">
+<div class="md_block" id="md_block">
+
+<div class="round-shape-one"></div>
+
+<table align="center">
+    <tr>
+        <td>
+            <div align="center">!!!事先说明随便写着玩的!!!</div>
+        </td>
+    </tr>
+</table>
+<div style="text-align:center;"> <p><h1>⚠️️注意⚠️</p></div>
+TF2在国内非常冷门,而且结合当前环境来看也不适合搭设服务器,在看之前一定要考虑好,不要脑子一热就搞了
+<br/>(假如你只是想跟你的好友或朋友之间玩一玩,建议查看这篇教程:</br><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2805700840" target="_blank">https://steamcommunity.com/sharedfiles/filedetails/?id=2805700840</a>)
+<br/>而且前提是足够的耐心和电脑基本知识还有金钱
+<br/>假如你下定决心搞,那就继续往下看
+</p><font size="3"><b>目录</b></font>
+<ul>
+<li><a href="#云服务器">云服务器</a></li>
+<li><a href="#安装TF2服务器">安装TF2服务器</a></li>
+<ul>
+<li><a href="#安装TF2服务器-Windows">Windows</a></li>
+<li><a href="#安装TF2服务器-Linux">Linux</a></li>
+</ul>
+<li><a href="#装插件">装插件</a></li>
+</ul>
+<h3 id="云服务器">云服务器</h3>
+我也没什么好推荐的,看你买的是哪个,网络带宽推荐5M可以满足24人(不过可能还是有点卡)
+</br>采购完服务器之后配置安全组,你可以选择新建安全组,也可以直接在默认中加入
+</br>腾讯云
+</br><img src="/post-images/server/tencent.png">
+</br>京东云
+</br><img src="/post-images/server/jdcloud.png">
+配置完成之后,连接你的服务器进行下一步操作</p>
+<h3 id="安装TF2服务器">安装TF2服务器</h3>
+<h4 id="安装TF2服务器-Windows">Windows</h3>
+1.自己部署
+</br>首先
+</br>前置操作:
+</br>点击工具,在文件夹选项中,选择查看,在里面找到"隐藏已知文件类型的扩展名"然后取消勾选(win7及下的)
+</br>在文件夹里点击上面查看,勾选文件扩展名(win8及以上)
+</br>服务器系统默认是勾选上这个文件扩展名的应该,假如看不到扩展名，就按这个操作一下就行了
+</br>1.在C盘或者桌面,新建一个SteamCMD
+</br>2.目录然后到这个网站下载SteamCMD
+</br><a href="https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip" target="_blank">https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip</a>
+</br>3.下载完之后把压缩包里的steamcmd.exe解压到刚刚创建的目录里面
+</br>在steamcmod目录中新建文本tf2_up.txt和tf2_vd.txt
+</br>4.tf2_up.txt在里面输入
+</br><code>steamcmd.exe +login anonymous +force_install_dir C:\tf2server +app_update 232250 +quit</code>
+</br>5.tf2_vd.txt在里面输入
+</br><code>steamcmd.exe +login anonymous +force_install_dir C:\tf2server +app_update 232250 validate +quit</code>
+</br>6.保存关闭窗口
+</br>7.然后把后缀(扩展名)txt改成bat,双击运行刚刚的tf2_up.bat,SteamCMD会先下载它自身的必要组件之后就会进行服务器本体的下载,在此期间等待即可,假如游戏有更新,关闭服务器,再双击运行这个批处理文件就可以对服务器进行更新
+</br>假如服务器缺少文件的话,双击运行tf2_vd.bat就会验证服务器下载那些缺失的文件
+</br>下载的时候可能出现问题,多试几次就可以了
+</br>假如屏幕上出现了<code>Success! App '232250' fully installed</code>那么代表服务器已下载并安装成功(当然这边脚本中添加了<code>+quit</code>steamcmd执行完相关操作就会自动退出,所以也就不会显示前面这个了)
+</br>8.打开服务器安装目录进入tf\cfg在里面新建一个server.cfg然后打开
+</br>9.往里面添加
+<pre><code>// 显示在服务器浏览器和计分版的服务器名字
+hostname &quot;服务器名字&quot;
+// 留空即没有服务器密码
+sv_password &quot;&quot;
+// 使用控制台rcon权限的密码(必须要填写的)
+rcon_password &quot;把我这段文本替换成你自己的&quot;
+// 每次地图轮换的时间，按分钟计时。0为不轮换地图。
+mp_timelimit &quot;50&quot;
+// 每次地图轮换所需的回合数。0为无限制。
+mp_maxrounds &quot;10&quot;
+// 允许客户端下载定制文件 (比如喷漆，自定义地图，自定义内容等等)
+sv_allowdownload &quot;1&quot;
+</code></pre>
+<p>这边有个参考文件<a href="https://wiki.teamfortress.com/wiki/Dedicated_server_configuration#Example_Server.cfg_for_TF2_dedicated_server" target="_blank">tf2 wiki</a>这边看到的TF2专用服务器server.cfg例子,也可以使用我这边给的<a href="https://gitee.com/TYHH10/awa/raw/master/server.cfg" target="_blank">server.cfg</a><br>
+</br>10.保存关闭窗口<br>
+</br>11.返回到这个srcds.exe文件的目录里面,新建一个txt文本名字随意,在里面输入<br>
+</br><code>srcds.exe -console -game tf +ip 0.0.0.0 +maxplayers 24 -port 27015 +map ctf_2fort</code><br>
+</br>12.把刚刚新建的txt文件后缀改成bat,然后双击运行,恭喜你得到一个纯净的tf2服务器<br>
+你也可以选择使用软件来管理你的服务器<br>
+1.<a href="https://windowsgsm.com/products/windowsgsm-desktop/" target="_blank">WindowsGSM</a>现代化的一个管理软件,默认支持游戏46个,可以使用插件扩展更多,缺点内存占用有些高</p>
+<hr/>
+截图:主菜单
+<img src="/post-images/server/WindowsGSM/Home_Menu.png">
+仪表盘
+<img src="/post-images/server/WindowsGSM/Dashboard_Menu.png">
+Discord Bot
+<img src="/post-images/server/WindowsGSM/Discord_Bot_Menu.png">
+插件
+<img src="/post-images/server/WindowsGSM/Plugins_Menu.png">
+设置
+<img src="/post-images/server/WindowsGSM/Settinge_Menu.png">
+安装游戏服务器
+<img src="/post-images/server/WindowsGSM/Install_Game_Server_Menu.png">
+</br>2.<a href="https://gitee.com/TYHH10/awa/raw/master/windows_server_srcds_smanageBeta3.6.7z" target="_blank">windows_server_srcds_smanageBeta3.6</a>老旧的管理软件,支持的游戏很有限,但是内存占用很低
+<hr/>
+截图:主菜单
+<img src="/post-images/server/Windows_Server_Srcds_SmanageBeta3.6/Home_Menu.png">
+<hr/>
+设置中文
+</br>1.点击设置→语言<img src="/post-images/server/Windows_Server_Srcds_SmanageBeta3.6/chi_1.png">
+2.在使用语言文件对话框里选择chi.ini<img src="/post-images/server/Windows_Server_Srcds_SmanageBeta3.6/chi_2.png">
+3.点击保存<img src="/post-images/server/Windows_Server_Srcds_SmanageBeta3.6/chi_3.png">
+</br>保存之后软件会自动重启，重启之后就是中文了
+</br>当然，这个中文还是不完整的，但也够了
+
+<span id="footnote"></span>
+<div id = "warn"></div>
+</div>
+<div class="toc-container"></div>
+</div>
+<div id="fullPage"><canvas id="canvas"></canvas></div>
+</article>
+<div id="eof"><span>EOF</span></div>
+
+<div class="round-shape-one"></div>
+
+<section>
+<div class="doc_comments">
+
+
+</div></section>
+</div></div></div><script>
+"use strict";!function(){for(var n=document.getElementsByTagName("pre"),e=n.length,s=0;s<e;s++){n[s].innerHTML='<span class="line-number"></span>'+n[s].innerHTML+'<span class="cl"></span>';for(var a=n[s].innerHTML.split(/\n/).length,r=0;r<a-1;r++){n[s].getElementsByTagName("span")[0].innerHTML+="<span>"+(r+1)+"</span>"}}}();
+let mainNavLinks=document.querySelectorAll(".markdownIt-TOC a");window.addEventListener("scroll",event=>{let fromTop=window.scrollY;mainNavLinks.forEach((link,index)=>{let section=document.getElementById(decodeURI(link.hash).substring(1));let nextSection=null
+if(mainNavLinks[index+1]){nextSection=document.getElementById(decodeURI(mainNavLinks[index+1].hash).substring(1));}
+if(section.offsetTop<=fromTop){if(nextSection){if(nextSection.offsetTop>fromTop){link.classList.add("currentToc");}else{link.classList.remove("currentToc");}}else{link.classList.add("currentToc");}}else{link.classList.remove("currentToc");}});});
+var h=document.documentElement,b=document.body,st="scrollTop",sh="scrollHeight",progress=document.querySelector(".progress"),scroll;document.addEventListener("scroll",function(){scroll=(h[st]||b[st])/((h[sh]||b[sh])-h.clientHeight)*100;progress.style.setProperty("--scroll",scroll+"%")});
+var wxScale=new WxScale({fullPage:document.querySelector("#fullPage"),canvas:document.querySelector("#canvas")});var imgBox=document.querySelectorAll("#md_block img");for(var i=0;i<imgBox.length;i++){imgBox[i].onclick=function(e){wxScale.start(this)}};
+</script>
+
+
+<a id="scrollUp" href="#" style="position: fixed; z-index: 2147483647; display: block;"></a><div class="footer animated fadeInDown"><div class="site_footer"><div class="mysocials"><div class="my_socials"></div></div><div class="copyright"id="copyright">Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+<br/><a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备2023025002号-1</a><br/>
+<img src="https://yanxuan.nosdn.127.net/b610ced5ac6a0e25cf6edf5606c69775.png" style="float:left;"><a href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33102402000472" target="_blank">浙公网安备 33102402000472号</a><br/>Copyright © <a href="https://blog.tyhh10.xyz" style="margin:0;">摸鱼馆</a>.</div>
+<span style="display: inline;margin-right:15px;">👁<strong><span id="busuanzi_value_site_pv"></span></strong></span>
+<span style="display: inline;margin-right:15px;">👤<strong><span id="busuanzi_value_site_uv"></span></strong></span>
+<span>📚<strong>6</strong> posts</span>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/instant.page@3.0.0/instantpage.min.js" type="module" defer></script>
+
+
+
+
+<script type="text/javascript" async src="https://blog.tyhh10.xyz/media/js/prism.js"></script>
+</body>
+</html>

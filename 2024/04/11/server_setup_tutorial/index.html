@@ -38,7 +38,7 @@
 <meta property="og:image" content="https://blog.tyhh10.xyz/images/server/Windows_Server_Srcds_SmanageBeta3.6/chi_2.png">
 <meta property="og:image" content="https://blog.tyhh10.xyz/images/server/Windows_Server_Srcds_SmanageBeta3.6/chi_3.png">
 <meta property="article:published_time" content="2024-04-11T04:49:43.000Z">
-<meta property="article:modified_time" content="2024-09-17T05:57:19.371Z">
+<meta property="article:modified_time" content="2024-09-17T06:26:14.699Z">
 <meta property="article:author" content="TYHH10">
 <meta property="article:tag" content="TF2">
 <meta property="article:tag" content="服务器">
@@ -285,8 +285,8 @@
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2024-09-17 13:57:19</span>
-            <span class="mobile">2024-09-17 13:57:19</span>
+            <span class="desktop">2024-09-17 14:26:14</span>
+            <span class="mobile">2024-09-17 14:26:14</span>
             <span class="hover-info">更新</span>
         </span>
     
@@ -354,6 +354,7 @@ Enabling connections to your server [without portforwarding, external programs o
 <li><a href="#Linux">Linux</a><ul>
 <li><a href="#Ubuntu">Ubuntu</a></li>
 <li><a href="#ArchLinux">Arch Linux</a></li>
+<li><a href="#使用脚本部署服务器">使用脚本部署服务器</a></li>
 </ul>
 </li>
 </ul>
@@ -381,7 +382,7 @@ Enabling connections to your server [without portforwarding, external programs o
 <div class="highlight-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">steamcmd.exe +login anonymous +force_install_dir C:\tf2server +app_update 232250 +quit</span><br></pre></td></tr></table></figure></div>
 <p>5.tf2_vd.txt在里面输入</p>
 <div class="highlight-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">steamcmd.exe +login anonymous +force_install_dir C:\tf2server +app_update 232250 validate +quit</span><br></pre></td></tr></table></figure></div>
-<p>6.保存关闭窗口<br>7.然后把后缀(扩展名)txt改成bat,双击运行刚刚的tf2_up.bat,SteamCMD会先下载它自身的必要组件之后就会进行服务器本体的下载,在此期间等待即可,假如游戏有更新,关闭服务器,再双击运行这个批处理文件就可以对服务器进行更新<br>假如服务器缺少文件的话,双击运行tf2_vd.bat就会验证服务器下载那些缺失的文件<br>下载的时候可能出现问题,多试几次就可以了<br>假如屏幕上出现了<code>Success! App &#39;232250&#39; fully installed</code>那么代表服务器已下载并安装成功(当然这边脚本中添加了<code>+quit</code>SteamCMD执行完相关操作就会自动退出,所以也就不会显示前面这个了)<br>8.返回到这个srcds.exe文件的目录里面,右键建一个快捷方式名字随意,在结尾空格一下,然后输入</p>
+<p>6.保存关闭窗口<br>7.然后把后缀(扩展名)txt改成bat,双击运行刚刚的tf2_up.bat,SteamCMD会先下载它自身的必要组件之后就会进行服务器本体的下载,在此期间等待即可,假如游戏有更新,关闭服务器,再双击运行这个批处理文件就可以对服务器进行更新<br>假如服务器缺少文件的话,双击运行tf2_vd.bat就会验证服务器下载那些缺失的文件<br>下载的时候可能出现问题,多试几次就可以了<br>假如屏幕上出现了<code>Success! App &#39;232250&#39; fully installed</code>那么代表服务器已下载并安装成功(当然这边脚本中添加了<code>+quit</code>SteamCMD执行完相关操作就会自动退出,所以也就不会显示前面这个了)<br>8.返回到这个srcds.exe文件的目录里面,右键建一个快捷方式名字随意<br>鼠标右键快捷方式点击属性,在目标这一栏结尾空格一下,然后输入</p>
 <div class="highlight-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-console -game tf +ip 0.0.0.0 +maxplayers 24 -port 27015 +map cp_5gorge</span><br></pre></td></tr></table></figure></div>
 <p>其他启动项参考Valve 开发者社区<a class="link"   target="_blank" rel="noopener" href="https://developer.valvesoftware.com/wiki/Command_line_options#Source_Dedicated_Server" >Source Dedicated Server <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a><br>9.应用,然后关掉窗口双击运行刚刚的快捷方式</p>
 <p>你也可以选择使用软件来管理你的服务器<br>1.<a class="link"   target="_blank" rel="noopener" href="https://windowsgsm.com/products/windowsgsm-desktop/" >WindowsGSM <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>现代化的一个管理软件,默认支持游戏46个,可以使用插件扩展更多,缺点内存占用有些高</p>
@@ -481,6 +482,7 @@ Enabling connections to your server [without portforwarding, external programs o
 <p>进行服务器本体下载,刚开始会下载steamcmd相关的文件<br>如果遇到什么steamcmd的相关报错请访问这两个网页<br><a class="link"   target="_blank" rel="noopener" href="https://developer.valvesoftware.com/wiki/Zh/SteamCMD#.E5.B7.B2.E7.9F.A5.E7.9A.84.E9.97.AE.E9.A2.98" >Valve开发者社区 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a><br><a class="link"   target="_blank" rel="noopener" href="https://wiki.teamfortress.com/wiki/Linux_dedicated_server#Troubleshooting" >Team Fortress 2 Wiki <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a><br>当你看到<code>Success! App &#39;232250&#39; fully installed.</code><br>那么代表下载并安装成功了<br>切换到服务器目录,输入<code>cd /home/tf2server</code><br>来进行一次服务器的启动测试,输入:</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./srcds_run -game tf -console +map cp_5gorge +ip 0.0.0.0 -port 27015 +maxplayers 24</span><br></pre></td></tr></table></figure></div>
 <p>如果服务器可以正常启动和加入服务器,就可以进行之后的操作了</p>
+<h4 id="使用脚本部署服务器"><a href="#使用脚本部署服务器" class="headerlink" title="使用脚本部署服务器"></a>使用脚本部署服务器</h4><p>你可以使用<a class="link"   target="_blank" rel="noopener" href="https://linuxgsm.com/" >LGSM <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>脚本来进行的安装<br>访问这个<a class="link"   target="_blank" rel="noopener" href="https://linuxgsm.com/servers/tf2server" >Team Fortress 2 |LinuxGSM_ <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>网页选择<code>Install</code>选项<br>根据网页的说明进行操作,先建议把账户切换到root<br>这样的脚本可以自动化安装相关的依赖<br>然后输入安装指令,根据提示进行输入<br>如果安装没有任何问题就可以返回那个网页,选择<code>Basic Usage</code>选项<br>查看相关指令<br>不过有个注意的地方,假如你上传文件的时候不是他这个账户,你就需要把你刚刚上传的文件权限赐予给那个账户,否则你的启动服务器时会报错</p>
 <h3 id="server-cfg"><a href="#server-cfg" class="headerlink" title="server.cfg"></a>server.cfg</h3><p>这个文件将会在服务器启动和更换地图的时候自动执行里面的内容<br>示例</p>
 <div class="highlight-container" data-rel="Text"><figure class="iseeu highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 显示在服务器浏览器和计分版的服务器名字</span><br><span class="line">hostname &quot;服务器名字&quot;</span><br><span class="line">// 留空即没有服务器密码</span><br><span class="line">sv_password &quot;&quot;</span><br><span class="line">// 使用控制台rcon权限的密码(必须要填写的)</span><br><span class="line">rcon_password &quot;把我这段文本替换成你自己的&quot;</span><br><span class="line">// 每次地图轮换的时间，按分钟计时。0为不轮换地图。</span><br><span class="line">mp_timelimit &quot;50&quot;</span><br><span class="line">// 每次地图轮换所需的回合数。0为无限制。</span><br><span class="line">mp_maxrounds &quot;10&quot;</span><br><span class="line">// 允许客户端下载定制文件 (比如喷漆，自定义地图，自定义内容等等)</span><br><span class="line">sv_allowdownload &quot;1&quot;</span><br></pre></td></tr></table></figure></div>
 <p>TF2 Wiki有完整的示例<a class="link"   target="_blank" rel="noopener" href="https://wiki.teamfortress.com/wiki/Dedicated_server_configuration#Example_Server.cfg_for_TF2_dedicated_server" >Example Server.cfg for TF2 dedicated server <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>,也可以使用我这边给的<a href="/file/server.cfg" target="_blank" download>server.cfg[点击后下载]</a><br>PS:这边提供的文件编码为UTF-8</p>
@@ -546,7 +548,7 @@ Enabling connections to your server [without portforwarding, external programs o
         
             <li>
                 <strong>更新于
-                    :</strong> 2024-09-17 13:57:19
+                    :</strong> 2024-09-17 14:26:14
             </li>
         
         <li>
@@ -678,7 +680,7 @@ Enabling connections to your server [without portforwarding, external programs o
     <div class="post-toc">
         <div class="toc-title">目录</div>
         <div class="page-title">TF2服务器搭建教程(未完工)</div>
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-text">⚠️️注意⚠️</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">云服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85TF2%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">安装TF2服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows"><span class="nav-text">Windows</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux"><span class="nav-text">Linux</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Ubuntu"><span class="nav-text">Ubuntu</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ArchLinux"><span class="nav-text">ArchLinux</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#server-cfg"><span class="nav-text">server.cfg</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A3%85%E6%8F%92%E4%BB%B6"><span class="nav-text">装插件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%92%E4%BB%B6%E7%BC%96%E8%AF%91"><span class="nav-text">插件编译</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%B5%84%E6%96%99%E5%92%8C%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-text">引用资料和参考资料</span></a></li></ol></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-text">⚠️️注意⚠️</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">云服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85TF2%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">安装TF2服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows"><span class="nav-text">Windows</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux"><span class="nav-text">Linux</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Ubuntu"><span class="nav-text">Ubuntu</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ArchLinux"><span class="nav-text">ArchLinux</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%84%9A%E6%9C%AC%E9%83%A8%E7%BD%B2%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">使用脚本部署服务器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#server-cfg"><span class="nav-text">server.cfg</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A3%85%E6%8F%92%E4%BB%B6"><span class="nav-text">装插件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%92%E4%BB%B6%E7%BC%96%E8%AF%91"><span class="nav-text">插件编译</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E8%B5%84%E6%96%99%E5%92%8C%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-text">引用资料和参考资料</span></a></li></ol></li></ol>
 
     </div>
 </div>

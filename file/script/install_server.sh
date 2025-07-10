@@ -526,7 +526,6 @@ install_sourcemod() {
     # 插件安装的目标目录
     local addons_dir="$SERVER_DIR/$game_short_name/"
     
-    # 确保addons目录存在
     chown "$STEAM_USER:$STEAM_USER" "$addons_dir"
 
     local error_file=$(mktemp)
@@ -568,24 +567,155 @@ install_sourcemod() {
     whiptail --title "安装完成" --msgbox "SourceMod和Metamod:Source已安装到: $addons_dir" 9 70
 }
 
+manage_start_scripts() {
+    if [ -z "$SERVER_DIR" ]; then
+        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
+        return
+    fi
+    
+    # 获取游戏短名称
+    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+    if [ -z "$game_short_name" ]; then
+        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
+        return 1
+    fi
+    
+    # 游戏目录
+    local game_dir="$SERVER_DIR/$game_short_name"
+    # 默认脚本路径
+    local script_path="$game_dir/start.sh"
+    
+    # 检查现有启动脚本
+    local has_script="0"
+    if [ -f "$script_path" ]; then
+        has_script="1"
+    fi
+    
+    # 菜单选项
+    local choices=(
+        "1" "创建启动脚本"
+        "2" "创建systemctl启动脚本"
+        "3" "返回"
+    )
+    
+    while true; do
+        local choice=$(whiptail --title "管理启动脚本 ($game_dir)" --menu "选择操作" 16 60 6 \
+            "${choices[@]}" 3>&1 1>&2 2>&3)
+        
+        case $choice in
+            1)
+                create_start_script ;;
+            2)
+                create_systemd_service ;;
+            *) 
+                return 
+                ;;
+        esac
+    done
+}
+
+manage_systemd_service() {
+    # 获取游戏短名称
+    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+    if [ -z "$game_short_name" ]; then
+        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
+        return 1
+    fi
+    
+    # 服务名称
+    local service_name="${game_short_name}server.service"
+    local service_path="/etc/systemd/system/$service_name"
+    
+    # 检查服务是否存在
+    if [ ! -f "$service_path" ]; then
+        whiptail --title "错误" --msgbox "未找到 $service_name 服务！请先创建 systemd 服务。" 10 70
+        return 1
+    fi
+    
+    # 服务管理菜单
+    while true; do
+        local choice=$(whiptail --title "管理服务: $service_name" --menu "选择操作" 15 60 6 \
+            "1" "启动服务" \
+            "2" "停止服务" \
+            "3" "重启服务" \
+            "4" "查看服务状态" \
+            "5" "启用开机自启" \
+            "6" "禁用开机自启" \
+            "7" "返回" 3>&1 1>&2 2>&3)
+        
+        case $choice in
+            1)
+                systemctl start "$service_name"
+                whiptail --title "已启动" --msgbox "服务 $service_name 已启动" 8 60
+                ;;
+            2)
+                systemctl stop "$service_name"
+                whiptail --title "已停止" --msgbox "服务 $service_name 已停止" 8 60
+                ;;
+            3)
+                systemctl restart "$service_name"
+                whiptail --title "已重启" --msgbox "服务 $service_name 已重启" 8 60
+                ;;
+            4)
+                clear
+                echo -e "${YELLOW}=== $service_name 状态 ===${NC}"
+                systemctl status "$service_name"
+                echo -e "\n${YELLOW}按 Enter 返回...${NC}"
+                read
+                ;;
+            5)
+                systemctl enable "$service_name"
+                whiptail --title "已启用" --msgbox "服务 $service_name 已设置为开机自启" 9 70
+                ;;
+            6)
+                systemctl disable "$service_name"
+                whiptail --title "已禁用" --msgbox "服务 $service_name 已禁用开机自启" 9 70
+                ;;
+            *) 
+                return 
+                ;;
+        esac
+    done
+}
+
 # 创建启动脚本
 create_start_script() {
-    local script_path="$SERVER_DIR/start_${GAME_NAME// /_}.sh"
+    local script_path="$SERVER_DIR/start.sh"
     local default_port=$(( RANDOM % 1000 + 27015 ))
+
+    # 获取游戏短名称
+    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+    if [ -z "$game_short_name" ]; then
+        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
+        return 1
+    fi
+
+    local game_dir="$SERVER_DIR/$game_short_name"
+    local steamcmd_dir=$(dirname "$STEAMCMD_PATH")
+    local game_update="$steamcmd_dir/$game_short_name-update.txt"
+    local cfg_dir="$game_dir/cfg"
     
-    # 获取配置文件名（基于游戏名）
-    local config_name="server_${GAME_NAME// /_}.cfg"
+    # 获取配置文件名
+    local config_name="server.cfg"
     
     local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+    local app_id="${GAME_APPS[$GAME_NAME]}"
     
     # 游戏特定的默认地图
     local default_map=""
     case "$GAME_NAME" in
-        "Team Fortress 2") default_map="ctf_2fort" ;;
-        "Left 4 Dead 2") default_map="c1m1_hotel" ;;
+        "Team Fortress 2") default_map="cp_5gorge" ;;
+        "Left 4 Dead 2") default_map="c2m1_highway" ;;
         "No More Room in Hell") default_map="nmo_broadway" ;;
         *) default_map="dm_mario_kart" ;;
     esac
+
+    cat > "$game_update" << EOF
+login anonymous \\
+force_install_dir "$SERVER_DIR" \\
+app_update $app_id \\
+quit
+EOF
     
     cat > "$script_path" << EOF
 #!/bin/bash
@@ -593,21 +723,34 @@ create_start_script() {
 ./srcds_run \\
     -game $game_short_name \\
     -console \\
+    +ip 0.0.0.0 \\
     -port $default_port \\
     +maxplayers 16 \\
     +map $default_map \\
-    +exec ${config_name} \\
+    -autoupdate \\
+    -steam_dir $steamcmd_dir \\
+    -steamcmd_script $game_update
 EOF
     
     # 创建基础配置文件
-    if [ ! -f "$SERVER_DIR/${config_name}" ]; then
-        cat > "$SERVER_DIR/${config_name}" << EOF
+    local config_path="$cfg_dir/server.cfg"
+    if [ ! -f "$config_path" ]; then
+        cat > "$config_path" << EOF
 // ${GAME_NAME} 服务器配置
+// 显示在服务器浏览器和计分版的服务器名字,PS:L4D2服务器服务器配置文件中这个hostname是无效的要使用插件进行更改
 hostname "${GAME_NAME} 服务器"
+// 是否需要给服务器上密码,留空即无密码
+sv_password ""
+// 使用控制台rcon的密码,玩家(或者网站/软件)可以通过这个直接向服务器发送相关指令(必须要填写的)
 rcon_password "$(openssl rand -hex 10)"
-sv_lan 0
+// 控制台作弊(0/1)
+// https://developer.valvesoftware.com/wiki/Sv_cheats
+sv_cheats "0"
+// 允许玩家使用自定义的内容-1/0/1/2)
+// https://developer.valvesoftware.com/wiki/Pure_Servers
+sv_pure "0"
 EOF
-        chown "$STEAM_USER:$STEAM_USER" "$SERVER_DIR/${config_name}"
+        chown "$STEAM_USER:$STEAM_USER" "$config_path"
     fi
     
     chmod +x "$script_path"
@@ -616,8 +759,65 @@ EOF
     whiptail --title "启动脚本创建" --msgbox "启动脚本已创建: $script_path\n\n游戏短名称: $game_short_name\n默认地图: $default_map\n默认端口: $default_port\n使用账户: $STEAM_USER\n配置文件: $config_name" 14 70
 }
 
+create_systemd_service() {
+    # 获取游戏短名称
+    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+    if [ -z "$game_short_name" ]; then
+        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
+        return 1
+    fi
+
+    local service_path="/etc/systemd/system/${GAME_SHORT_NAMES[$GAME_NAME]}server.service"
+
+    cat > "$service_path" << EOF
+[Unit]
+Description=${GAME_NAME} Server
+After=network.target
+
+[Service]
+User=$STEAM_USER
+Group=$STEAM_USER
+WorkingDirectory=$SERVER_DIR
+ExecStart=screen -S ${GAME_SHORT_NAMES[$GAME_NAME]}server -D -m $SERVER_DIR/start.sh
+ExecStop=screen -S ${GAME_SHORT_NAMES[$GAME_NAME]}server -D -m ^C && screen -S ${GAME_SHORT_NAMES[$GAME_NAME]}server -X quit
+RestartSec=15
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    systemctl daemon-reload
+    whiptail --title "Systemd 服务创建" --msgbox "Systemd 服务已创建: $service_path\n打开控制台关键词: ${game_short_name}" 8 60
+    
+    # 使用默认游戏短名称作为默认别名
+    local default_alias="$game_short_name"
+    
+    # 询问是否使用自定义别名
+    local alias_input=$(whiptail --title "自定义别名" --inputbox "请输入自定义别名（留空则使用默认别名: $default_alias）:" 10 60 "$default_alias" 3>&1 1>&2 2>&3)
+    
+    # 处理输入：如果留空则使用默认值
+    local final_alias="$default_alias"
+    if [ -n "$alias_input" ]; then
+        final_alias="$alias_input"
+    fi
+    
+    # 构建别名行
+    local alias_line="alias $final_alias='sudo su -c \"screen -d -r ${game_short_name}server\" $STEAM_USER'"
+
+    # 检查/etc/profile中是否已存在该别名
+    if ! grep -qF "$alias_line" /etc/profile; then
+        echo "$alias_line" >> /etc/profile
+        source /etc/profile
+        whiptail --title "别名添加" --msgbox "已添加别名: $final_alias" 10 70
+    else
+        whiptail --title "别名已存在" --msgbox "别名已存在，无需重复添加" 8 60
+    fi
+}
+
 # 显示服务器信息
 show_server_info() {
+    load_config
     local info="游戏服务器账户: $STEAM_USER\n"
     info+="账户主目录: $STEAM_HOME\n"
     info+="SteamCMD路径: ${STEAMCMD_PATH:-"未设置"}\n"
@@ -630,7 +830,7 @@ show_server_info() {
     fi
     info+="提示:\n"
     info+="1. 启动脚本在服务器目录中\n"
-    info+="2. 启动命令: ./start_*.sh\n"
+    info+="2. 启动命令: ./start.sh\n"
     info+="3. 默认端口可在启动脚本中修改\n"
     
     whiptail --title "脚本配置信息" --msgbox "$info" 16 70
@@ -639,7 +839,7 @@ show_server_info() {
 # 显示配置文件内容
 show_config() {
     if [ -f "$CONFIG_FILE" ]; then
-        whiptail --title "配置文件内容" --textbox "$CONFIG_FILE" 20 70
+        whiptail --title "脚本配置文件内容" --textbox "$CONFIG_FILE" 20 70
     else
         whiptail --title "配置文件" --msgbox "配置文件不存在: $CONFIG_FILE" 10 60
     fi
@@ -733,9 +933,9 @@ manage_game_server() {
             > "$log_file"
             
             whiptail --infobox "正在更新 $GAME_NAME，请耐心等待...\n\n详细信息请查看日志: $log_file" 9 70
-            
+
             su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" +quit" 2>&1 | tee "$log_file"
-            
+
             if grep -qi "Success!" "$log_file"; then
                 mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
                 whiptail --title "完成" --msgbox "更新完成 $GAME_NAME 服务器路径: $SERVER_DIR" 9 70
@@ -757,9 +957,9 @@ manage_game_server() {
             > "$log_file"
             
             whiptail --infobox "正在验证 $GAME_NAME，请耐心等待...\n\n详细信息请查看日志: $log_file" 9 70
-            
+
             su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" validate +quit" 2>&1 | tee "$log_file"
-            
+
             if grep -qi "Success!" "$log_file"; then
                 mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
                 whiptail --title "完成" --msgbox "验证完成 $GAME_NAME 服务器路径: $SERVER_DIR" 9 70
@@ -800,13 +1000,13 @@ manage_plugins() {
         whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
         return
     fi
-    
+
     local choice=$(whiptail --title "管理插件" --menu "选择操作" 15 60 5 \
         "1" "安装 SourceMod+Metamod:Source[v12]" \
         "2" "更新 SourceMod+Metamod:Source[v12]" \
         "3" "卸载 SourceMod+Metamod:Source[v12]" \
         "4" "返回主菜单" 3>&1 1>&2 2>&3)
-    
+
     case $choice in
         1) 
             # 检查是否已安装
@@ -876,7 +1076,6 @@ manage_plugins() {
 
                 # 解压 Metamod:Source
                 tar -xzf "$SERVER_DIR/$MM_FILENAME" -C "$temp_dir"
-                #mkdir -p "$addons_dir/metamod"
                 cp -rf "$temp_dir/addons/metamod/"* "$addons_dir/metamod/"
 
                 # 解压 SourceMod
@@ -884,7 +1083,6 @@ manage_plugins() {
                 local sm_dirs=("bin" "extensions" "gamedata" "plugins" "scripting")
                 for dir in "${sm_dirs[@]}"; do
                     if [ -d "$temp_dir/addons/sourcemod/$dir" ]; then
-                        #mkdir -p "$addons_dir/sourcemod/$dir"
                         cp -rf "$temp_dir/addons/sourcemod/$dir/"* "$addons_dir/sourcemod/$dir/"
                     fi
                 done
@@ -934,18 +1132,19 @@ manage_plugins() {
     esac
 }
 
+# 显示关于信息
 show_about() {
     local about_info=""
-    about_info+="服务器管理脚本 v1.0.5\n"
+    about_info+="服务器管理脚本 v1.0.6\n"
     about_info+="作者: TYHH10\n"
     about_info+="创建日期: 2025-07-07\n\n"
     about_info+="这个脚本,就纯粹就为了偷懒然后用AI跑的一个脚本\n"
     about_info+="(结果花了一个下午，再加一个上午:( )\n"
+    about_info+="注意:主要面向是单服务器,多服务器可能效果不佳\n"
     about_info+="功能说明:\n"
-    about_info+="- 支持在Linux系统上安装和配置Source引擎游戏服务器\n"
+    about_info+="- 在Linux系统上安装和配置Source引擎游戏服务器\n"
     about_info+="- 支持游戏: Team Fortress 2, Left 4 Dead 2, No More Room in Hell\n"
     about_info+="- 自动安装游戏依赖项和SM+MM:S(SM 12版本)\n"
-    about_info+="- 支持多账户管理\n"
     about_info+="- 提供服务器启动脚本创建功能\n\n"
     
     whiptail --title "关于" --msgbox "$about_info" 18 70
@@ -974,11 +1173,12 @@ main_menu() {
             "3" "管理SteamCMD" \
             "4" "管理游戏服务器" \
             "5" "管理SM+MM:S[v12]" \
-            "6" "创建启动脚本" \
-            "7" "查看脚本配置信息" \
-            "8" "查看配置文件" \
-            "9" "关于本脚本" \
-            "10" "完成并退出" 3>&1 1>&2 2>&3)
+            "6" "管理启动脚本" \
+            "7" "管理游戏服务器systemctl服务" \
+            "8" "查看脚本配置信息" \
+            "9" "查看脚本配置文件" \
+            "10" "关于本脚本" \
+            "11" "完成并退出" 3>&1 1>&2 2>&3)
 
         case $choice in
             1) detect_os; install_dependencies ;;
@@ -1011,20 +1211,26 @@ main_menu() {
                     whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
                     continue
                 fi
-                create_start_script 
+                manage_start_scripts 
                 ;;
-            7) show_server_info ;;
-            8) show_config ;;
-            9) show_about ;;
-            10) 
+            7) if [ -z "$GAME_NAME" ]; then
+                    whiptail --title "错误" --msgbox "请先选择游戏！" 8 60
+                    continue
+                fi
+                manage_systemd_service
+                ;;
+            8) show_server_info ;;
+            9) show_config ;;
+            10) show_about ;;
+            11) 
                 if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
                     if whiptail --title "确认退出" --yesno "您尚未完成全部设置，确定要退出吗？" --defaultno --yes-button "退出" --no-button "返回" 10 60; then
                         save_config
                         exit 0
                     fi
                 else
-                    local script_name="start_${GAME_NAME// /_}.sh"
-                    whiptail --title "安装完成" --msgbox "配置完成！\n\n启动命令:\ncd \"$SERVER_DIR\"\nsudo -u $STEAM_USER ./$script_name" 12 70
+                    local script_name="start.sh"
+                    whiptail --title "完成" --msgbox "安装和配置完成！\n\n启动命令:\nsu $STEAM_USER\ncd \"$SERVER_DIR\"\n./$script_name" 12 70
                     save_config
                     exit 0
                 fi

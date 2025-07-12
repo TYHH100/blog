@@ -778,8 +778,8 @@ After=network.target
 User=$STEAM_USER
 Group=$STEAM_USER
 WorkingDirectory=$SERVER_DIR
-ExecStart=screen -S ${GAME_SHORT_NAMES[$GAME_NAME]}server -D -m $SERVER_DIR/start.sh
-ExecStop=screen -S ${GAME_SHORT_NAMES[$GAME_NAME]}server -D -m ^C && screen -S ${GAME_SHORT_NAMES[$GAME_NAME]}server -X quit
+ExecStart=screen -SDm ${GAME_SHORT_NAMES[$GAME_NAME]}server $SERVER_DIR/start.sh
+ExecStop=screen -S ${GAME_SHORT_NAMES[$GAME_NAME]}server -X quit
 RestartSec=15
 Restart=on-failure
 

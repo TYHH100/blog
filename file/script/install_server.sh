@@ -1234,7 +1234,7 @@ main_menu() {
                     fi
                 else
                     local script_name="start.sh"
-                    whiptail --title "完成" --msgbox "安装和配置完成！\n\n启动命令:\nsu $STEAM_USER\ncd \"$SERVER_DIR\"\n./$script_name" 12 70
+                    whiptail --title "完成" --msgbox "安装和配置完成！\n\n启动命令:\nsu $STEAM_USER && cd \"$SERVER_DIR\" && ./$script_name\n如果是使用systemd,进入后台后使用快捷键Ctrl + a + d来退出\n(不要直接Ctrl + c这样会结束服务器进程)" 12 70
                     save_config
                     exit 0
                 fi

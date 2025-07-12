@@ -594,7 +594,7 @@ manage_start_scripts() {
     # 菜单选项
     local choices=(
         "1" "创建启动脚本"
-        "2" "创建systemctl启动脚本"
+        "2" "创建游戏服务器systemctl"
         "3" "返回"
     )
     
@@ -606,7 +606,12 @@ manage_start_scripts() {
             1)
                 create_start_script ;;
             2)
-                create_systemd_service ;;
+                if [ ! -f "$SERVER_DIR/start.sh" ]; then
+                    whiptail --title "错误" --msgbox "未找到启动脚本！请先创建启动脚本" 8 60
+                else
+                    create_systemd_service
+                fi
+                ;;
             *) 
                 return 
                 ;;
@@ -787,9 +792,8 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-    systemctl daemon-reload
     whiptail --title "Systemd 服务创建" --msgbox "Systemd 服务已创建: $service_path\n打开控制台关键词: ${game_short_name}" 8 60
-    
+    systemctl daemon-reload
     # 使用默认游戏短名称作为默认别名
     local default_alias="$game_short_name"
     

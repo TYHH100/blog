@@ -31,12 +31,16 @@ declare -A GAME_APPS=(
     ["Team Fortress 2"]="232250"
     ["Left 4 Dead 2"]="222860"
     ["No More Room in Hell"]="317670"
+    ["Garry's Mod"]="4020"
+    ["Counter-Strike: Source"]="232330"
 )
 # 游戏短名称映射
 declare -A GAME_SHORT_NAMES=(
     ["Team Fortress 2"]="tf"
     ["Left 4 Dead 2"]="left4dead2"
     ["No More Room in Hell"]="nmrih"
+    ["Garry's Mod"]="garrysmod"
+    ["Counter-Strike: Source"]="cstrike"
 )
 SERVER_DIR=""
 GAME_NAME=""
@@ -472,15 +476,17 @@ download_game() {
     fi
     
     # 让用户选择游戏
-    local default_game="$GAME_NAME"
-    [ -z "$default_game" ] && default_game="Team Fortress 2"
+    #local default_game="$GAME_NAME"
+    #[ -z "$default_game" ] && default_game="Team Fortress 2"
     
-    GAME_NAME=$(whiptail --title "选择游戏" --default-item "$default_game" --menu "选择要安装的游戏" 15 45 5 \
-        "Team Fortress 2" "" \
-        "Left 4 Dead 2" "" \
-        "No More Room in Hell" "" 3>&1 1>&2 2>&3)
-    
-    [ -z "$GAME_NAME" ] && return 1
+    #GAME_NAME=$(whiptail --title "选择游戏" --default-item "$default_game" --menu "选择要安装的游戏" 15 45 5 \
+    #    "Team Fortress 2" "" \
+    #    "Left 4 Dead 2" "" \
+    #    "No More Room in Hell" "" \
+    #    "Garry's Mod" "" \
+    #    "Counter-Strike: Source" "" 3>&1 1>&2 2>&3)
+    #
+    #[ -z "$GAME_NAME" ] && return 1
     
     # 保存配置
     save_config
@@ -639,7 +645,7 @@ manage_systemd_service() {
     
     # 服务管理菜单
     while true; do
-        local choice=$(whiptail --title "管理服务: $service_name" --menu "选择操作" 15 60 6 \
+        local choice=$(whiptail --title "管理服务: $service_name" --menu "选择操作" 15 60 8 \
             "1" "启动服务" \
             "2" "停止服务" \
             "3" "重启服务" \
@@ -712,8 +718,20 @@ create_start_script() {
         "Team Fortress 2") default_map="cp_5gorge" ;;
         "Left 4 Dead 2") default_map="c2m1_highway" ;;
         "No More Room in Hell") default_map="nmo_broadway" ;;
+        "Garry's Mod") default_map="gm_construct" ;;
         *) default_map="dm_mario_kart" ;;
     esac
+
+    local gmod_workshop_collection=""
+    local gmod_gamemode=""
+    if [ "$GAME_NAME" = "Garry's Mod" ]; then
+        local workshop_collection="0"
+        if [ -f "$SERVER_DIR/workshop_collection.txt" ]; then
+            workshop_collection=$(cat "$SERVER_DIR/workshop_collection.txt")
+        fi
+        gmod_workshop_collection="+host_workshop_collection ${workshop_collection} "
+        gmod_gamemode="+gamemode sandbox "
+    fi
 
     cat > "$game_update" << EOF
 login anonymous \\
@@ -728,6 +746,8 @@ EOF
 ./srcds_run \\
     -game $game_short_name \\
     -console \\
+    $gmod_workshop_collection \\
+    $gmod_gamemode \\
     +ip 0.0.0.0 \\
     -port $default_port \\
     +maxplayers 16 \\
@@ -894,36 +914,17 @@ manage_steamcmd() {
 
 # 管理游戏服务器
 manage_game_server() {
-    local choice=$(whiptail --title "管理游戏服务器" --menu "选择操作" 15 60 5 \
+    local choice=$(whiptail --title "管理游戏服务器" --menu "选择操作" 15 60 8 \
         "1" "安装新游戏服务器" \
         "2" "更新现有游戏服务器" \
         "3" "验证现有游戏服务器" \
         "4" "更改安装位置" \
         "5" "切换游戏" \
-        "6" "返回主菜单" 3>&1 1>&2 2>&3)
+        "6" "删除游戏服务器" \
+        "7" "返回主菜单" 3>&1 1>&2 2>&3)
 
     case $choice in
-        1) 
-            # 让用户选择游戏
-            #local default_game="$GAME_NAME"
-            #[ -z "$default_game" ] && default_game="Team Fortress 2"
-            
-            #GAME_NAME=$(whiptail --title "选择游戏" --default-item "$default_game" --menu "选择要安装的游戏" 15 45 5 \
-            #    "Team Fortress 2" "" \
-            #    "Left 4 Dead 2" "" \
-            #    "No More Room in Hell" "" 3>&1 1>&2 2>&3)
-            #
-            #[ -z "$GAME_NAME" ] && return
-            
-            # 保存配置
-            #save_config
-            
-            # 让用户选择安装位置
-            #get_install_location
-            
-            # 执行安装
-            download_game
-            ;;
+        1) download_game ;;
         2)
             if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
                 whiptail --title "错误" --msgbox "未选择游戏或未设置安装路径！" 8 60
@@ -986,26 +987,73 @@ manage_game_server() {
             local new_game=$(whiptail --title "切换游戏" --menu "选择新游戏" 15 45 5 \
                 "Team Fortress 2" "" \
                 "Left 4 Dead 2" "" \
-                "No More Room in Hell" "" 3>&1 1>&2 2>&3)
-            
+                "No More Room in Hell" "" \
+                "Garry's Mod" "" \
+                "Counter-Strike: Source" "" 3>&1 1>&2 2>&3)
+
             if [ -n "$new_game" ]; then
                 GAME_NAME="$new_game"
                 save_config
                 whiptail --title "已切换" --msgbox "当前游戏已切换为: $GAME_NAME" 9 70
             fi
             ;;
+        6)
+            if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
+                whiptail --title "错误" --msgbox "未选择游戏或未设置安装路径！" 8 60
+                return
+            fi
+            
+            if ! whiptail --title "确认删除" --yesno "您确定要完全删除以下游戏服务器吗？\n\n游戏: $GAME_NAME\n路径: $SERVER_DIR\n\n此操作不可恢复！" 12 70; then
+                return
+            fi
+            
+            if ! whiptail --title "最后确认" --yesno "再次确认：您确定要永久删除 '$GAME_NAME' 服务器及其所有文件吗？" 10 70; then
+                return
+            fi
+            
+            # 停止并删除systemd服务
+            local service_name="${GAME_SHORT_NAMES[$GAME_NAME]}server.service"
+            if [ -f "/etc/systemd/system/$service_name" ]; then
+                systemctl stop "$service_name" >/dev/null 2>&1
+                systemctl disable "$service_name" >/dev/null 2>&1
+                rm -f "/etc/systemd/system/$service_name"
+                systemctl daemon-reload
+            fi
+
+            # 删除别名
+            local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+            if [ -n "$game_short_name" ]; then
+                # 删除包含特定命令的别名行
+                sed -i "\|alias .*screen -d -r ${game_short_name}server|d" /etc/profile
+                source /etc/profile
+            fi
+            
+            # 删除服务器文件
+            if [ -d "$SERVER_DIR" ]; then
+                rm -rf "$SERVER_DIR"
+                whiptail --title "删除成功" --msgbox "已成功删除 $GAME_NAME 服务器及其所有文件" 9 70
+                
+                # 清理配置
+                SERVER_DIR=""
+                GAME_NAME=""
+                save_config
+            else
+                whiptail --title "错误" --msgbox "找不到服务器目录: $SERVER_DIR" 9 70
+            fi
+            ;;
+
         *) return ;;
     esac
 }
 
-# 管理插件
+# 管理SM
 manage_plugins() {
     if [ -z "$SERVER_DIR" ]; then
         whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
         return
     fi
 
-    local choice=$(whiptail --title "管理插件" --menu "选择操作" 15 60 5 \
+    local choice=$(whiptail --title "管理SM" --menu "选择操作" 15 60 5 \
         "1" "安装 SourceMod+Metamod:Source[v12]" \
         "2" "更新 SourceMod+Metamod:Source[v12]" \
         "3" "卸载 SourceMod+Metamod:Source[v12]" \
@@ -1136,18 +1184,72 @@ manage_plugins() {
     esac
 }
 
+manage_workshop() {
+    if [ -z "$SERVER_DIR" ]; then
+        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
+        return
+    fi
+
+    local workshop_dir="$SERVER_DIR/garrysmod/addons/workshop"
+    mkdir -p "$workshop_dir"
+    
+    # 检查是否已设置集合ID
+    local collection_id=""
+    if [ -f "$SERVER_DIR/workshop_collection.txt" ]; then
+        collection_id=$(cat "$SERVER_DIR/workshop_collection.txt")
+    fi
+
+    while true; do
+        local choice=$(whiptail --title "管理创意工坊内容 (Garry's Mod)" --menu "当前集合ID: ${collection_id:-未设置}" 15 60 5 \
+            "1" "设置创意工坊集合ID" 3>&1 1>&2 2>&3)
+
+        case $choice in
+            1)
+                local new_id=$(whiptail --title "设置创意工坊集合ID" --inputbox "请输入创意工坊集合ID:" 8 60 "$collection_id" 3>&1 1>&2 2>&3)
+                if [ -n "$new_id" ]; then
+                    echo "$new_id" > "$SERVER_DIR/workshop_collection.txt"
+                    collection_id="$new_id"
+
+                    # 自动更新启动脚本
+                    if [ -f "$SERVER_DIR/start.sh" ]; then
+                        update_start_script_collection "$new_id"
+                        whiptail --title "启动脚本已更新" --msgbox "已更新启动脚本中的创意工坊集合ID: $new_id" 8 70
+                    else
+                        whiptail --title "注意" --msgbox "启动脚本不存在，请先创建启动脚本" 8 60
+                    fi
+                fi
+                ;;
+            *) 
+                return 
+                ;;
+        esac
+    done
+}
+
+update_start_script_collection() {
+    local collection_id="$1"
+    local script_path="$SERVER_DIR/start.sh"
+    
+    # 检查文件是否存在
+    if [ ! -f "$script_path" ]; then
+        return 1
+    fi
+    
+    # 更新集合ID
+    sed -i "/host_workshop_collection/c\    +host_workshop_collection $collection_id \\\\" "$script_path"
+}
+
 # 显示关于信息
 show_about() {
     local about_info=""
-    about_info+="服务器管理脚本 v1.0.6\n"
+    about_info+="服务器管理脚本 v1.0.7\n"
     about_info+="作者: TYHH10\n"
     about_info+="创建日期: 2025-07-07\n\n"
-    about_info+="这个脚本,就纯粹就为了偷懒然后用AI跑的一个脚本\n"
-    about_info+="(结果花了一个下午，再加一个上午:( )\n"
+    about_info+="这个脚本,就纯粹就为了偷懒然后用AI跑的一个脚本awa\n"
+    about_info+="结果花了一个下午，再加一个上午:(\n"
     about_info+="注意:主要面向是单服务器,多服务器可能效果不佳\n"
     about_info+="功能说明:\n"
     about_info+="- 在Linux系统上安装和配置Source引擎游戏服务器\n"
-    about_info+="- 支持游戏: Team Fortress 2, Left 4 Dead 2, No More Room in Hell\n"
     about_info+="- 自动安装游戏依赖项和SM+MM:S(SM 12版本)\n"
     about_info+="- 提供服务器启动脚本创建功能\n\n"
     
@@ -1171,12 +1273,23 @@ main_menu() {
             install_info="...${install_info: -37}"
         fi
 
+         # 根据当前游戏动态设置菜单项5
+        local menu_option_5=""
+        local menu_title_5=""
+        if [ "$GAME_NAME" = "Garry's Mod" ]; then
+            menu_option_5="5" 
+            menu_title_5="管理创意工坊内容"
+        else
+            menu_option_5="5" 
+            menu_title_5="管理SM+MM:S[v12]"
+        fi
+
         local choice=$(whiptail --title "服务器管理脚本" --menu "\nOS: $OS_INFO\n游戏服务器账户: $account_info\nSteamCMD: $steamcmd_info\n游戏: $game_info\n位置: $install_info" 22 70 12 \
             "1" "安装游戏服务器依赖" \
             "2" "管理游戏服务器账户" \
             "3" "管理SteamCMD" \
             "4" "管理游戏服务器" \
-            "5" "管理SM+MM:S[v12]" \
+            "$menu_option_5" "$menu_title_5" \
             "6" "管理启动脚本" \
             "7" "管理游戏服务器systemctl服务" \
             "8" "查看脚本配置信息" \
@@ -1208,7 +1321,11 @@ main_menu() {
                 manage_game_server
                 ;;
             5) 
-                manage_plugins 
+                if [ "$GAME_NAME" = "Garry's Mod" ]; then
+                    manage_workshop
+                else
+                    manage_plugins
+                fi
                 ;;
             6) 
                 if [ -z "$SERVER_DIR" ]; then
@@ -1248,7 +1365,7 @@ main_menu() {
 main() {
     check_root
     detect_os
-    whiptail --title "服务器管理脚本" --msgbox "欢迎使用服务器管理脚本\n本脚本将协助安装TF2/L4D2/NMRIH服务器\n\n配置文件: $CONFIG_FILE" 12 70
+    whiptail --title "服务器管理脚本" --msgbox "欢迎使用服务器管理脚本\n本脚本将协助安装TF2/L4D2/NMRIH等服务器\n\n配置文件: $CONFIG_FILE" 12 70
     main_menu
 }
 

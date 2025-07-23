@@ -1317,7 +1317,7 @@ manage_source_python() {
                             
                             echo 40
                             echo "安装 $dep_file..."
-                            pacman -U --noconfirm "$temp_dir/$dep_file" >/dev/null 2>&1
+                            pacman -U --noconfirm --overwrite=* "$temp_dir/$dep_file" >/dev/null 2>&1
                         done
                         
                         # 清理临时目录
@@ -1441,7 +1441,7 @@ manage_source_python() {
                             
                             echo 40
                             echo "安装 $dep_file..."
-                            pacman -U --noconfirm "$temp_dir/$dep_file" >/dev/null 2>&1
+                            pacman -U --noconfirm --overwrite=* "$temp_dir/$dep_file" >/dev/null 2>&1
                         done
                         
                         # 清理临时目录

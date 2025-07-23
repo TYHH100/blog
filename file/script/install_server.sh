@@ -237,12 +237,12 @@ install_dependencies() {
     if [[ "$OS_INFO" == *"ubuntu"* ]] || [[ "$OS_INFO" == *"debian"* ]]; then
         # Debian/Ubuntu 依赖
         packages=(
-            lib32z1 libbz2-1.0:i386 lib32gcc-s1 lib32stdc++6 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 screen wget
+            lib32z1 libbz2-1.0:i386 lib32gcc-s1 lib32stdc++6 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 libffi7:i386 zlib1g:i386 screen wget unzip axel
         )
     elif [[ "$OS_INFO" == *"centos"* ]] || [[ "$OS_INFO" == *"rhel"* ]] || [[ "$OS_INFO" == *"almalinux"* ]]; then
         # CentOS/RHEL 依赖
         packages=(
-            glibc.i686 libstdc++.i686 libcurl.i686 zlib.i686 ncurses-libs.i686 libgcc.i686 screen wget
+            glibc.i686 libstdc++.i686 libcurl.i686 zlib.i686 ncurses-libs.i686 libgcc.i686 screen wget unzip axel
         )
     elif [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
         # Arch Linux 依赖
@@ -250,7 +250,7 @@ install_dependencies() {
         enable_multilib
         
         packages=(
-            lib32-gcc-libs lib32-libcurl-gnutls lib32-openssl wget screen vim git sudo base-devel
+            lib32-gcc-libs lib32-libcurl-gnutls lib32-openssl wget screen vim git sudo base-devel unzip axel
         )
     else
         whiptail --title "错误" --msgbox "不支持的操作系统：$OS_INFO" 10 60
@@ -501,7 +501,7 @@ download_game() {
     > "$log_file"  # 清空日志文件
     
     # 显示等待信息
-    whiptail --infobox "正在安装 $GAME_NAME，请耐心等待...\n\n详细信息请查看日志: $log_file" 9 70
+    #whiptail --infobox "正在安装 $GAME_NAME，请耐心等待...\n\n详细信息请查看日志: $log_file" 9 70
     
     # 执行安装并捕获输出
     su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" validate +quit" 2>&1 | tee "$log_file"
@@ -511,7 +511,7 @@ download_game() {
         mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
         whiptail --title "完成" --msgbox "成功安装 $GAME_NAME 服务器到: $SERVER_DIR" 9 70
     else
-        # 移动日志到服务器目录
+        mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
         whiptail --title "安装失败" --textbox "$log_file" 20 70
         return
     fi
@@ -983,8 +983,7 @@ manage_game_server() {
             whiptail --title "位置已更改" --msgbox "游戏安装位置已更新为: $SERVER_DIR" 9 70
             ;;
         5)
-            # 让用户选择新游戏
-            local new_game=$(whiptail --title "切换游戏" --menu "选择新游戏" 15 45 5 \
+            local new_game=$(whiptail --title "切换游戏" --menu "选择游戏" 15 45 5 \
                 "Team Fortress 2" "" \
                 "Left 4 Dead 2" "" \
                 "No More Room in Hell" "" \
@@ -1104,7 +1103,7 @@ manage_plugins() {
                 MM_LATEST_NAME=$(curl -s "https://www.metamodsource.net/mmsdrop/1.12/mmsource-latest-linux")
                 MM_FILENAME=$(echo "$MM_LATEST_NAME" | tr -d '\r\n')
                 MM_DOWNLOAD_URL="${MM_INDEX_URL}${MM_FILENAME}"
-                wget -q "$MM_DOWNLOAD_URL" -O "$SERVER_DIR/$MM_FILENAME"
+                axel -q -n 10 "$MM_DOWNLOAD_URL" -o "$SERVER_DIR/$MM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$MM_FILENAME" ]; then
                     echo "Metamod:Source下载失败！" > "$error_file"
                     exit 1
@@ -1116,7 +1115,7 @@ manage_plugins() {
                 SM_LATEST_NAME=$(curl -s "https://sm.alliedmods.net/smdrop/1.12/sourcemod-latest-linux")
                 SM_FILENAME=$(echo "$SM_LATEST_NAME" | tr -d '\r\n')
                 SM_DOWNLOAD_URL="${SM_INDEX_URL}${SM_FILENAME}"
-                wget -q "$SM_DOWNLOAD_URL" -O "$SERVER_DIR/$SM_FILENAME"
+                axel -q -n 10 "$SM_DOWNLOAD_URL" -o "$SERVER_DIR/$SM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$SM_FILENAME" ]; then
                     echo "SourceMod下载失败！" > "$error_file"
                     exit 1
@@ -1239,6 +1238,200 @@ update_start_script_collection() {
     sed -i "/host_workshop_collection/c\    +host_workshop_collection $collection_id \\\\" "$script_path"
 }
 
+manage_source_python() {
+    if [ -z "$SERVER_DIR" ]; then
+        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
+        return
+    fi
+
+    # 检查游戏是否支持 Source.Python
+    local supported_games=("Left 4 Dead 2" "Team Fortress 2" "Counter-Strike: Source")
+    local is_supported=0
+    
+    for game in "${supported_games[@]}"; do
+        if [ "$GAME_NAME" == "$game" ]; then
+            is_supported=1
+            break
+        fi
+    done
+
+    if [ $is_supported -eq 0 ]; then
+        whiptail --title "不支持" --msgbox "当前游戏 $GAME_NAME 不支持 Source.Python" 10 70
+        return
+    fi
+
+    # 获取游戏短名称
+    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+    if [ -z "$game_short_name" ]; then
+        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
+        return 1
+    fi
+    
+    # 游戏短名称到下载标识的映射
+    declare -A SP_GAME_ID_MAP=(
+        ["tf"]="tf2"
+        ["left4dead2"]="l4d2"
+        ["cstrike"]="css"
+    )
+    
+    local game_id="${SP_GAME_ID_MAP[$game_short_name]}"
+    if [ -z "$game_id" ]; then
+        whiptail --title "错误" --msgbox "无法获取游戏下载标识！" 8 60
+        return 1
+    fi
+    
+    local addons_dir="$SERVER_DIR/$game_short_name/addons"
+    local sp_dir="$addons_dir/source-python"
+    
+    while true; do
+        local choice=$(whiptail --title "管理 Source.Python ($GAME_NAME)" --menu "选择操作" 15 60 4 \
+            "1" "安装 Source.Python" \
+            "2" "卸载 Source.Python" \
+            "3" "测试安装 (使用本地文件)" \
+            "4" "返回" 3>&1 1>&2 2>&3)
+
+        case $choice in
+            1)
+                # 创建临时目录
+                local temp_dir=$(mktemp -d)
+                if [ ! -d "$temp_dir" ]; then
+                    whiptail --title "错误" --msgbox "无法创建临时目录！" 8 60
+                    return 1
+                fi
+                (
+                    echo 20
+                    echo "获取最新下载链接..."
+                    
+                    local full_url="http://downloads.sourcepython.com/release/742/source-python-$game_id-July-06-2025.zip"
+                    
+                    echo 30
+                    echo "下载 Source.Python ($game_id)..."
+                    echo "URL: $full_url"
+                    
+                    # 下载 Source.Python
+                    axel -q -n 10 "$full_url" -o "$temp_dir/source-python.zip"
+                    
+                    if [ ! -s "$temp_dir/source-python.zip" ]; then
+                        echo "下载失败: $full_url" > "$temp_dir/error.log"
+                        exit 1
+                    fi
+                    
+                    echo 60
+                    echo "解压文件..."
+                    
+                    # 创建目标目录
+                    mkdir -p "$sp_dir"
+                    
+                    # 解压到临时目录
+                    unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
+                    
+                    echo 80
+                    echo "安装文件..."
+                    
+                    # 移动文件到游戏目录
+                    cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
+                    
+                    # 设置权限
+                    chown -R "$STEAM_USER:$STEAM_USER" "$sp_dir"
+                    
+                    echo 100
+                    sleep 1
+                ) | whiptail --title "安装 Source.Python" --gauge "正在安装 Source.Python[$game_id]..." 8 70 0
+                
+                # 检查安装结果
+                if [ -f "$temp_dir/error.log" ]; then
+                    local error_msg=$(cat "$temp_dir/error.log")
+                    rm -rf "$temp_dir"
+                    whiptail --title "安装失败" --msgbox "$error_msg" 10 70
+                elif [ -f "$temp_dir/warning.log" ]; then
+                    local warning_msg=$(cat "$temp_dir/warning.log")
+                    rm -rf "$temp_dir"
+                    whiptail --title "安装成功（有警告）" --msgbox "Source.Python ($game_id) 已安装，但有警告:\n\n$warning_msg" 12 70
+                else
+                    rm -rf "$temp_dir"
+                    whiptail --title "安装成功" --msgbox "Source.Python ($game_id) 已安装到:\n$sp_dir\n\n启动服务器后使用 'sp info' 命令验证安装" 12 70
+                fi
+                ;;
+                
+            2)
+                # 卸载 Source.Python
+                if [ ! -d "$sp_dir" ]; then
+                    whiptail --title "未安装" --msgbox "Source.Python 未安装！" 8 60
+                    continue
+                fi
+
+                if whiptail --title "确认卸载" --yesno "确定要卸载 Source.Python 吗？此操作不可恢复！" 10 60; then
+                    (
+                        echo 10
+                        echo "卸载文件..."
+                        rm -rf "$addons_dir/source-python"
+                        rm -rf "$addons_dir/source-python.dll"
+                        rm -rf "$addons_dir/source-python.so"
+                        rm -rf "$addons_dir/source-python.vdf"
+
+                        # 确保完全卸载所有组件
+                        echo 20
+                        echo "验证卸载..."
+                        rm -rf "$sp_dir/addons/source-python" 2>/dev/null
+
+                        echo 30
+                        #sleep 1
+                    ) | whiptail --title "卸载 Source.Python" --gauge "正在卸载 Source.Python..." 8 70 0
+
+                    whiptail --title "卸载完成" --msgbox "Source.Python 已卸载\n\n所有相关文件和目录已被删除" 9 70
+                fi
+                ;;
+            3)
+                # 测试安装：使用本地文件
+                local test_file="source-python.zip"
+                if [ ! -f "$test_file" ]; then
+                    whiptail --title "文件不存在" --msgbox "当前目录下未找到测试文件: $test_file\n\n请将测试文件放置到当前目录: $(pwd)" 12 70
+                    continue
+                fi
+
+                # 创建临时目录
+                local temp_dir=$(mktemp -d)
+                (
+                    echo 20
+                    echo "使用测试文件安装 Source.Python..."
+                    
+                    # 复制测试文件到临时目录
+                    cp "$test_file" "$temp_dir/source-python.zip"
+                    
+                    echo 40
+                    echo "解压文件..."
+                    
+                    # 创建目标目录
+                    mkdir -p "$sp_dir"
+                    
+                    # 解压到临时目录
+                    unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
+                    
+                    echo 70
+                    echo "安装文件..."
+                    
+                    # 移动文件到游戏目录
+                    cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
+                    
+                    # 设置权限
+                    chown -R "$STEAM_USER:$STEAM_USER" "$sp_dir"
+                    
+                    echo 100
+                    #sleep 1
+                ) | whiptail --title "测试安装 Source.Python" --gauge "正在使用本地文件安装 Source.Python..." 8 70 0
+                
+                # 清理临时目录
+                rm -rf "$temp_dir"
+                
+                whiptail --title "安装成功" --msgbox "Source.Python 已通过测试文件安装到:\n$sp_dir\n\n启动服务器后使用 'sp info' 命令验证安装" 12 70
+                ;;
+            *)  
+                return 
+                ;;
+        esac
+    done
+}
+
 # 显示关于信息
 show_about() {
     local about_info=""
@@ -1284,7 +1477,7 @@ main_menu() {
             menu_title_5="管理SM+MM:S[v12]"
         fi
 
-        local choice=$(whiptail --title "服务器管理脚本" --menu "\nOS: $OS_INFO\n游戏服务器账户: $account_info\nSteamCMD: $steamcmd_info\n游戏: $game_info\n位置: $install_info" 22 70 12 \
+        local choice=$(whiptail --title "服务器管理脚本" --menu "\nOS: $OS_INFO\n游戏服务器账户: $account_info\nSteamCMD: $steamcmd_info\n游戏: $game_info\n位置: $install_info" 22 70 14 \
             "1" "安装游戏服务器依赖" \
             "2" "管理游戏服务器账户" \
             "3" "管理SteamCMD" \
@@ -1292,10 +1485,11 @@ main_menu() {
             "$menu_option_5" "$menu_title_5" \
             "6" "管理启动脚本" \
             "7" "管理游戏服务器systemctl服务" \
-            "8" "查看脚本配置信息" \
-            "9" "查看脚本配置文件" \
-            "10" "关于本脚本" \
-            "11" "完成并退出" 3>&1 1>&2 2>&3)
+            "8" "管理source.python" \
+            "9" "查看脚本配置信息" \
+            "10" "查看脚本配置文件" \
+            "11" "关于本脚本" \
+            "12" "完成并退出" 3>&1 1>&2 2>&3)
 
         case $choice in
             1) detect_os; install_dependencies ;;
@@ -1340,10 +1534,11 @@ main_menu() {
                 fi
                 manage_systemd_service
                 ;;
-            8) show_server_info ;;
-            9) show_config ;;
-            10) show_about ;;
-            11) 
+            8) manage_source_python ;;
+            9) show_server_info ;;
+            10) show_config ;;
+            11) show_about ;;
+            12) 
                 if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
                     if whiptail --title "确认退出" --yesno "您尚未完成全部设置，确定要退出吗？" --defaultno --yes-button "退出" --no-button "返回" 10 60; then
                         save_config

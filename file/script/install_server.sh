@@ -1292,6 +1292,40 @@ manage_source_python() {
 
         case $choice in
             1)
+                # 如果是Arch Linux系统，安装额外依赖
+                if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
+                    (
+                        echo 10
+                        echo "检测到Arch Linux系统，安装额外依赖..."
+                        
+                        # 创建临时目录
+                        local temp_dir=$(mktemp -d)
+                        
+                        # 定义依赖包URL
+                        local deps=(
+                            "https://blog.tyhh10.xyz/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
+                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
+                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.3-1-x86_64.pkg.tar.zst"
+                        )
+                        
+                        # 下载并安装每个依赖
+                        for dep_url in "${deps[@]}"; do
+                            local dep_file="${dep_url##*/}"
+                            echo 20
+                            echo "下载 $dep_file..."
+                            wget -q "$dep_url" -O "$temp_dir/$dep_file"
+                            
+                            echo 40
+                            echo "安装 $dep_file..."
+                            pacman -U --noconfirm "$temp_dir/$dep_file" >/dev/null 2>&1
+                        done
+                        
+                        # 清理临时目录
+                        rm -rf "$temp_dir"
+                        echo 60
+                    ) | whiptail --title "安装 Arch Linux 依赖" --gauge "正在安装 Source.Python 的额外依赖..." 8 70 0
+                fi
+                
                 # 创建临时目录
                 local temp_dir=$(mktemp -d)
                 if [ ! -d "$temp_dir" ]; then
@@ -1349,6 +1383,7 @@ manage_source_python() {
                     whiptail --title "安装成功（有警告）" --msgbox "Source.Python ($game_id) 已安装，但有警告:\n\n$warning_msg" 12 70
                 else
                     rm -rf "$temp_dir"
+                    execstack -c "$addons_dir/source-python/bin/core.so"
                     whiptail --title "安装成功" --msgbox "Source.Python ($game_id) 已安装到:\n$sp_dir\n\n启动服务器后使用 'sp info' 命令验证安装" 12 70
                 fi
                 ;;
@@ -1382,6 +1417,39 @@ manage_source_python() {
                 fi
                 ;;
             3)
+                if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
+                    (
+                        echo 10
+                        echo "检测到Arch Linux系统，安装额外依赖..."
+                        
+                        # 创建临时目录
+                        local temp_dir=$(mktemp -d)
+                        
+                        # 定义依赖包URL
+                        local deps=(
+                            "https://blog.tyhh10.xyz/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
+                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
+                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.3-1-x86_64.pkg.tar.zst"
+                        )
+                        
+                        # 下载并安装每个依赖
+                        for dep_url in "${deps[@]}"; do
+                            local dep_file="${dep_url##*/}"
+                            echo 20
+                            echo "下载 $dep_file..."
+                            wget -q "$dep_url" -O "$temp_dir/$dep_file"
+                            
+                            echo 40
+                            echo "安装 $dep_file..."
+                            pacman -U --noconfirm "$temp_dir/$dep_file" >/dev/null 2>&1
+                        done
+                        
+                        # 清理临时目录
+                        rm -rf "$temp_dir"
+                        echo 60
+                    ) | whiptail --title "安装 Arch Linux 依赖" --gauge "正在安装 Source.Python 的额外依赖..." 8 70 0
+                fi
+
                 # 测试安装：使用本地文件
                 local test_file="source-python.zip"
                 if [ ! -f "$test_file" ]; then
@@ -1422,7 +1490,7 @@ manage_source_python() {
                 
                 # 清理临时目录
                 rm -rf "$temp_dir"
-                
+                execstack -c "$addons_dir/source-python/bin/core.so"
                 whiptail --title "安装成功" --msgbox "Source.Python 已通过测试文件安装到:\n$sp_dir\n\n启动服务器后使用 'sp info' 命令验证安装" 12 70
                 ;;
             *)  
@@ -1466,7 +1534,7 @@ main_menu() {
             install_info="...${install_info: -37}"
         fi
 
-         # 根据当前游戏动态设置菜单项5
+        # 根据当前游戏动态设置菜单项5
         local menu_option_5=""
         local menu_title_5=""
         if [ "$GAME_NAME" = "Garry's Mod" ]; then
@@ -1477,7 +1545,7 @@ main_menu() {
             menu_title_5="管理SM+MM:S[v12]"
         fi
 
-        local choice=$(whiptail --title "服务器管理脚本" --menu "\nOS: $OS_INFO\n游戏服务器账户: $account_info\nSteamCMD: $steamcmd_info\n游戏: $game_info\n位置: $install_info" 22 70 14 \
+        local choice=$(whiptail --title "服务器管理脚本" --menu "\nOS: $OS_INFO\n游戏服务器账户: $account_info\nSteamCMD: $steamcmd_info\n游戏: $game_info\n位置: $install_info" 22 70 12 \
             "1" "安装游戏服务器依赖" \
             "2" "管理游戏服务器账户" \
             "3" "管理SteamCMD" \

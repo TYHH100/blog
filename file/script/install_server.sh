@@ -1,8 +1,14 @@
 #!/bin/bash
 
+# 添加颜色变量
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # 重置颜色
+
 # 检查whiptail是否安装，未安装则自动安装
 if ! command -v whiptail >/dev/null 2>&1; then
-    echo "whiptail 未安装，正在尝试自动安装..."
+    echo -e "${GREEN}[Info]${NC} whiptail 未安装，正在尝试自动安装..."
     if command -v apt-get >/dev/null 2>&1; then
         apt-get update && apt-get install -y whiptail
     elif command -v yum >/dev/null 2>&1; then
@@ -10,12 +16,12 @@ if ! command -v whiptail >/dev/null 2>&1; then
     elif command -v pacman >/dev/null 2>&1; then
         pacman -Sy --noconfirm libnewt
     else
-        echo "无法自动安装 whiptail，请手动安装后重试。"
+        echo -e "${GREEN}[Error]${NC} 无法自动安装 whiptail，请手动安装后重试。"
         exit 1
     fi
     # 再次检测
     if ! command -v whiptail >/dev/null 2>&1; then
-        echo "whiptail 安装失败，请手动安装后重试。"
+        echo -e "${GREEN}[Error]${NC} whiptail 安装失败，请手动安装后重试。"
         exit 1
     fi
 fi
@@ -74,28 +80,19 @@ load_config() {
 save_config() {
     # 创建新配置文件
     cat > "$CONFIG_FILE" << EOF
-    # 起源服务器安装器配置文件
+    # 服务器管理脚本配置文件
     # 创建于: $(date)
 
     # 游戏服务器账户
     CONFIG_STEAM_USER="$STEAM_USER"
-
     # SteamCMD路径
     CONFIG_STEAMCMD_PATH="$STEAMCMD_PATH"
-
     # 上次安装的游戏
     CONFIG_GAME_NAME="$GAME_NAME"
-
     # 上次安装的游戏路径
     CONFIG_SERVER_DIR="$SERVER_DIR"
 EOF
 }
-
-# 添加颜色变量
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # 重置颜色
 
 # 检查root权限
 check_root() {
@@ -149,10 +146,8 @@ detect_os() {
 enable_multilib() {
     # 检查multilib仓库是否已启用
     if ! grep -q '^\[multilib\]' /etc/pacman.conf; then
-        # 备份原始配置文件
-        #cp /etc/pacman.conf /etc/pacman.conf.bak
         # 启用multilib仓库
-        echo "启用Arch Linux的multilib仓库..."
+        echo -e "${GREEN}[Info]${NC} 启用Arch Linux的multilib仓库..."
         sed -i.bak -e 's/^#\s*\[multilib\]/[multilib]/' -e 's/^#\s*Include\s*=\s*\/etc\/pacman\.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' /etc/pacman.conf
         # 更新软件包列表
         pacman -Sy
@@ -166,7 +161,7 @@ install_aur_package() {
 
     # 检查是否已安装
     if pacman -Qq $pkg_name &>/dev/null; then
-        echo "$pkg_name 已安装"
+        echo -e "${GREEN}[Info]${NC} $pkg_name 已安装"
         return 0
     fi
 
@@ -177,11 +172,11 @@ install_aur_package() {
     # 下载AUR包
     if [ ! -d "$build_dir/.git" ]; then
         if ! git clone "https://aur.archlinux.org/$pkg_name.git" .; then
-            echo "无法下载 $pkg_name"
+            echo -e "${GREEN}[Error]${NC} 无法下载 $pkg_name"
             return 1
         fi
     else
-        echo "$pkg_name 已存在，跳过下载"
+        echo -e "${GREEN}[Info]${NC} $pkg_name 已存在，跳过下载"
     fi
 
     # 如果是root，自动创建临时用户
@@ -201,14 +196,6 @@ install_aur_package() {
         echo "$aur_tmp_user ALL=(ALL) NOPASSWD: /usr/bin/pacman" > /etc/sudoers.d/aurbuild_tmp
         chmod 0440 /etc/sudoers.d/aurbuild_tmp
         
-        # GPG密钥导入（使用多个服务器+直接下载）
-        #if gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys CC2AF4472167BE03 || \
-        #   gpg --keyserver hkps://keys.openpgp.org --recv-keys CC2AF4472167BE03 || \
-        #   gpg --keyserver hkp://pgp.mit.edu:80 --recv-keys CC2AF4472167BE03; then
-        #    echo "尝试从备用源下载GPG密钥..."
-        #    curl -sL "https://invisible-island.net/public/dickey.gpg" | gpg --import -
-        #fi
-        
         # 构建包（跳过PGP验证）
         su - "$aur_tmp_user" -c "cd '$build_dir' && makepkg -sri --noconfirm --skippgpcheck"
         
@@ -223,10 +210,10 @@ install_aur_package() {
 
     # 检查安装结果
     if pacman -Qq $pkg_name &>/dev/null; then
-        echo "$pkg_name 安装成功"
+        echo -e "${GREEN}[Info]${NC} $pkg_name 安装成功"
         return 0
     else
-        echo "$pkg_name 安装失败"
+        echo -e "${GREEN}[Error]${NC} $pkg_name 安装失败"
         return 1
     fi
 }
@@ -237,20 +224,20 @@ install_dependencies() {
     if [[ "$OS_INFO" == *"ubuntu"* ]] || [[ "$OS_INFO" == *"debian"* ]]; then
         # Debian/Ubuntu 依赖
         packages=(
-            lib32z1 libbz2-1.0:i386 lib32gcc-s1 lib32stdc++6 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 libffi7:i386 zlib1g:i386 screen wget unzip axel
+            lib32z1 libbz2-1.0:i386 lib32gcc-s1 lib32stdc++6 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 libffi7:i386 zlib1g:i386 screen unzip axel
         )
     elif [[ "$OS_INFO" == *"centos"* ]] || [[ "$OS_INFO" == *"rhel"* ]] || [[ "$OS_INFO" == *"almalinux"* ]]; then
         # CentOS/RHEL 依赖
         packages=(
-            glibc.i686 libstdc++.i686 libcurl.i686 zlib.i686 ncurses-libs.i686 libgcc.i686 screen wget unzip axel
+            glibc.i686 libstdc++.i686 libcurl.i686 zlib.i686 ncurses-libs.i686 libgcc.i686 screen unzip axel
         )
     elif [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
-        # Arch Linux 依赖
         # 确保multilib仓库已启用
         enable_multilib
-        
+
+        # Arch Linux 依赖
         packages=(
-            lib32-gcc-libs lib32-libcurl-gnutls lib32-openssl wget screen vim git sudo base-devel unzip axel
+            lib32-gcc-libs lib32-libcurl-gnutls lib32-openssl screen vim git sudo base-devel unzip axel
         )
     else
         whiptail --title "错误" --msgbox "不支持的操作系统：$OS_INFO" 10 60
@@ -261,8 +248,8 @@ install_dependencies() {
         for ((i=0; i<${#packages[@]}; i++)); do
             pkg="${packages[$i]}"
             echo $((i * 100 / ${#packages[@]}))
-            echo -e "安装依赖: $pkg"
-            
+            echo -e "${GREEN}[Info]${NC} 安装依赖: $pkg"
+
             # 根据不同系统检查是否已安装
             if [[ "$OS_INFO" == *"ubuntu"* || "$OS_INFO" == *"debian"* ]]; then
                 # Debian/Ubuntu: 检查包是否存在
@@ -296,6 +283,29 @@ install_dependencies() {
             whiptail --title "安装失败" --msgbox "无法安装 lib32-ncurses5-compat-libs，服务器可能无法正常运行" 8 70
         fi
     fi
+}
+
+check_server_dir() {
+    if [ -z "$SERVER_DIR" ]; then
+        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
+        return 1
+    fi
+    return 0
+}
+
+get_game_short_name() {
+    if [ -z "$GAME_NAME" ]; then
+        whiptail --title "错误" --msgbox "未选择游戏！" 8 60
+        return 1
+    fi
+    
+    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
+    if [ -z "$game_short_name" ]; then
+        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
+        return 1
+    fi
+    
+    echo "$game_short_name"
 }
 
 # 设置服务器账户
@@ -369,7 +379,7 @@ install_steamcmd() {
             (
                 mkdir -p "$STEAM_HOME/steamcmd"
                 cd "$STEAM_HOME/steamcmd"
-                wget -q "$STEAMCMD_URL"
+                axel -q "$STEAMCMD_URL"
                 tar -xzf steamcmd_linux.tar.gz
                 rm steamcmd_linux.tar.gz
                 chown -R "$STEAM_USER:$STEAM_USER" "$STEAM_HOME/steamcmd"
@@ -475,19 +485,6 @@ download_game() {
         return 1
     fi
     
-    # 让用户选择游戏
-    #local default_game="$GAME_NAME"
-    #[ -z "$default_game" ] && default_game="Team Fortress 2"
-    
-    #GAME_NAME=$(whiptail --title "选择游戏" --default-item "$default_game" --menu "选择要安装的游戏" 15 45 5 \
-    #    "Team Fortress 2" "" \
-    #    "Left 4 Dead 2" "" \
-    #    "No More Room in Hell" "" \
-    #    "Garry's Mod" "" \
-    #    "Counter-Strike: Source" "" 3>&1 1>&2 2>&3)
-    #
-    #[ -z "$GAME_NAME" ] && return 1
-    
     # 保存配置
     save_config
     
@@ -500,12 +497,18 @@ download_game() {
     local log_file="/tmp/steamcmd_install_$app_id.log"
     > "$log_file"  # 清空日志文件
     
-    # 显示等待信息
-    #whiptail --infobox "正在安装 $GAME_NAME，请耐心等待...\n\n详细信息请查看日志: $log_file" 9 70
-    
     # 执行安装并捕获输出
-    su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" validate +quit" 2>&1 | tee "$log_file"
-    
+    if [ "$app_id" == "222860" ]; then
+        # 下载L4D2的特殊方式 - 先下载Windows版本
+        su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType windows +app_update \"$app_id\" validate +quit" 2>&1 | tee -a "$log_file"
+        
+        # 然后下载Linux版本
+        su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType linux +app_update \"$app_id\" validate +quit" 2>&1 | tee -a "$log_file"
+    else
+        # 其他游戏正常下载
+        su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" validate +quit" 2>&1 | tee -a "$log_file"
+    fi
+
     # 检查安装结果
     if grep -qi "Success!" "$log_file"; then
         mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
@@ -523,11 +526,8 @@ install_sourcemod() {
         whiptail --title "错误" --msgbox "未选择游戏，请先选择游戏！" 8 60
         return 1
     fi
-    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-    if [ -z "$game_short_name" ]; then
-        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-        return 1
-    fi
+    local game_short_name
+    game_short_name=$(get_game_short_name) || return 1
 
     # 插件安装的目标目录
     local addons_dir="$SERVER_DIR/$game_short_name/"
@@ -537,23 +537,23 @@ install_sourcemod() {
     local error_file=$(mktemp)
     {
         echo 30
-        echo "下载Metamod:Source..."
-        wget -q "https://mms.alliedmods.net/mmsdrop/1.12/mmsource-1.12.0-git1219-linux.tar.gz" -O $SERVER_DIR/mms.tar.gz
+        echo -e "${GREEN}[Info]${NC} 下载Metamod:Source..."
+        axel -q -n 10 "https://mms.alliedmods.net/mmsdrop/1.12/mmsource-1.12.0-git1219-linux.tar.gz" -O $SERVER_DIR/mms.tar.gz
         if [ ! -s $SERVER_DIR/mms.tar.gz ]; then
-            echo "Metamod:Source下载失败！" > "$error_file"
+            echo -e "${GREEN}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
             exit 1
         fi
         
         echo 60
-        echo "下载SourceMod..."
-        wget -q "https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7210-linux.tar.gz" -O $SERVER_DIR/sourcemod.tar.gz
+        echo -e "${GREEN}[Info]${NC} 下载SourceMod..."
+        axel -q -n 10 "https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7210-linux.tar.gz" -O $SERVER_DIR/sourcemod.tar.gz
         if [ ! -s $SERVER_DIR/sourcemod.tar.gz ]; then
-            echo "SourceMod下载失败！" > "$error_file"
+            echo -e "${GREEN}[Error]${NC} SourceMod下载失败！" > "$error_file"
             exit 1
         fi
         
         echo 80
-        echo "安装到服务器目录..."
+        echo -e "${GREEN}[Info]${NC} 安装到服务器目录..."
         tar -xzf $SERVER_DIR/mms.tar.gz -C "$addons_dir"
         tar -xzf $SERVER_DIR/sourcemod.tar.gz -C "$addons_dir"
 
@@ -574,17 +574,11 @@ install_sourcemod() {
 }
 
 manage_start_scripts() {
-    if [ -z "$SERVER_DIR" ]; then
-        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
-        return
-    fi
+    check_server_dir || return
     
     # 获取游戏短名称
-    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-    if [ -z "$game_short_name" ]; then
-        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-        return 1
-    fi
+    local game_short_name
+    game_short_name=$(get_game_short_name) || return 1
     
     # 游戏目录
     local game_dir="$SERVER_DIR/$game_short_name"
@@ -627,11 +621,8 @@ manage_start_scripts() {
 
 manage_systemd_service() {
     # 获取游戏短名称
-    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-    if [ -z "$game_short_name" ]; then
-        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-        return 1
-    fi
+    local game_short_name
+    game_short_name=$(get_game_short_name) || return 1
     
     # 服务名称
     local service_name="${game_short_name}server.service"
@@ -695,11 +686,8 @@ create_start_script() {
     local default_port=$(( RANDOM % 1000 + 27015 ))
 
     # 获取游戏短名称
-    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-    if [ -z "$game_short_name" ]; then
-        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-        return 1
-    fi
+    local game_short_name
+    game_short_name=$(get_game_short_name) || return 1
 
     local game_dir="$SERVER_DIR/$game_short_name"
     local steamcmd_dir=$(dirname "$STEAMCMD_PATH")
@@ -786,11 +774,8 @@ EOF
 
 create_systemd_service() {
     # 获取游戏短名称
-    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-    if [ -z "$game_short_name" ]; then
-        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-        return 1
-    fi
+    local game_short_name
+    game_short_name=$(get_game_short_name) || return 1
 
     local service_path="/etc/systemd/system/${GAME_SHORT_NAMES[$GAME_NAME]}server.service"
 
@@ -852,10 +837,6 @@ show_server_info() {
     else
         info+="安装位置: 未设置\n\n"
     fi
-    info+="提示:\n"
-    info+="1. 启动脚本在服务器目录中\n"
-    info+="2. 启动命令: ./start.sh\n"
-    info+="3. 默认端口可在启动脚本中修改\n"
     
     whiptail --title "脚本配置信息" --msgbox "$info" 16 70
 }
@@ -914,12 +895,19 @@ manage_steamcmd() {
 
 # 管理游戏服务器
 manage_game_server() {
-    local choice=$(whiptail --title "管理游戏服务器" --menu "选择操作" 15 60 8 \
+    local menu_title="管理游戏服务器"
+    if [ -n "$GAME_NAME" ]; then
+        menu_title+=" [当前游戏: $GAME_NAME]"
+    else
+        menu_title+=" [未选择游戏]"
+    fi
+
+    local choice=$(whiptail --title "$menu_title" --menu "选择操作" 15 60 8 \
         "1" "安装新游戏服务器" \
         "2" "更新现有游戏服务器" \
         "3" "验证现有游戏服务器" \
         "4" "更改安装位置" \
-        "5" "切换游戏" \
+        "5" "选择/切换游戏" \
         "6" "删除游戏服务器" \
         "7" "返回主菜单" 3>&1 1>&2 2>&3)
 
@@ -1047,10 +1035,7 @@ manage_game_server() {
 
 # 管理SM
 manage_plugins() {
-    if [ -z "$SERVER_DIR" ]; then
-        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
-        return
-    fi
+    check_server_dir || return
 
     local choice=$(whiptail --title "管理SM" --menu "选择操作" 15 60 5 \
         "1" "安装 SourceMod+Metamod:Source[v12]" \
@@ -1077,11 +1062,8 @@ manage_plugins() {
                 whiptail --title "错误" --msgbox "未选择游戏，请先选择游戏！" 8 60
                 return 1
             fi
-            local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-            if [ -z "$game_short_name" ]; then
-                whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-                return 1
-            fi
+            local game_short_name
+            game_short_name=$(get_game_short_name) || return 1
         
             local addons_dir="$SERVER_DIR/$game_short_name/addons"
         
@@ -1098,26 +1080,26 @@ manage_plugins() {
             local error_file=$(mktemp)
             {
                 echo 20
-                echo "下载最新 Metamod:Source..."
+                echo -e "${GREEN}[Info]${NC} 下载最新 Metamod:Source..."
                 MM_INDEX_URL="https://www.metamodsource.net/mmsdrop/1.12/"
                 MM_LATEST_NAME=$(curl -s "https://www.metamodsource.net/mmsdrop/1.12/mmsource-latest-linux")
                 MM_FILENAME=$(echo "$MM_LATEST_NAME" | tr -d '\r\n')
                 MM_DOWNLOAD_URL="${MM_INDEX_URL}${MM_FILENAME}"
                 axel -q -n 10 "$MM_DOWNLOAD_URL" -o "$SERVER_DIR/$MM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$MM_FILENAME" ]; then
-                    echo "Metamod:Source下载失败！" > "$error_file"
+                    echo -e "${GREEN}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
                     exit 1
                 fi
 
                 echo 50
-                echo "下载最新 SourceMod..."
+                echo -e "${GREEN}[Info]${NC} 下载最新 SourceMod..."
                 SM_INDEX_URL="https://sm.alliedmods.net/smdrop/1.12/"
                 SM_LATEST_NAME=$(curl -s "https://sm.alliedmods.net/smdrop/1.12/sourcemod-latest-linux")
                 SM_FILENAME=$(echo "$SM_LATEST_NAME" | tr -d '\r\n')
                 SM_DOWNLOAD_URL="${SM_INDEX_URL}${SM_FILENAME}"
                 axel -q -n 10 "$SM_DOWNLOAD_URL" -o "$SERVER_DIR/$SM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$SM_FILENAME" ]; then
-                    echo "SourceMod下载失败！" > "$error_file"
+                    echo -e "${GREEN}[Error]${NC} SourceMod下载失败！" > "$error_file"
                     exit 1
                 fi
 
@@ -1160,11 +1142,8 @@ manage_plugins() {
                 whiptail --title "错误" --msgbox "未选择游戏，请先选择游戏！" 8 60
                 return 1
             fi
-            local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-            if [ -z "$game_short_name" ]; then
-                whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-                return 1
-            fi
+            local game_short_name
+            game_short_name=$(get_game_short_name) || return 1
         
             local addons_dir="$SERVER_DIR/$game_short_name/"
 
@@ -1184,10 +1163,7 @@ manage_plugins() {
 }
 
 manage_workshop() {
-    if [ -z "$SERVER_DIR" ]; then
-        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
-        return
-    fi
+    check_server_dir || return
 
     local workshop_dir="$SERVER_DIR/garrysmod/addons/workshop"
     mkdir -p "$workshop_dir"
@@ -1239,10 +1215,7 @@ update_start_script_collection() {
 }
 
 manage_source_python() {
-    if [ -z "$SERVER_DIR" ]; then
-        whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
-        return
-    fi
+    check_server_dir || return
 
     # 检查游戏是否支持 Source.Python
     local supported_games=("Left 4 Dead 2" "Team Fortress 2" "Counter-Strike: Source")
@@ -1261,11 +1234,8 @@ manage_source_python() {
     fi
 
     # 获取游戏短名称
-    local game_short_name="${GAME_SHORT_NAMES[$GAME_NAME]}"
-    if [ -z "$game_short_name" ]; then
-        whiptail --title "错误" --msgbox "无法获取游戏短名称！" 8 60
-        return 1
-    fi
+    local game_short_name
+    game_short_name=$(get_game_short_name) || return 1
     
     # 游戏短名称到下载标识的映射
     declare -A SP_GAME_ID_MAP=(
@@ -1286,7 +1256,7 @@ manage_source_python() {
     while true; do
         local choice=$(whiptail --title "管理 Source.Python ($GAME_NAME)" --menu "选择操作" 15 60 4 \
             "1" "安装 Source.Python" \
-            "2" "卸载 Source.Python" \
+            "2" "删除 Source.Python" \
             "3" "测试安装 (使用本地文件)" \
             "4" "返回" 3>&1 1>&2 2>&3)
 
@@ -1296,7 +1266,7 @@ manage_source_python() {
                 if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
                     (
                         echo 10
-                        echo "检测到Arch Linux系统，安装额外依赖..."
+                        echo -e "${GREEN}[Info]${NC} 检测到Arch Linux系统，安装额外依赖..."
                         
                         # 创建临时目录
                         local temp_dir=$(mktemp -d)
@@ -1312,11 +1282,11 @@ manage_source_python() {
                         for dep_url in "${deps[@]}"; do
                             local dep_file="${dep_url##*/}"
                             echo 20
-                            echo "下载 $dep_file..."
-                            wget -q "$dep_url" -O "$temp_dir/$dep_file"
+                            echo -e "${GREEN}[Info]${NC} 下载 $dep_file..."
+                            axel -q -n 5 "$dep_url" -O "$temp_dir/$dep_file"
                             
                             echo 40
-                            echo "安装 $dep_file..."
+                            echo -e "${GREEN}[Info]${NC} 安装 $dep_file..."
                             pacman -U --noconfirm --overwrite=* "$temp_dir/$dep_file" >/dev/null 2>&1
                         done
                         
@@ -1334,24 +1304,24 @@ manage_source_python() {
                 fi
                 (
                     echo 20
-                    echo "获取最新下载链接..."
+                    echo -e "${GREEN}[Info]${NC} 获取最新下载链接..."
                     
                     local full_url="http://downloads.sourcepython.com/release/742/source-python-$game_id-July-06-2025.zip"
                     
                     echo 30
-                    echo "下载 Source.Python ($game_id)..."
-                    echo "URL: $full_url"
+                    echo -e "${GREEN}[Info]${NC} 下载 Source.Python ($game_id)..."
+                    echo -e "${GREEN}[Info]${NC} URL: $full_url"
                     
                     # 下载 Source.Python
                     axel -q -n 10 "$full_url" -o "$temp_dir/source-python.zip"
                     
                     if [ ! -s "$temp_dir/source-python.zip" ]; then
-                        echo "下载失败: $full_url" > "$temp_dir/error.log"
+                        echo -e "${GREEN}[Error]${NC} 下载失败: $full_url" > "$temp_dir/error.log"
                         exit 1
                     fi
                     
                     echo 60
-                    echo "解压文件..."
+                    echo -e "${GREEN}[Info]${NC} 解压文件..."
                     
                     # 创建目标目录
                     mkdir -p "$sp_dir"
@@ -1360,7 +1330,7 @@ manage_source_python() {
                     unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
                     
                     echo 80
-                    echo "安装文件..."
+                    echo -e "${GREEN}[Info]${NC} 安装文件..."
                     
                     # 移动文件到游戏目录
                     cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
@@ -1395,10 +1365,10 @@ manage_source_python() {
                     continue
                 fi
 
-                if whiptail --title "确认卸载" --yesno "确定要卸载 Source.Python 吗？此操作不可恢复！" 10 60; then
+                if whiptail --title "确认卸载" --yesno "确定要删除 Source.Python 吗？此操作不可恢复！" 10 60; then
                     (
                         echo 10
-                        echo "卸载文件..."
+                        echo -e "${GREEN}[Info]${NC} 删除文件..."
                         rm -rf "$addons_dir/source-python"
                         rm -rf "$addons_dir/source-python.dll"
                         rm -rf "$addons_dir/source-python.so"
@@ -1406,22 +1376,22 @@ manage_source_python() {
 
                         # 确保完全卸载所有组件
                         echo 20
-                        echo "验证卸载..."
+                        echo -e "${GREEN}[Info]${NC} 验证删除..."
                         rm -rf "$sp_dir/addons/source-python" 2>/dev/null
 
                         echo 30
                         #sleep 1
-                    ) | whiptail --title "卸载 Source.Python" --gauge "正在卸载 Source.Python..." 8 70 0
+                    ) | whiptail --title "删除 Source.Python" --gauge "正在删除 Source.Python..." 8 70 0
 
-                    whiptail --title "卸载完成" --msgbox "Source.Python 已卸载\n\n所有相关文件和目录已被删除" 9 70
+                    whiptail --title "删除完成" --msgbox "Source.Python 已卸载\n\n所有相关文件和目录已被删除" 9 70
                 fi
                 ;;
             3)
                 if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
                     (
                         echo 10
-                        echo "检测到Arch Linux系统，安装额外依赖..."
-                        
+                        echo -e "${GREEN}[Info]${NC} 检测到Arch Linux系统，安装额外依赖..."
+
                         # 创建临时目录
                         local temp_dir=$(mktemp -d)
                         
@@ -1436,11 +1406,11 @@ manage_source_python() {
                         for dep_url in "${deps[@]}"; do
                             local dep_file="${dep_url##*/}"
                             echo 20
-                            echo "下载 $dep_file..."
-                            wget -q "$dep_url" -O "$temp_dir/$dep_file"
+                            echo -e "${GREEN}[Info]${NC} 下载 $dep_file..."
+                            axel -q -n 5 "$dep_url" -O "$temp_dir/$dep_file"
                             
                             echo 40
-                            echo "安装 $dep_file..."
+                            echo -e "${GREEN}[Info]${NC} 安装 $dep_file..."
                             pacman -U --noconfirm --overwrite=* "$temp_dir/$dep_file" >/dev/null 2>&1
                         done
                         
@@ -1461,14 +1431,13 @@ manage_source_python() {
                 local temp_dir=$(mktemp -d)
                 (
                     echo 20
-                    echo "使用测试文件安装 Source.Python..."
-                    
+                    echo -e "${GREEN}[Info]${NC} 使用测试文件安装 Source.Python..."
+
                     # 复制测试文件到临时目录
                     cp "$test_file" "$temp_dir/source-python.zip"
                     
                     echo 40
-                    echo "解压文件..."
-                    
+                    echo -e "${GREEN}[Info]${NC} 解压文件..."
                     # 创建目标目录
                     mkdir -p "$sp_dir"
                     
@@ -1476,8 +1445,8 @@ manage_source_python() {
                     unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
                     
                     echo 70
-                    echo "安装文件..."
-                    
+                    echo -e "${GREEN}[Info]${NC} 安装文件..."
+
                     # 移动文件到游戏目录
                     cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
                     
@@ -1545,7 +1514,7 @@ main_menu() {
             menu_title_5="管理SM+MM:S[v12]"
         fi
 
-        local choice=$(whiptail --title "服务器管理脚本" --menu "\nOS: $OS_INFO\n游戏服务器账户: $account_info\nSteamCMD: $steamcmd_info\n游戏: $game_info\n位置: $install_info" 22 70 12 \
+        local choice=$(whiptail --title "服务器管理脚本" --menu "\nOS: $OS_INFO| 游戏服务器账户: $account_info\n游戏: $game_info" 22 70 12 \
             "1" "安装游戏服务器依赖" \
             "2" "管理游戏服务器账户" \
             "3" "管理SteamCMD" \
@@ -1590,10 +1559,7 @@ main_menu() {
                 fi
                 ;;
             6) 
-                if [ -z "$SERVER_DIR" ]; then
-                    whiptail --title "错误" --msgbox "请先安装游戏服务器!" 8 60
-                    continue
-                fi
+                check_server_dir || return
                 manage_start_scripts 
                 ;;
             7) if [ -z "$GAME_NAME" ]; then

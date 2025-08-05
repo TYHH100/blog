@@ -6,6 +6,20 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # 重置颜色
 
+# 检查root权限
+check_root() {
+    if [ "$(id -u)" != "0" ]; then
+        # 尝试使用sudo重新执行当前脚本（并传递所有参数）
+        exec sudo -E "$0" "$@"
+        # 如果exec失败则显示错误
+        echo -e "${RED}[Error]${NC} 无法自动获取root权限！\n请手动执行: sudo $0"
+        exit 1
+    fi
+}
+
+# 调用权限检查
+check_root "$@"
+
 # 检查whiptail是否安装，未安装则自动安装
 if ! command -v whiptail >/dev/null 2>&1; then
     echo -e "${GREEN}[Info]${NC} whiptail 未安装，正在尝试自动安装..."
@@ -92,14 +106,6 @@ save_config() {
     # 安装的游戏路径
     CONFIG_SERVER_DIR="$SERVER_DIR"
 EOF
-}
-
-# 检查root权限
-check_root() {
-    if [ "$(id -u)" != "0" ]; then
-        whiptail --title "错误" --msgbox "此脚本需要以root权限运行！\n请使用sudo ./install_server.sh重新运行或者使用root账户" 8 60
-        exit 1
-    fi
 }
 
 # 检测操作系统

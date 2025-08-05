@@ -16,12 +16,12 @@ if ! command -v whiptail >/dev/null 2>&1; then
     elif command -v pacman >/dev/null 2>&1; then
         pacman -Sy --noconfirm libnewt
     else
-        echo -e "${GREEN}[Error]${NC} 无法自动安装 whiptail，请手动安装后重试。"
+        echo -e "${RED}[Error]${NC} 无法自动安装 whiptail，请手动安装后重试。"
         exit 1
     fi
     # 再次检测
     if ! command -v whiptail >/dev/null 2>&1; then
-        echo -e "${GREEN}[Error]${NC} whiptail 安装失败，请手动安装后重试。"
+        echo -e "${RED}[Error]${NC} whiptail 安装失败，请手动安装后重试。"
         exit 1
     fi
 fi
@@ -87,9 +87,9 @@ save_config() {
     CONFIG_STEAM_USER="$STEAM_USER"
     # SteamCMD路径
     CONFIG_STEAMCMD_PATH="$STEAMCMD_PATH"
-    # 上次安装的游戏
+    # 安装的游戏
     CONFIG_GAME_NAME="$GAME_NAME"
-    # 上次安装的游戏路径
+    # 安装的游戏路径
     CONFIG_SERVER_DIR="$SERVER_DIR"
 EOF
 }
@@ -172,7 +172,7 @@ install_aur_package() {
     # 下载AUR包
     if [ ! -d "$build_dir/.git" ]; then
         if ! git clone "https://aur.archlinux.org/$pkg_name.git" .; then
-            echo -e "${GREEN}[Error]${NC} 无法下载 $pkg_name"
+            echo -e "${RED}[Error]${NC} 无法下载 $pkg_name"
             return 1
         fi
     else
@@ -213,7 +213,7 @@ install_aur_package() {
         echo -e "${GREEN}[Info]${NC} $pkg_name 安装成功"
         return 0
     else
-        echo -e "${GREEN}[Error]${NC} $pkg_name 安装失败"
+        echo -e "${RED}[Error]${NC} $pkg_name 安装失败"
         return 1
     fi
 }
@@ -537,23 +537,23 @@ install_sourcemod() {
     local error_file=$(mktemp)
     {
         echo 30
-        echo -e "${GREEN}[Info]${NC} 下载Metamod:Source..."
+        echo "下载Metamod:Source..."
         axel -q -n 10 "https://mms.alliedmods.net/mmsdrop/1.12/mmsource-1.12.0-git1219-linux.tar.gz" -O $SERVER_DIR/mms.tar.gz
         if [ ! -s $SERVER_DIR/mms.tar.gz ]; then
-            echo -e "${GREEN}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
+            echo -e "${RED}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
             exit 1
         fi
         
         echo 60
-        echo -e "${GREEN}[Info]${NC} 下载SourceMod..."
+        echo "下载SourceMod..."
         axel -q -n 10 "https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7210-linux.tar.gz" -O $SERVER_DIR/sourcemod.tar.gz
         if [ ! -s $SERVER_DIR/sourcemod.tar.gz ]; then
-            echo -e "${GREEN}[Error]${NC} SourceMod下载失败！" > "$error_file"
+            echo -e "${RED}[Error]${NC} SourceMod下载失败！" > "$error_file"
             exit 1
         fi
         
         echo 80
-        echo -e "${GREEN}[Info]${NC} 安装到服务器目录..."
+        echo "安装到服务器目录..."
         tar -xzf $SERVER_DIR/mms.tar.gz -C "$addons_dir"
         tar -xzf $SERVER_DIR/sourcemod.tar.gz -C "$addons_dir"
 
@@ -1034,7 +1034,7 @@ manage_game_server() {
 }
 
 # 管理SM
-manage_plugins() {
+manage_sm_mms() {
     check_server_dir || return
 
     local choice=$(whiptail --title "管理SM" --menu "选择操作" 15 60 5 \
@@ -1087,7 +1087,7 @@ manage_plugins() {
                 MM_DOWNLOAD_URL="${MM_INDEX_URL}${MM_FILENAME}"
                 axel -q -n 10 "$MM_DOWNLOAD_URL" -o "$SERVER_DIR/$MM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$MM_FILENAME" ]; then
-                    echo -e "${GREEN}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
+                    echo -e "${RED}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
                     exit 1
                 fi
 
@@ -1099,7 +1099,7 @@ manage_plugins() {
                 SM_DOWNLOAD_URL="${SM_INDEX_URL}${SM_FILENAME}"
                 axel -q -n 10 "$SM_DOWNLOAD_URL" -o "$SERVER_DIR/$SM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$SM_FILENAME" ]; then
-                    echo -e "${GREEN}[Error]${NC} SourceMod下载失败！" > "$error_file"
+                    echo -e "${RED}[Error]${NC} SourceMod下载失败！" > "$error_file"
                     exit 1
                 fi
 
@@ -1257,7 +1257,7 @@ manage_source_python() {
         local choice=$(whiptail --title "管理 Source.Python ($GAME_NAME)" --menu "选择操作" 15 60 4 \
             "1" "安装 Source.Python" \
             "2" "删除 Source.Python" \
-            "3" "测试安装 (使用本地文件)" \
+            "3" "使用本地文件安装Source.Python" \
             "4" "返回" 3>&1 1>&2 2>&3)
 
         case $choice in
@@ -1266,8 +1266,8 @@ manage_source_python() {
                 if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
                     (
                         echo 10
-                        echo -e "${GREEN}[Info]${NC} 检测到Arch Linux系统，安装额外依赖..."
-                        
+                        echo "检测到Arch Linux系统，安装额外依赖..."
+
                         # 创建临时目录
                         local temp_dir=$(mktemp -d)
                         
@@ -1304,24 +1304,24 @@ manage_source_python() {
                 fi
                 (
                     echo 20
-                    echo -e "${GREEN}[Info]${NC} 获取最新下载链接..."
+                    echo "获取最新下载链接..."
                     
                     local full_url="http://downloads.sourcepython.com/release/742/source-python-$game_id-July-06-2025.zip"
                     
                     echo 30
-                    echo -e "${GREEN}[Info]${NC} 下载 Source.Python ($game_id)..."
-                    echo -e "${GREEN}[Info]${NC} URL: $full_url"
+                    echo "下载 Source.Python ($game_id)..."
+                    echo "URL: $full_url"
                     
                     # 下载 Source.Python
                     axel -q -n 10 "$full_url" -o "$temp_dir/source-python.zip"
                     
                     if [ ! -s "$temp_dir/source-python.zip" ]; then
-                        echo -e "${GREEN}[Error]${NC} 下载失败: $full_url" > "$temp_dir/error.log"
+                        echo -e "${RED}[Error]${NC} 下载失败: $full_url" > "$temp_dir/error.log"
                         exit 1
                     fi
                     
                     echo 60
-                    echo -e "${GREEN}[Info]${NC} 解压文件..."
+                    echo "解压文件..."
                     
                     # 创建目标目录
                     mkdir -p "$sp_dir"
@@ -1330,7 +1330,7 @@ manage_source_python() {
                     unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
                     
                     echo 80
-                    echo -e "${GREEN}[Info]${NC} 安装文件..."
+                    echo "安装文件..."
                     
                     # 移动文件到游戏目录
                     cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
@@ -1390,7 +1390,7 @@ manage_source_python() {
                 if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
                     (
                         echo 10
-                        echo -e "${GREEN}[Info]${NC} 检测到Arch Linux系统，安装额外依赖..."
+                        echo "检测到Arch Linux系统，安装额外依赖..."
 
                         # 创建临时目录
                         local temp_dir=$(mktemp -d)
@@ -1420,10 +1420,10 @@ manage_source_python() {
                     ) | whiptail --title "安装 Arch Linux 依赖" --gauge "正在安装 Source.Python 的额外依赖..." 8 70 0
                 fi
 
-                # 测试安装：使用本地文件
+                # 使用本地文件
                 local test_file="source-python.zip"
                 if [ ! -f "$test_file" ]; then
-                    whiptail --title "文件不存在" --msgbox "当前目录下未找到测试文件: $test_file\n\n请将测试文件放置到当前目录: $(pwd)" 12 70
+                    whiptail --title "文件不存在" --msgbox "当前目录下未找到文件: $test_file\n\n请将文件放置到当前目录: $(pwd)" 12 70
                     continue
                 fi
 
@@ -1431,13 +1431,13 @@ manage_source_python() {
                 local temp_dir=$(mktemp -d)
                 (
                     echo 20
-                    echo -e "${GREEN}[Info]${NC} 使用测试文件安装 Source.Python..."
+                    echo "使用本地文件安装 Source.Python..."
 
-                    # 复制测试文件到临时目录
+                    # 复制文件到临时目录
                     cp "$test_file" "$temp_dir/source-python.zip"
                     
                     echo 40
-                    echo -e "${GREEN}[Info]${NC} 解压文件..."
+                    echo "解压文件..."
                     # 创建目标目录
                     mkdir -p "$sp_dir"
                     
@@ -1445,7 +1445,7 @@ manage_source_python() {
                     unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
                     
                     echo 70
-                    echo -e "${GREEN}[Info]${NC} 安装文件..."
+                    echo "安装文件..."
 
                     # 移动文件到游戏目录
                     cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
@@ -1455,12 +1455,12 @@ manage_source_python() {
                     
                     echo 100
                     #sleep 1
-                ) | whiptail --title "测试安装 Source.Python" --gauge "正在使用本地文件安装 Source.Python..." 8 70 0
+                ) | whiptail --title "安装 Source.Python" --gauge "正在使用本地文件安装 Source.Python..." 8 70 0
                 
                 # 清理临时目录
                 rm -rf "$temp_dir"
                 execstack -c "$addons_dir/source-python/bin/core.so"
-                whiptail --title "安装成功" --msgbox "Source.Python 已通过测试文件安装到:\n$sp_dir\n\n启动服务器后使用 'sp info' 命令验证安装" 12 70
+                whiptail --title "安装成功" --msgbox "Source.Python 已通过本地文件安装到:\n$sp_dir\n\n启动服务器后使用 'sp info' 命令验证安装" 12 70
                 ;;
             *)  
                 return 
@@ -1555,7 +1555,7 @@ main_menu() {
                 if [ "$GAME_NAME" = "Garry's Mod" ]; then
                     manage_workshop
                 else
-                    manage_plugins
+                    manage_sm_mms
                 fi
                 ;;
             6) 

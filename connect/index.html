@@ -2,408 +2,59 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>服务器连接工具</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    <title>Steam服务器连接中转</title>
+    <script>
+        // 解析URL路径参数
+        function extractServerAddress() {
+            const pathSegments = window.location.pathname.split('/');
+            // 获取路径的最后一部分（IP:PORT）
+            const address = pathSegments.pop() || pathSegments.pop();
+            return address.trim();
         }
-        
-<pre><code>    :root &#123;
-        --primary: #2196F3;
-        --primary-dark: #1976D2;
-        --secondary: #FF9800;
-        --error: #F44336;
-        --success: #4CAF50;
-        --background: #121212;
-        --card-bg: #1e1e1e;
-        --text-primary: #ffffff;
-        --text-secondary: #bbbbbb;
-    &#125;
-    
-    body &#123;
-        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-        color: var(--text-primary);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-    &#125;
-    
-    @keyframes gradientBG &#123;
-        0% &#123; background-position: 0% 50% &#125;
-        50% &#123; background-position: 100% 50% &#125;
-        100% &#123; background-position: 0% 50% &#125;
-    &#125;
-    
-    .container &#123;
-        background: rgba(30, 30, 30, 0.85);
-        border-radius: 16px;
-        width: 100%;
-        max-width: 600px;
-        padding: 40px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        text-align: center;
-        margin-bottom: 30px;
-    &#125;
-    
-    h1 &#123;
-        font-size: 2.8rem;
-        margin-bottom: 25px;
-        font-weight: 700;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        letter-spacing: 1px;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    &#125;
-    
-    .status-box &#123;
-        background: rgba(50, 50, 50, 0.6);
-        padding: 30px;
-        border-radius: 12px;
-        margin: 30px 0;
-        border-left: 4px solid var(--primary);
-        text-align: left;
-    &#125;
-    
-    #status &#123;
-        font-size: 1.6rem;
-        margin: 10px 0;
-        line-height: 1.6;
-        color: var(--secondary);
-        text-align: center;
-        font-weight: 500;
-    &#125;
-    
-    .server-address &#123;
-        display: inline-block;
-        background: rgba(0, 0, 0, 0.4);
-        padding: 8px 16px;
-        border-radius: 8px;
-        margin: 15px 0;
-        font-family: monospace;
-        font-size: 1.4rem;
-        color: #76ff03;
-    &#125;
-    
-    .loader &#123;
-        display: inline-block;
-        width: 60px;
-        height: 60px;
-        border: 6px solid rgba(79, 195, 247, 0.3);
-        border-radius: 50%;
-        border-top: 6px solid var(--primary);
-        animation: spin 1.5s linear infinite;
-        margin: 25px auto;
-    &#125;
-    
-    @keyframes spin &#123;
-        0% &#123; transform: rotate(0deg); &#125;
-        100% &#123; transform: rotate(360deg); &#125;
-    &#125;
-    
-    #fallback, .info-box &#123;
-        display: none;
-        background: rgba(40, 40, 40, 0.7);
-        border-radius: 12px;
-        padding: 25px;
-        margin: 25px 0;
-        border-left: 4px solid var(--secondary);
-        text-align: left;
-    &#125;
-    
-    .info-box &#123;
-        border-left: 4px solid var(--success);
-    &#125;
-    
-    #steam-command &#123;
-        display: block;
-        font-family: monospace;
-        padding: 20px;
-        margin: 20px 0;
-        background: rgba(0, 0, 0, 0.5);
-        color: #76ff03;
-        border-radius: 10px;
-        font-size: 1.3rem;
-        overflow-x: auto;
-        white-space: nowrap;
-        text-align: center;
-    &#125;
-    
-    .btn &#123;
-        display: inline-block;
-        padding: 14px 32px;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        cursor: pointer;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 15px 10px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        min-width: 180px;
-    &#125;
-    
-    .btn:hover &#123;
-        background: var(--primary-dark);
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-    &#125;
-    
-    .btn:active &#123;
-        transform: translateY(-1px);
-    &#125;
-    
-    .btn-secondary &#123;
-        background: transparent;
-        border: 2px solid var(--primary);
-        color: var(--primary);
-    &#125;
-    
-    .btn-secondary:hover &#123;
-        background: rgba(33, 150, 243, 0.15);
-    &#125;
-    
-    .tips &#123;
-        font-size: 0.95rem;
-        color: #ccc;
-        margin-top: 25px;
-        line-height: 1.7;
-    &#125;
-    
-    .badge &#123;
-        display: inline-block;
-        background: var(--error);
-        color: white;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-left: 10px;
-        vertical-align: middle;
-    &#125;
-    
-    h2 &#123;
-        font-size: 2rem;
-        margin: 20px 0;
-        color: var(--secondary);
-    &#125;
-    
-    h3 &#123;
-        font-size: 1.5rem;
-        margin: 20px 0 10px;
-        color: var(--primary);
-    &#125;
-    
-    @media (max-width: 650px) &#123;
-        .container &#123;
-            padding: 25px;
-        &#125;
-        
-        h1 &#123;
-            font-size: 2rem;
-        &#125;
-        
-        #status &#123;
-            font-size: 1.3rem;
-        &#125;
-        
-        .btn &#123;
-            padding: 12px 24px;
-            min-width: 160px;
-        &#125;
-        
-        .server-address &#123;
-            font-size: 1.1rem;
-            padding: 6px 12px;
+
+<pre><code>    // 主执行函数
+    function redirectToSteam() &#123;
+        try &#123;
+            const serverAddress = extractServerAddress();
+            
+            // 基础验证格式（IP:PORT 或 域名:PORT）
+            if (!/.+:\d+$/.test(serverAddress)) &#123;
+                throw new Error(&#39;地址格式无效&#39;);
+            &#125;
+
+            // 构建Steam协议链接
+            const steamLink = `steam://connect/$&#123;serverAddress&#125;`;
+            
+            // 尝试跳转
+            window.location.replace(steamLink);
+            
+            // 备选方案：延时跳转
+            setTimeout(() =&gt; &#123;
+                document.getElementById(&#39;fallback-link&#39;).click();
+            &#125;, 1500);
+            
+        &#125; catch (error) &#123;
+            document.getElementById(&#39;error&#39;).textContent = `错误：$&#123;error.message || &#39;无效的服务器地址&#39;&#125;`;
         &#125;
     &#125;
-    
-    footer &#123;
-        margin-top: 20px;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
-        max-width: 600px;
-    &#125;
-    
-    a &#123;
-        color: var(--primary);
-        text-decoration: none;
-    &#125;
-&lt;/style&gt;
+
+    // 页面加载时执行
+    window.onload = redirectToSteam;
+&lt;/script&gt;
 </code></pre>
 </head>
 <body>
-    <div class="container">
-        <h1>服务器连接工具</h1>
-        
-<pre><code>    &lt;div class=&quot;status-box&quot;&gt;
-        &lt;div class=&quot;loader&quot;&gt;&lt;/div&gt;
-        &lt;p id=&quot;status&quot;&gt;正在分析URL并准备连接...&lt;/p&gt;
-    &lt;/div&gt;
+    <noscript>
+        <h2>错误：需要启用JavaScript才能使用此功能</h2>
+    </noscript>
     
-    &lt;div id=&quot;server-info&quot;&gt;
-        &lt;p id=&quot;server-address-display&quot; class=&quot;server-address&quot;&gt;&lt;/p&gt;
-    &lt;/div&gt;
-    
-    &lt;div id=&quot;error-message&quot; style=&quot;display: none; background: rgba(200, 50, 50, 0.3); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;&quot;&gt;
-        &lt;h2&gt;无法解析URL &lt;span class=&quot;badge&quot;&gt;ERROR&lt;/span&gt;&lt;/h2&gt;
-        &lt;p&gt;支持的URL格式: &lt;code&gt;https://你的网站/connect/ip:端口&lt;/code&gt;&lt;/p&gt;
-        &lt;p&gt;例如: &lt;code&gt;https://example.com/connect/124.221.61.195:27015&lt;/code&gt;&lt;/p&gt;
-    &lt;/div&gt;
-    
-    &lt;div id=&quot;fallback&quot;&gt;
-        &lt;h2&gt;Steam连接失败&lt;/h2&gt;
-        
-        &lt;div class=&quot;info-box&quot;&gt;
-            &lt;h3&gt;手动连接指南&lt;/h3&gt;
-            &lt;p&gt;1. 复制下面的连接命令&lt;/p&gt;
-            &lt;p&gt;2. 在游戏中按 &lt;kbd&gt;~&lt;/kbd&gt; 键打开控制台&lt;/p&gt;
-            &lt;p&gt;3. 粘贴命令并按下 &lt;kbd&gt;Enter&lt;/kbd&gt;&lt;/p&gt;
-        &lt;/div&gt;
-        
-        &lt;div id=&quot;steam-command&quot;&gt;&lt;/div&gt;
-        &lt;button class=&quot;btn&quot; id=&quot;copy-btn&quot;&gt;复制命令&lt;/button&gt;
-    &lt;/div&gt;
-    
-    &lt;div class=&quot;tips&quot;&gt;
-        &lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt; 此功能需要安装并运行Steam客户端&lt;/p&gt;
-        &lt;p&gt;首次连接可能弹出安全提示，请允许浏览器打开Steam&lt;/p&gt;
-        &lt;p&gt;对于复杂的服务器密码，请使用完整的URL格式: &lt;code&gt;ip:端口/密码&lt;/code&gt;&lt;/p&gt;
-    &lt;/div&gt;
-    
-    &lt;button class=&quot;btn btn-secondary&quot; id=&quot;retry-btn&quot;&gt;重试连接&lt;/button&gt;
+<pre><code>&lt;div style=&quot;max-width:600px;margin:100px auto;text-align:center;font-family:sans-serif&quot;&gt;
+    &lt;h1 id=&quot;error&quot;&gt;正在跳转到Steam服务器...&lt;/h1&gt;
+    &lt;p&gt;若未自动跳转，&lt;a id=&quot;fallback-link&quot; href=&quot;&quot;&gt;请点击此处&lt;/a&gt;&lt;/p&gt;
+    &lt;p style=&quot;color:#666;font-size:0.9rem;margin-top:2rem&quot;&gt;
+        技术支持：本页面仅处理 steam://connect/ 协议跳转
+    &lt;/p&gt;
 &lt;/div&gt;
-
-&lt;footer&gt;
-    &lt;p&gt;© 2023 Steam服务器连接工具 | 由GitHub Pages提供支持&lt;/p&gt;
-&lt;/footer&gt;
-
-&lt;script&gt;
-    document.addEventListener(&#39;DOMContentLoaded&#39;, () =&gt; &#123;
-        const statusElement = document.getElementById(&#39;status&#39;);
-        const serverAddressDisplay = document.getElementById(&#39;server-address-display&#39;);
-        const errorMessage = document.getElementById(&#39;error-message&#39;);
-        const fallbackElement = document.getElementById(&#39;fallback&#39;);
-        const steamCommand = document.getElementById(&#39;steam-command&#39;);
-        const copyBtn = document.getElementById(&#39;copy-btn&#39;);
-        const retryBtn = document.getElementById(&#39;retry-btn&#39;);
-        
-        // 解析URL
-        function parseServerAddress() &#123;
-            const currentPath = window.location.pathname;
-            const connectPrefix = &#39;/connect/&#39;;
-            
-            // 检查路径格式是否为 /connect/...
-            if (!currentPath.startsWith(connectPrefix)) &#123;
-                statusElement.textContent = &quot;错误：URL格式不正确&quot;;
-                errorMessage.style.display = &#39;block&#39;;
-                return null;
-            &#125;
-            
-            // 提取IP:端口部分
-            const addressSegment = currentPath.substring(connectPrefix.length);
-            
-            // 验证地址格式
-            const addressPattern = /^(\d&#123;1,3&#125;\.\d&#123;1,3&#125;\.\d&#123;1,3&#125;\.\d&#123;1,3&#125;|[a-zA-Z0-9.-]+):\d&#123;1,5&#125;/;
-            
-            if (!addressPattern.test(addressSegment)) &#123;
-                statusElement.textContent = &quot;错误：服务器地址格式无效&quot;;
-                errorMessage.style.display = &#39;block&#39;;
-                return null;
-            &#125;
-            
-            // 显示提取的服务器地址
-            serverAddressDisplay.textContent = addressSegment;
-            
-            return addressSegment;
-        &#125;
-        
-        // 连接到Steam
-        function connectToSteam() &#123;
-            const serverAddress = parseServerAddress();
-            
-            if (!serverAddress) &#123;
-                return;
-            &#125;
-            
-            // 更新状态
-            statusElement.textContent = `正在连接到服务器: $&#123;serverAddress&#125;`;
-            
-            // 构建连接字符串
-            const steamConnectUrl = `steam://connect/$&#123;serverAddress&#125;`;
-            
-            // 设置连接状态标记
-            let steamTriggered = false;
-            
-            // 当Steam激活时会触发window.onblur
-            window.onblur = () =&gt; &#123; 
-                steamTriggered = true;
-            &#125;;
-            
-            // 尝试启动Steam客户端
-            try &#123;
-                window.location.href = steamConnectUrl;
-                
-                // 设置8秒超时检查
-                setTimeout(() =&gt; &#123;
-                    if (!steamTriggered) &#123;
-                        statusElement.textContent = &quot;Steam客户端未响应&quot;;
-                        showFallback(serverAddress);
-                    &#125;
-                &#125;, 8000);
-            &#125; catch (e) &#123;
-                statusElement.textContent = `连接错误: $&#123;e.message&#125;`;
-                showFallback(serverAddress);
-            &#125;
-        &#125;
-        
-        // 显示回退选项
-        function showFallback(serverAddress) &#123;
-            steamCommand.textContent = `connect $&#123;serverAddress&#125;`;
-            fallbackElement.style.display = &#39;block&#39;;
-        &#125;
-        
-        // 复制连接命令
-        function copyCommand() &#123;
-            navigator.clipboard.writeText(steamCommand.textContent)
-                .then(() =&gt; &#123;
-                    const originalText = copyBtn.textContent;
-                    copyBtn.textContent = &quot;✓ 已复制&quot;;
-                    copyBtn.style.backgroundColor = &quot;#4CAF50&quot;;
-                    
-                    setTimeout(() =&gt; &#123;
-                        copyBtn.textContent = originalText;
-                        copyBtn.style.backgroundColor = &quot;#2196F3&quot;;
-                    &#125;, 2000);
-                &#125;)
-                .catch(err =&gt; &#123;
-                    alert(&quot;复制失败: &quot; + err.message);
-                &#125;);
-        &#125;
-        
-        // 初始化
-        copyBtn.addEventListener(&#39;click&#39;, copyCommand);
-        retryBtn.addEventListener(&#39;click&#39;, connectToSteam);
-        
-        // 启动连接过程
-        connectToSteam();
-    &#125;);
-&lt;/script&gt;
 </code></pre>
 </body>
 </html>

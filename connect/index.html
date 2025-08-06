@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://blog.tyhh10.xyz/images/posts_cover/server_setup_tutorial/bt_server_setup_tutorial.jpg">
 <meta property="article:published_time" content="2024-09-30T05:36:34.000Z">
-<meta property="article:modified_time" content="2025-08-06T09:33:27.475Z">
+<meta property="article:modified_time" content="2025-08-06T09:55:21.951Z">
 <meta property="article:author" content="TYHH10">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://blog.tyhh10.xyz/images/posts_cover/server_setup_tutorial/bt_server_setup_tutorial.jpg">
@@ -556,23 +556,33 @@
                      
                 ></p>
 <script>
-    (function() {
-        const fullUrl = window.location.href;
-        const baseUrl = window.location.origin;
-        const path = fullUrl.replace(baseUrl, '');
-        const prefix = "/connect/?server=";
-        
-        if (path.startsWith(prefix)) {
-            const serverAddress = path.substring(prefix.length);
-            const cleanAddress = serverAddress.split('?')[0].split('#')[0];
-            
-            if (cleanAddress.includes(':') && cleanAddress.split(':').length === 2) {
-                window.location.href = "steam://connect/" + cleanAddress;
-                return;
-            }
+    function redirectToSteam() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const serverAddress = urlParams.get('server');
+        if (serverAddress && serverAddress.includes(':') && serverAddress.split(':').length === 2) {
+            window.location.href = "steam://connect/" + serverAddress;
+            setTimeout(() => {
+                if (window.location.href.indexOf('connect') > -1) {
+                    document.querySelector('.loading').style.display = 'none';
+                    document.querySelector('.manual-connect').style.display = 'block';
+                }
+            }, 5000);
+        } else {
+            window.location.href = "/";
         }
-        window.location.href = "/";
-    })();
+    }
+    window.addEventListener('DOMContentLoaded', redirectToSteam);
+    function manualRedirect() {
+        const serverAddress = new URLSearchParams(window.location.search).get('server');
+        if (serverAddress) {
+            window.location.href = "steam://connect/" + serverAddress;
+            setTimeout(() => {
+                if (window.location.href.indexOf('connect') > -1) {
+                    document.getElementById('copy-instructions').style.display = 'block';
+                }
+            }, 1000);
+        }
+    }
 </script>
 	</div>
 

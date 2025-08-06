@@ -233,7 +233,7 @@ install_dependencies() {
     if [[ "$OS_INFO" == *"ubuntu"* ]] || [[ "$OS_INFO" == *"debian"* ]]; then
         # Debian/Ubuntu 依赖
         packages=(
-            lib32z1 libbz2-1.0:i386 lib32gcc-s1 lib32stdc++6 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 libffi7:i386 zlib1g:i386 screen unzip axel
+            lib32z1 libbz2-1.0:i386 lib32gcc-s1 lib32stdc++6 libcurl3-gnutls:i386 libsdl2-2.0-0:i386 zlib1g:i386 screen unzip axel
         )
     elif [[ "$OS_INFO" == *"centos"* ]] || [[ "$OS_INFO" == *"rhel"* ]] || [[ "$OS_INFO" == *"almalinux"* ]]; then
         # CentOS/RHEL 依赖

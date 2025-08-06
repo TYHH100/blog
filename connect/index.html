@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Join Game Server</title>
+    <script>
+        // 从URL参数获取连接信息
+        function getServerParams() {
+            const params = new URLSearchParams(window.location.search);
+            const result = {};
+            
+<pre><code>        // 同时支持独立参数和合并参数两种格式
+        if (params.has(&#39;address&#39;)) &#123;
+            [result.ip, result.port] = params.get(&#39;address&#39;).split(&#39;:&#39;);
+        &#125; else &#123;
+            result.ip = params.get(&#39;ip&#39;) || &#39;127.0.0.1&#39;;
+            result.port = params.get(&#39;port&#39;) || &#39;27015&#39;;
+        &#125;
+        
+        result.password = params.get(&#39;password&#39;) || &#39;&#39;;
+        return result;
+    &#125;
+
+    // 构建连接字符串并重定向
+    function connectToSteam() &#123;
+        const &#123;ip, port, password&#125; = getServerParams();
+        
+        // 验证基本参数
+        if (!ip || !port) &#123;
+            document.getElementById(&quot;status&quot;).textContent = &quot;缺少服务器参数&quot;;
+            return;
+        &#125;
+        
+        // 构建连接字符串
+        const connectStr = password 
+            ? `$&#123;ip&#125;:$&#123;port&#125;/$&#123;password&#125;` 
+            : `$&#123;ip&#125;:$&#123;port&#125;`;
+        
+        // 尝试Steam协议连接
+        try &#123;
+            window.location.href = `steam://connect/$&#123;connectStr&#125;`;
+            
+            // 备选方案：15秒后显示手动连接选项
+            setTimeout(() =&gt; &#123;
+                if (!window.steamConnected) &#123;
+                    document.getElementById(&quot;manual-connect&quot;).style.display = &quot;block&quot;;
+                    document.getElementById(&quot;connect-command&quot;).textContent = 
+                        `connect $&#123;ip&#125;:$&#123;port&#125;$&#123;password ? `; password $&#123;password&#125;` : &#39;&#39;&#125;`;
+                &#125;
+            &#125;, 15000);
+        &#125; catch (e) &#123;
+            document.getElementById(&quot;status&quot;).textContent = &quot;连接失败: &quot; + e.message;
+        &#125;
+    &#125;
+
+    // 复制连接指令到剪贴板
+    function copyConnectCommand() &#123;
+        const command = document.getElementById(&quot;connect-command&quot;).textContent;
+        navigator.clipboard.writeText(command)
+            .then(() =&gt; alert(&quot;指令已复制到剪贴板！&quot;))
+            .catch(err =&gt; console.error(&quot;复制失败&quot;, err));
+    &#125;
+&lt;/script&gt;
+&lt;style&gt;
+    body &#123; font-family: Arial, sans-serif; text-align: center; padding: 50px; &#125;
+    #manual-connect &#123; display: none; margin-top: 30px; padding: 20px; background: #f0f0f0; &#125;
+    #connect-command &#123; font-family: monospace; margin: 10px; padding: 10px; background: white; &#125;
+&lt;/style&gt;
+</code></pre>
+</head>
+<body onload="connectToSteam()">
+    <h1>正在连接游戏服务器...</h1>
+    <p id="status">正在通过Steam启动游戏连接</p>
+    
+<pre><code>&lt;div id=&quot;manual-connect&quot;&gt;
+    &lt;h3&gt;Steam客户端连接失败&lt;/h3&gt;
+    &lt;p&gt;请尝试手动连接服务器：&lt;/p&gt;
+    &lt;div id=&quot;connect-command&quot;&gt;&lt;/div&gt;
+    &lt;button onclick=&quot;copyConnectCommand()&quot;&gt;复制连接指令&lt;/button&gt;
+    &lt;p&gt;在游戏控制台按&lt;span style=&quot;color:blue&quot;&gt;~&lt;/span&gt;键粘贴并运行此指令&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+    // 检测Steam是否已响应
+    window.steamConnected = false;
+    window.onblur = function() &#123; 
+        window.steamConnected = true;
+    &#125;;
+&lt;/script&gt;
+</code></pre>
+</body>
+</html>

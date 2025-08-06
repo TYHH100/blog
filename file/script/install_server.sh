@@ -154,7 +154,10 @@ enable_multilib() {
     if ! grep -q '^\[multilib\]' /etc/pacman.conf; then
         # 启用multilib仓库
         echo -e "${GREEN}[Info]${NC} 启用Arch Linux的multilib仓库..."
-        sed -i.bak -e 's/^#\s*\[multilib\]/[multilib]/' -e 's/^#\s*Include\s*=\s*\/etc\/pacman\.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' /etc/pacman.conf
+        #sed -i.bak -e 's/^#\s*\[multilib\]/[multilib]/' -e 's/^#\s*Include\s*=\s*\/etc\/pacman\.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' /etc/pacman.conf
+        cp /etc/pacman.conf /etc/pacman.conf.bak
+        echo [multilib] >> /etc/pacman.conf
+        echo Include = /etc/pacman.d/mirrorlist >> /etc/pacman.conf
         # 更新软件包列表
         pacman -Sy
     fi
@@ -1281,7 +1284,6 @@ manage_source_python() {
                         local deps=(
                             "https://blog.tyhh10.xyz/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
                             "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
-                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.3-1-x86_64.pkg.tar.zst"
                         )
                         
                         # 下载并安装每个依赖
@@ -1405,7 +1407,6 @@ manage_source_python() {
                         local deps=(
                             "https://blog.tyhh10.xyz/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
                             "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
-                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.3-1-x86_64.pkg.tar.zst"
                         )
                         
                         # 下载并安装每个依赖

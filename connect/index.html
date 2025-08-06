@@ -1,60 +1,41 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>Steam服务器连接中转</title>
-    <script>
-        // 解析URL路径参数
-        function extractServerAddress() {
-            const pathSegments = window.location.pathname.split('/');
-            // 获取路径的最后一部分（IP:PORT）
-            const address = pathSegments.pop() || pathSegments.pop();
-            return address.trim();
-        }
+<script>
+function extractServerAddress() {
+  const origin = new URL(window.location.origin);
+  const pathSegments = window.location.href
+    .replace(origin, '')
+    .split('/')
+    .filter(Boolean);
+  
+  const connectIndex = pathSegments.indexOf('connect');
+  return (connectIndex !== -1 && pathSegments[connectIndex + 1]) 
+    || window.location.pathname.split('/').pop();
+}
 
-<pre><code>    // 主执行函数
-    function redirectToSteam() &#123;
-        try &#123;
-            const serverAddress = extractServerAddress();
-            
-            // 基础验证格式（IP:PORT 或 域名:PORT）
-            if (!/.+:\d+$/.test(serverAddress)) &#123;
-                throw new Error(&#39;地址格式无效&#39;);
-            &#125;
-
-            // 构建Steam协议链接
-            const steamLink = `steam://connect/$&#123;serverAddress&#125;`;
-            
-            // 尝试跳转
-            window.location.replace(steamLink);
-            
-            // 备选方案：延时跳转
-            setTimeout(() =&gt; &#123;
-                document.getElementById(&#39;fallback-link&#39;).click();
-            &#125;, 1500);
-            
-        &#125; catch (error) &#123;
-            document.getElementById(&#39;error&#39;).textContent = `错误：$&#123;error.message || &#39;无效的服务器地址&#39;&#125;`;
-        &#125;
-    &#125;
-
-    // 页面加载时执行
-    window.onload = redirectToSteam;
-&lt;/script&gt;
-</code></pre>
-</head>
-<body>
-    <noscript>
-        <h2>错误：需要启用JavaScript才能使用此功能</h2>
-    </noscript>
+function redirect() {
+  try {
+    const serverAddress = extractServerAddress();
+    if (!serverAddress || !/\S+:\d+/.test(serverAddress)) {
+      throw new Error('服务器地址格式无效');
+    }
     
-<pre><code>&lt;div style=&quot;max-width:600px;margin:100px auto;text-align:center;font-family:sans-serif&quot;&gt;
-    &lt;h1 id=&quot;error&quot;&gt;正在跳转到Steam服务器...&lt;/h1&gt;
-    &lt;p&gt;若未自动跳转，&lt;a id=&quot;fallback-link&quot; href=&quot;&quot;&gt;请点击此处&lt;/a&gt;&lt;/p&gt;
-    &lt;p style=&quot;color:#666;font-size:0.9rem;margin-top:2rem&quot;&gt;
-        技术支持：本页面仅处理 steam://connect/ 协议跳转
-    &lt;/p&gt;
-&lt;/div&gt;
-</code></pre>
+    window.location.href = `steam://connect/${serverAddress}`;
+    document.getElementById('fallbackLink').href = `steam://connect/${serverAddress}`;
+    
+    setTimeout(() => {
+      document.getElementById('redirectState').textContent = '手动跳转';
+    }, 3000);
+    
+  } catch (error) {
+    document.getElementById('errorMsg').textContent = error.message;
+    document.getElementById('errorMsg').style.display = 'block';
+  }
+}
+window.addEventListener('DOMContentLoaded', redirect);
+</script>
+
+<body style="margin:0;padding:20px;font-family:sans-serif;text-align:center">
+  <h1 id="redirectState">启动Steam连接中...</h1>
+  <div id="errorMsg" style="color:#c00;display:none"></div>
+  <p>如未自动跳转，<a id="fallbackLink" href="">请点击这里</a></p>
 </body>
-</html>

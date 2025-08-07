@@ -174,6 +174,29 @@ install_aur_package() {
         return 0
     fi
 
+    # 尝试安装预构建包
+    if [ "$pkg_name" = "lib32-ncurses5-compat-libs" ]; then
+        local prebuilt_url="https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
+        local temp_pkg="/tmp/lib32-ncurses5-compat-libs.pkg.tar.zst"
+        
+        echo -e "${GREEN}[Info]${NC} 尝试安装预构建包: $pkg_name"
+        axel -q -n 10 "$prebuilt_url" -o "$temp_pkg"
+        
+        if [ -f "$temp_pkg" ]; then
+            pacman -U --noconfirm --overwrite=* "$temp_pkg" >/dev/null 2>&1
+            rm -f "$temp_pkg"
+            
+            if pacman -Qq $pkg_name &>/dev/null; then
+                echo -e "${GREEN}[Info]${NC} 预构建包安装成功: $pkg_name"
+                return 0
+            else
+                echo -e "${YELLOW}[Warning]${NC} 预构建包安装失败，尝试从AUR构建"
+            fi
+        else
+            echo -e "${YELLOW}[Warning]${NC} 无法下载预构建包，尝试从AUR构建"
+        fi
+    fi
+
     # 创建构建目录
     mkdir -p "$build_dir"
     cd "$build_dir"

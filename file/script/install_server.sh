@@ -546,8 +546,28 @@ download_game() {
         mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
         whiptail --title "完成" --msgbox "成功安装 $GAME_NAME 服务器到: $SERVER_DIR" 9 70
     else
-        mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
-        whiptail --title "安装失败" --textbox "$log_file" 20 70
+        if grep -qi "Error! App '$app_id' state is 0x[0-9a-fA-F]\+ after update job" "$log_file"; then
+            error_code=$(grep -o "0x[0-9a-fA-F]\+" "$log_file" | head -n 1)
+
+            case "$error_code" in
+                "0x202")
+                    error_msg="SteamCMD操作失败(错误代码: $error_code)\n\n"
+                    error_msg+="原因：硬盘空间不足"
+                    ;;
+                *)
+                    error_msg="SteamCMD操作失败(未知错误代码: $error_code)\n\n"
+                    error_msg+="请检查日志以获取详细信息：\n$(cat "$log_file")"
+                    ;;
+            esac
+            mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+
+            # 显示错误信息
+            whiptail --title "安装失败" --msgbox "$error_msg" 20 70
+        else
+            # 其他错误（非状态码错误）
+            whiptail --title "安装失败" --textbox "$log_file" 20 70
+        fi
+
         return
     fi
 }
@@ -965,7 +985,28 @@ manage_game_server() {
                 mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
                 whiptail --title "完成" --msgbox "更新完成 $GAME_NAME 服务器路径: $SERVER_DIR" 9 70
             else
-                whiptail --title "更新失败" --textbox "$log_file" 20 70
+                if grep -qi "Error! App '$app_id' state is 0x[0-9a-fA-F]\+ after update job" "$log_file"; then
+                    error_code=$(grep -o "0x[0-9a-fA-F]\+" "$log_file" | head -n 1)
+
+                    case "$error_code" in
+                        "0x202")
+                            error_msg="SteamCMD操作失败(错误代码: $error_code)\n\n"
+                            error_msg+="原因：硬盘空间不足"
+                            ;;
+                        *)
+                            error_msg="SteamCMD操作失败(未知错误代码: $error_code)\n\n"
+                            error_msg+="请检查日志以获取详细信息：\n$(cat "$log_file")"
+                            ;;
+                    esac
+                    mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+
+                    # 显示错误信息
+                    whiptail --title "安装失败" --msgbox "$error_msg" 20 70
+                else
+                    # 其他错误（非状态码错误）
+                    whiptail --title "安装失败" --textbox "$log_file" 20 70
+                fi
+
                 return
             fi
             ;;
@@ -989,7 +1030,28 @@ manage_game_server() {
                 mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
                 whiptail --title "完成" --msgbox "验证完成 $GAME_NAME 服务器路径: $SERVER_DIR" 9 70
             else
-                whiptail --title "安装失败" --textbox "$log_file" 20 70
+                if grep -qi "Error! App '$app_id' state is 0x[0-9a-fA-F]\+ after update job" "$log_file"; then
+                    error_code=$(grep -o "0x[0-9a-fA-F]\+" "$log_file" | head -n 1)
+
+                    case "$error_code" in
+                        "0x202")
+                            error_msg="SteamCMD操作失败(错误代码: $error_code)\n\n"
+                            error_msg+="原因：硬盘空间不足"
+                            ;;
+                        *)
+                            error_msg="SteamCMD操作失败(未知错误代码: $error_code)\n\n"
+                            error_msg+="请检查日志以获取详细信息：\n$(cat "$log_file")"
+                            ;;
+                    esac
+                    mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+
+                    # 显示错误信息
+                    whiptail --title "安装失败" --msgbox "$error_msg" 20 70
+                else
+                    # 其他错误（非状态码错误）
+                    whiptail --title "安装失败" --textbox "$log_file" 20 70
+                fi
+
                 return
             fi
             ;;

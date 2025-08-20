@@ -142,7 +142,7 @@
     
     <title>
         
-            连接服务器 | 摸鱼馆
+            摸鱼馆 - Redefine Your Hexo Journey.
         
     </title>
 
@@ -643,7 +643,7 @@
 
 	<div class="page-template-content markdown-body">
 		
-		<h1>连接服务器</h1>
+		<h1></h1>
 		
 
 		<!DOCTYPE html>
@@ -754,480 +754,478 @@
             white-space: pre; /* Keep indentation */
         }
 
-<pre><code>    /* All Scopes Table Styles */
-    #allscopesView th:hover &#123;
-        background-color: #e0e0e0;
-    &#125;
-    #allscopesView th::after &#123;
-        content: &#39;&#39;;
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        border: 4px solid transparent;
-    &#125;
-    #allscopesView th.sort-asc::after &#123;
-        border-bottom-color: #333;
-    &#125;
-    #allscopesView th.sort-desc::after &#123;
-        border-top-color: #333;
-    &#125;
+        /* All Scopes Table Styles */
+        #allscopesView th:hover {
+            background-color: #e0e0e0;
+        }
+        #allscopesView th::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 4px solid transparent;
+        }
+        #allscopesView th.sort-asc::after {
+            border-bottom-color: #333;
+        }
+        #allscopesView th.sort-desc::after {
+            border-top-color: #333;
+        }
 
-    /* Hierarchical View Styles */
-    .hierarchy-row .toggle &#123;
-        cursor: pointer;
-        display: inline-block;
-        width: 1.5em;
-        text-align: center;
-        color: #007bff;
-        font-weight: bold;
-    &#125;
-    .hierarchy-row .toggle.empty &#123;
-        cursor: default;
-        color: #ccc;
-    &#125;
-    .hierarchy-row.hidden &#123;
-        display: none;
-    &#125;
-    .heatmap-cell &#123;
-        color: black;
-    &#125;
-    .heatmap-cell.dark-text &#123;
-        color: white; /* For better contrast on dark red backgrounds */
-    &#125;
+        /* Hierarchical View Styles */
+        .hierarchy-row .toggle {
+            cursor: pointer;
+            display: inline-block;
+            width: 1.5em;
+            text-align: center;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .hierarchy-row .toggle.empty {
+            cursor: default;
+            color: #ccc;
+        }
+        .hierarchy-row.hidden {
+            display: none;
+        }
+        .heatmap-cell {
+            color: black;
+        }
+        .heatmap-cell.dark-text {
+            color: white; /* For better contrast on dark red backgrounds */
+        }
 
-&lt;/style&gt;
-</code></pre>
+    </style>
 </head>
 <body>
 
-<pre><code>&lt;div class=&quot;container&quot;&gt;
-    &lt;h1&gt;Valve Profiler (vprof) Analyzer&lt;/h1&gt;
+    <div class="container">
+        <h1>Valve Profiler (vprof) Analyzer</h1>
 
-    &lt;div class=&quot;controls&quot;&gt;
-        &lt;p&gt;选择一个 vprof dump 文件或将内容粘贴到下方文本框中。&lt;/p&gt;
-        &lt;input type=&quot;file&quot; id=&quot;fileInput&quot; accept=&quot;.txt&quot;&gt;
-        &lt;textarea id=&quot;textInput&quot; placeholder=&quot;或者将 vprof 报告内容粘贴在这里...&quot;&gt;&lt;/textarea&gt;
-        &lt;button id=&quot;parseButton&quot;&gt;Parse Profile Data&lt;/button&gt;
-        &lt;p id=&quot;error&quot;&gt;&lt;/p&gt;
-    &lt;/div&gt;
+        <div class="controls">
+            <p>选择一个 vprof dump 文件或将内容粘贴到下方文本框中。</p>
+            <input type="file" id="fileInput" accept=".txt">
+            <textarea id="textInput" placeholder="或者将 vprof 报告内容粘贴在这里..."></textarea>
+            <button id="parseButton">Parse Profile Data</button>
+            <p id="error"></p>
+        </div>
 
-    &lt;div id=&quot;results&quot; style=&quot;display: none;&quot;&gt;
-        &lt;h2&gt;-- Summary --&lt;/h2&gt;
-        &lt;div id=&quot;summary&quot;&gt;&lt;/div&gt;
-        
-        &lt;div class=&quot;view-selector&quot;&gt;
-            &lt;strong&gt;View Mode:&lt;/strong&gt;
-            &lt;label&gt;&lt;input type=&quot;radio&quot; name=&quot;viewMode&quot; value=&quot;hierarchical&quot; checked&gt; Hierarchical View&lt;/label&gt;
-            &lt;label&gt;&lt;input type=&quot;radio&quot; name=&quot;viewMode&quot; value=&quot;allscopes&quot;&gt; All Scopes View&lt;/label&gt;
-        &lt;/div&gt;
-
-        &lt;div id=&quot;hierarchicalView&quot; class=&quot;view active&quot;&gt;
-            &lt;h2&gt;-- Hierarchical Call Graph --&lt;/h2&gt;
-            &lt;div id=&quot;hierarchy-container&quot;&gt;&lt;/div&gt;
-        &lt;/div&gt;
-
-        &lt;div id=&quot;allscopesView&quot; class=&quot;view&quot;&gt;
-            &lt;h2&gt;-- All Scopes --&lt;/h2&gt;
-            &lt;div id=&quot;scopes-container&quot;&gt;&lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;script&gt;
-document.addEventListener(&#39;DOMContentLoaded&#39;, function() &#123;
-    const fileInput = document.getElementById(&#39;fileInput&#39;);
-    const textInput = document.getElementById(&#39;textInput&#39;);
-    const parseButton = document.getElementById(&#39;parseButton&#39;);
-    const errorEl = document.getElementById(&#39;error&#39;);
-    const resultsEl = document.getElementById(&#39;results&#39;);
-    const summaryEl = document.getElementById(&#39;summary&#39;);
-    const hierarchyContainer = document.getElementById(&#39;hierarchy-container&#39;);
-    const scopesContainer = document.getElementById(&#39;scopes-container&#39;);
-    const viewModeRadios = document.querySelectorAll(&#39;input[name=&quot;viewMode&quot;]&#39;);
-
-    let parsedData = null;
-
-    fileInput.addEventListener(&#39;change&#39;, handleFileSelect);
-    parseButton.addEventListener(&#39;click&#39;, parseAndDisplay);
-    viewModeRadios.forEach(radio =&gt; radio.addEventListener(&#39;change&#39;, switchView));
-
-    function handleFileSelect(event) &#123;
-        const file = event.target.files[0];
-        if (file) &#123;
-            const reader = new FileReader();
-            reader.onload = e =&gt; textInput.value = e.target.result;
-            reader.readAsText(file);
-        &#125;
-    &#125;
-
-    function switchView() &#123;
-        document.querySelectorAll(&#39;.view&#39;).forEach(v =&gt; v.classList.remove(&#39;active&#39;));
-        const selectedView = document.querySelector(&#39;input[name=&quot;viewMode&quot;]:checked&#39;).value;
-        document.getElementById(selectedView + &#39;View&#39;).classList.add(&#39;active&#39;);
-    &#125;
-
-    function parseAndDisplay() &#123;
-        const text = textInput.value;
-        if (!text.trim()) &#123;
-            showError(&quot;Input is empty.&quot;);
-            return;
-        &#125;
-        if (!text.includes(&quot;BEGIN VPROF REPORT&quot;) || !text.includes(&quot;END VPROF REPORT&quot;)) &#123;
-            showError(&quot;Invalid vprof report format. Missing BEGIN/END markers.&quot;);
-            return;
-        &#125;
-
-        try &#123;
-            parsedData = parseVProf(text);
-            calculateMaxValues(parsedData);
-
-            showError(&quot;&quot;);
-            resultsEl.style.display = &#39;block&#39;;
-
-            renderSummary(parsedData.summary);
-            renderHierarchy(parsedData);
-            renderAllScopes(parsedData.scopes, parsedData.maxTimeChild);
-            switchView();
-
-        &#125; catch (e) &#123;
-            showError(`An error occurred during parsing: $&#123;e.message&#125;`);
-            console.error(e);
-        &#125;
-    &#125;
-
-    function showError(message) &#123;
-        errorEl.textContent = message;
-    &#125;
-
-    // --- PARSING &amp; CALCULATION LOGIC ---
-    function parseVProf(text) &#123;
-        const lines = text.split(/\r?\n/);
-        const sections = &#123;&#125;;
-        let currentSection = null;
-
-        for (const line of lines) &#123;
-            const sectionMatch = line.match(/^-- (.*?) --$/);
-            if (sectionMatch) &#123;
-                currentSection = sectionMatch[1].trim();
-                sections[currentSection] = [];
-            &#125; else if (currentSection &amp;&amp; line.trim()) &#123;
-                sections[currentSection].push(line);
-            &#125;
-        &#125;
-
-        return &#123;
-            summary: parseSummary(sections[&#39;Summary&#39;] || []),
-            hierarchy: parseHierarchy(sections[&#39;Hierarchical Call Graph&#39;] || []),
-            scopes: parseScopes(Object.entries(sections).find(([key]) =&gt; key.startsWith(&#39;Profile scopes sorted by&#39;))?.[1] || [])
-        &#125;;
-    &#125;
-
-    function parseSummary(lines) &#123;
-        const summary = &#123;&#125;;
-        lines.forEach(line =&gt; &#123;
-            const parts = line.split(/, | for /).map(s =&gt; s.trim());
-            parts.forEach(part =&gt; &#123;
-                const match = part.match(/([\d.]+) (.*)/);
-                if (match) &#123;
-                    summary[match[2].replace(/ /g, &#39;_&#39;)] = match[1];
-                &#125;
-            &#125;);
-        &#125;);
-        return summary;
-    &#125;
-
-    function parseHierarchy(lines) &#123;
-        const headerLine = lines.findIndex(line =&gt; line.includes(&#39;Sum (ms)&#39;));
-        if (headerLine === -1) return [];
-
-        const dataLines = lines.slice(headerLine + 2);
-        const root = &#123; name: &#39;root&#39;, children: [], depth: -1 &#125;;
-        const parentStack = [root];
-
-        for (const line of dataLines) &#123;
-            const depth = (line.match(/\|/g) || []).length;
-            const cleanLine = line.replace(/\|  /g, &#39;&#39;).trim();
-            const match = cleanLine.match(/([0-9.]+\s+[0-9.]+)\s+([0-9.]+\s+[0-9.]+)\s+([0-9.]+\s+[0-9.]+)\s+(\d+)\s+([0-9.]+)\s+(.*)/);
-
-            if (!match) continue;
+        <div id="results" style="display: none;">
+            <h2>-- Summary --</h2>
+            <div id="summary"></div>
             
-            const node = &#123;
-                sum: match[1].split(/\s+/).map(Number),
-                avgFrame: match[2].split(/\s+/).map(Number),
-                avgCall: match[3].split(/\s+/).map(Number),
-                count: Number(match[4]),
-                peak: Number(match[5]),
-                name: match[6].trim(),
-                depth: depth,
-                children: [],
-                id: `node-$&#123;Math.random()&#125;`
-            &#125;;
+            <div class="view-selector">
+                <strong>View Mode:</strong>
+                <label><input type="radio" name="viewMode" value="hierarchical" checked> Hierarchical View</label>
+                <label><input type="radio" name="viewMode" value="allscopes"> All Scopes View</label>
+            </div>
 
-            while (depth &lt;= parentStack[parentStack.length - 1].depth) &#123;
-                parentStack.pop();
-            &#125;
+            <div id="hierarchicalView" class="view active">
+                <h2>-- Hierarchical Call Graph --</h2>
+                <div id="hierarchy-container"></div>
+            </div>
+
+            <div id="allscopesView" class="view">
+                <h2>-- All Scopes --</h2>
+                <div id="scopes-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const textInput = document.getElementById('textInput');
+        const parseButton = document.getElementById('parseButton');
+        const errorEl = document.getElementById('error');
+        const resultsEl = document.getElementById('results');
+        const summaryEl = document.getElementById('summary');
+        const hierarchyContainer = document.getElementById('hierarchy-container');
+        const scopesContainer = document.getElementById('scopes-container');
+        const viewModeRadios = document.querySelectorAll('input[name="viewMode"]');
+
+        let parsedData = null;
+
+        fileInput.addEventListener('change', handleFileSelect);
+        parseButton.addEventListener('click', parseAndDisplay);
+        viewModeRadios.forEach(radio => radio.addEventListener('change', switchView));
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => textInput.value = e.target.result;
+                reader.readAsText(file);
+            }
+        }
+
+        function switchView() {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            const selectedView = document.querySelector('input[name="viewMode"]:checked').value;
+            document.getElementById(selectedView + 'View').classList.add('active');
+        }
+
+        function parseAndDisplay() {
+            const text = textInput.value;
+            if (!text.trim()) {
+                showError("Input is empty.");
+                return;
+            }
+            if (!text.includes("BEGIN VPROF REPORT") || !text.includes("END VPROF REPORT")) {
+                showError("Invalid vprof report format. Missing BEGIN/END markers.");
+                return;
+            }
+
+            try {
+                parsedData = parseVProf(text);
+                calculateMaxValues(parsedData);
+
+                showError("");
+                resultsEl.style.display = 'block';
+
+                renderSummary(parsedData.summary);
+                renderHierarchy(parsedData);
+                renderAllScopes(parsedData.scopes, parsedData.maxTimeChild);
+                switchView();
+
+            } catch (e) {
+                showError(`An error occurred during parsing: ${e.message}`);
+                console.error(e);
+            }
+        }
+
+        function showError(message) {
+            errorEl.textContent = message;
+        }
+
+        // --- PARSING & CALCULATION LOGIC ---
+        function parseVProf(text) {
+            const lines = text.split(/\r?\n/);
+            const sections = {};
+            let currentSection = null;
+
+            for (const line of lines) {
+                const sectionMatch = line.match(/^-- (.*?) --$/);
+                if (sectionMatch) {
+                    currentSection = sectionMatch[1].trim();
+                    sections[currentSection] = [];
+                } else if (currentSection && line.trim()) {
+                    sections[currentSection].push(line);
+                }
+            }
+
+            return {
+                summary: parseSummary(sections['Summary'] || []),
+                hierarchy: parseHierarchy(sections['Hierarchical Call Graph'] || []),
+                scopes: parseScopes(Object.entries(sections).find(([key]) => key.startsWith('Profile scopes sorted by'))?.[1] || [])
+            };
+        }
+
+        function parseSummary(lines) {
+            const summary = {};
+            lines.forEach(line => {
+                const parts = line.split(/, | for /).map(s => s.trim());
+                parts.forEach(part => {
+                    const match = part.match(/([\d.]+) (.*)/);
+                    if (match) {
+                        summary[match[2].replace(/ /g, '_')] = match[1];
+                    }
+                });
+            });
+            return summary;
+        }
+
+        function parseHierarchy(lines) {
+            const headerLine = lines.findIndex(line => line.includes('Sum (ms)'));
+            if (headerLine === -1) return [];
+
+            const dataLines = lines.slice(headerLine + 2);
+            const root = { name: 'root', children: [], depth: -1 };
+            const parentStack = [root];
+
+            for (const line of dataLines) {
+                const depth = (line.match(/\|/g) || []).length;
+                const cleanLine = line.replace(/\|  /g, '').trim();
+                const match = cleanLine.match(/([0-9.]+\s+[0-9.]+)\s+([0-9.]+\s+[0-9.]+)\s+([0-9.]+\s+[0-9.]+)\s+(\d+)\s+([0-9.]+)\s+(.*)/);
+
+                if (!match) continue;
+                
+                const node = {
+                    sum: match[1].split(/\s+/).map(Number),
+                    avgFrame: match[2].split(/\s+/).map(Number),
+                    avgCall: match[3].split(/\s+/).map(Number),
+                    count: Number(match[4]),
+                    peak: Number(match[5]),
+                    name: match[6].trim(),
+                    depth: depth,
+                    children: [],
+                    id: `node-${Math.random()}`
+                };
+
+                while (depth <= parentStack[parentStack.length - 1].depth) {
+                    parentStack.pop();
+                }
+                
+                parentStack[parentStack.length - 1].children.push(node);
+                parentStack.push(node);
+            }
+            return root.children;
+        }
+
+        function parseScopes(lines) {
+            const headerIndex = lines.findIndex(line => line.startsWith('  Scope'));
+            if (headerIndex === -1) return [];
+
+            const headers = ['Scope', 'Calls', 'Calls/Frame', 'Time+Child', 'Pct_Child', 'Time', 'Pct', 'Avg/Frame', 'Avg/Call', 'Avg-NoChild', 'Peak'];
+            const dataLines = lines.slice(headerIndex + 2);
+            const scopes = [];
+
+            for (const line of dataLines) {
+                const firstDigitIndex = line.search(/\s\d/);
+                if (firstDigitIndex === -1) continue;
+
+                const name = line.substring(0, firstDigitIndex).trim();
+                const values = line.substring(firstDigitIndex).trim().split(/\s+/);
+
+                const scope = {};
+                scope[headers[0]] = name;
+                for(let i = 0; i < values.length && i + 1 < headers.length; i++) {
+                    scope[headers[i+1]] = parseFloat(values[i]);
+                }
+                scopes.push(scope);
+            }
+            return scopes;
+        }
+
+        function calculateMaxValues(data) {
+            let maxVal = 0;
             
-            parentStack[parentStack.length - 1].children.push(node);
-            parentStack.push(node);
-        &#125;
-        return root.children;
-    &#125;
+            function findMaxInHierarchy(nodes) {
+                for (const node of nodes) {
+                    if (node.sum[0] > maxVal) maxVal = node.sum[0];
+                    if (node.children.length > 0) findMaxInHierarchy(node.children);
+                }
+            }
 
-    function parseScopes(lines) &#123;
-        const headerIndex = lines.findIndex(line =&gt; line.startsWith(&#39;  Scope&#39;));
-        if (headerIndex === -1) return [];
+            findMaxInHierarchy(data.hierarchy);
+            data.scopes.forEach(scope => {
+                if (scope['Time+Child'] > maxVal) maxVal = scope['Time+Child'];
+            });
 
-        const headers = [&#39;Scope&#39;, &#39;Calls&#39;, &#39;Calls/Frame&#39;, &#39;Time+Child&#39;, &#39;Pct_Child&#39;, &#39;Time&#39;, &#39;Pct&#39;, &#39;Avg/Frame&#39;, &#39;Avg/Call&#39;, &#39;Avg-NoChild&#39;, &#39;Peak&#39;];
-        const dataLines = lines.slice(headerIndex + 2);
-        const scopes = [];
+            data.maxTimeChild = maxVal;
 
-        for (const line of dataLines) &#123;
-            const firstDigitIndex = line.search(/\s\d/);
-            if (firstDigitIndex === -1) continue;
+            // ***** FIX IS HERE *****
+            // Correctly calculate total time by summing all top-level nodes
+            let totalTime = 0;
+            if (data.hierarchy.length > 0) {
+                totalTime = data.hierarchy.reduce((acc, node) => acc + node.sum[0], 0);
+            }
+            // Fallback to 1 to prevent division by zero if total is somehow still 0
+            data.totalProfileTime = totalTime > 0 ? totalTime : 1;
+            // ***** END OF FIX *****
+        }
 
-            const name = line.substring(0, firstDigitIndex).trim();
-            const values = line.substring(firstDigitIndex).trim().split(/\s+/);
+        function getColorForValue(value, max) {
+            if (max === 0) return 'transparent';
+            const ratio = Math.min(value / max, 1.0);
+            const lightness = 1.0 - (ratio * 0.4); // From white (1.0) to a light red (0.6)
+            return `hsl(0, 100%, ${lightness * 100}%)`;
+        }
 
-            const scope = &#123;&#125;;
-            scope[headers[0]] = name;
-            for(let i = 0; i &lt; values.length &amp;&amp; i + 1 &lt; headers.length; i++) &#123;
-                scope[headers[i+1]] = parseFloat(values[i]);
-            &#125;
-            scopes.push(scope);
-        &#125;
-        return scopes;
-    &#125;
-
-    function calculateMaxValues(data) &#123;
-        let maxVal = 0;
+        // --- RENDERING LOGIC ---
+        function renderSummary(summary) {
+            summaryEl.innerHTML = '';
+            for (const key in summary) {
+                const p = document.createElement('p');
+                p.textContent = `${key.replace(/_/g, ' ')}: ${summary[key]}`;
+                summaryEl.appendChild(p);
+            }
+        }
         
-        function findMaxInHierarchy(nodes) &#123;
-            for (const node of nodes) &#123;
-                if (node.sum[0] &gt; maxVal) maxVal = node.sum[0];
-                if (node.children.length &gt; 0) findMaxInHierarchy(node.children);
-            &#125;
-        &#125;
+        function renderHierarchy({ hierarchy, totalProfileTime, maxTimeChild }) {
+            hierarchyContainer.innerHTML = '';
+            const table = document.createElement('table');
+            table.className = 'hierarchy-table';
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+            
+            thead.innerHTML = `
+                <tr>
+                    <th>Usage %</th>
+                    <th>Name</th>
+                    <th class="numeric-cell">Sum (ms) TC</th>
+                    <th class="numeric-cell">Sum (ms) T</th>
+                    <th class="numeric-cell">Avg/Frame TC</th>
+                    <th class="numeric-cell">Avg/Frame T</th>
+                    <th class="numeric-cell">Avg/Call TC</th>
+                    <th class="numeric-cell">Avg/Call T</th>
+                    <th class="numeric-cell">Count</th>
+                    <th class="numeric-cell">Peak</th>
+                </tr>`;
+            table.append(thead, tbody);
 
-        findMaxInHierarchy(data.hierarchy);
-        data.scopes.forEach(scope =&gt; &#123;
-            if (scope[&#39;Time+Child&#39;] &gt; maxVal) maxVal = scope[&#39;Time+Child&#39;];
-        &#125;);
+            let rowIdCounter = 0;
+            function appendRows(nodes, parentId = null, isHidden = false) {
+                for (const node of nodes) {
+                    const currentRowId = `row-${rowIdCounter++}`;
+                    const tr = document.createElement('tr');
+                    tr.id = currentRowId;
+                    tr.dataset.parentId = parentId;
+                    tr.className = 'hierarchy-row';
+                    if (isHidden) tr.classList.add('hidden');
 
-        data.maxTimeChild = maxVal;
+                    const usage = (node.sum[0] / totalProfileTime * 100).toFixed(2);
+                    
+                    const toggle = document.createElement('span');
+                    toggle.className = 'toggle';
+                    if (node.children.length > 0) {
+                        toggle.textContent = '►';
+                    } else {
+                        toggle.textContent = '•';
+                        toggle.classList.add('empty');
+                    }
+                    
+                    const nameCell = document.createElement('td');
+                    nameCell.className = 'name-col';
+                    nameCell.style.paddingLeft = `${node.depth * 20 + 8}px`;
+                    nameCell.append(toggle, ` ${node.name}`);
+                    
+                    const timeChildCell = document.createElement('td');
+                    timeChildCell.className = 'numeric-cell heatmap-cell';
+                    timeChildCell.textContent = node.sum[0].toFixed(3);
+                    timeChildCell.style.backgroundColor = getColorForValue(node.sum[0], maxTimeChild);
+                    if (node.sum[0] / maxTimeChild > 0.5) {
+                        timeChildCell.classList.add('dark-text');
+                    }
 
-        // ***** FIX IS HERE *****
-        // Correctly calculate total time by summing all top-level nodes
-        let totalTime = 0;
-        if (data.hierarchy.length &gt; 0) &#123;
-            totalTime = data.hierarchy.reduce((acc, node) =&gt; acc + node.sum[0], 0);
-        &#125;
-        // Fallback to 1 to prevent division by zero if total is somehow still 0
-        data.totalProfileTime = totalTime &gt; 0 ? totalTime : 1;
-        // ***** END OF FIX *****
-    &#125;
+                    tr.innerHTML = `
+                        <td class="numeric-cell">${usage}%</td>
+                        ${nameCell.outerHTML}
+                        ${timeChildCell.outerHTML}
+                        <td class="numeric-cell">${node.sum[1].toFixed(2)}</td>
+                        <td class="numeric-cell">${node.avgFrame[0].toFixed(3)}</td>
+                        <td class="numeric-cell">${node.avgFrame[1].toFixed(2)}</td>
+                        <td class="numeric-cell">${node.avgCall[0].toFixed(3)}</td>
+                        <td class="numeric-cell">${node.avgCall[1].toFixed(2)}</td>
+                        <td class="numeric-cell">${node.count}</td>
+                        <td class="numeric-cell">${node.peak.toFixed(2)}</td>
+                    `;
+                    
+                    const attachedNameCell = tr.cells[1];
+                    if (node.children.length > 0) {
+                        attachedNameCell.style.cursor = 'pointer';
+                        attachedNameCell.addEventListener('click', () => {
+                            const isExpanded = tr.classList.toggle('expanded');
+                            attachedNameCell.querySelector('.toggle').textContent = isExpanded ? '▼' : '►';
+                            document.querySelectorAll(`tr[data-parent-id="${currentRowId}"]`).forEach(childRow => {
+                                childRow.classList.toggle('hidden', !isExpanded);
+                                if (!isExpanded && childRow.classList.contains('expanded')) {
+                                    childRow.classList.remove('expanded');
+                                    childRow.querySelector('.toggle').textContent = '►';
+                                    document.querySelectorAll(`tr[data-parent-id="${childRow.id}"]`).forEach(grandChild => grandChild.classList.add('hidden'));
+                                }
+                            });
+                        });
+                    }
 
-    function getColorForValue(value, max) &#123;
-        if (max === 0) return &#39;transparent&#39;;
-        const ratio = Math.min(value / max, 1.0);
-        const lightness = 1.0 - (ratio * 0.4); // From white (1.0) to a light red (0.6)
-        return `hsl(0, 100%, $&#123;lightness * 100&#125;%)`;
-    &#125;
+                    tbody.appendChild(tr);
 
-    // --- RENDERING LOGIC ---
-    function renderSummary(summary) &#123;
-        summaryEl.innerHTML = &#39;&#39;;
-        for (const key in summary) &#123;
-            const p = document.createElement(&#39;p&#39;);
-            p.textContent = `$&#123;key.replace(/_/g, &#39; &#39;)&#125;: $&#123;summary[key]&#125;`;
-            summaryEl.appendChild(p);
-        &#125;
-    &#125;
-    
-    function renderHierarchy(&#123; hierarchy, totalProfileTime, maxTimeChild &#125;) &#123;
-        hierarchyContainer.innerHTML = &#39;&#39;;
-        const table = document.createElement(&#39;table&#39;);
-        table.className = &#39;hierarchy-table&#39;;
-        const thead = document.createElement(&#39;thead&#39;);
-        const tbody = document.createElement(&#39;tbody&#39;);
-        
-        thead.innerHTML = `
-            &lt;tr&gt;
-                &lt;th&gt;Usage %&lt;/th&gt;
-                &lt;th&gt;Name&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Sum (ms) TC&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Sum (ms) T&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Avg/Frame TC&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Avg/Frame T&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Avg/Call TC&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Avg/Call T&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Count&lt;/th&gt;
-                &lt;th class=&quot;numeric-cell&quot;&gt;Peak&lt;/th&gt;
-            &lt;/tr&gt;`;
-        table.append(thead, tbody);
+                    if (node.children.length > 0) {
+                        appendRows(node.children, currentRowId, true);
+                    }
+                }
+            }
 
-        let rowIdCounter = 0;
-        function appendRows(nodes, parentId = null, isHidden = false) &#123;
-            for (const node of nodes) &#123;
-                const currentRowId = `row-$&#123;rowIdCounter++&#125;`;
-                const tr = document.createElement(&#39;tr&#39;);
-                tr.id = currentRowId;
-                tr.dataset.parentId = parentId;
-                tr.className = &#39;hierarchy-row&#39;;
-                if (isHidden) tr.classList.add(&#39;hidden&#39;);
+            appendRows(hierarchy);
+            hierarchyContainer.appendChild(table);
+        }
 
-                const usage = (node.sum[0] / totalProfileTime * 100).toFixed(2);
-                
-                const toggle = document.createElement(&#39;span&#39;);
-                toggle.className = &#39;toggle&#39;;
-                if (node.children.length &gt; 0) &#123;
-                    toggle.textContent = &#39;►&#39;;
-                &#125; else &#123;
-                    toggle.textContent = &#39;•&#39;;
-                    toggle.classList.add(&#39;empty&#39;);
-                &#125;
-                
-                const nameCell = document.createElement(&#39;td&#39;);
-                nameCell.className = &#39;name-col&#39;;
-                nameCell.style.paddingLeft = `$&#123;node.depth * 20 + 8&#125;px`;
-                nameCell.append(toggle, ` $&#123;node.name&#125;`);
-                
-                const timeChildCell = document.createElement(&#39;td&#39;);
-                timeChildCell.className = &#39;numeric-cell heatmap-cell&#39;;
-                timeChildCell.textContent = node.sum[0].toFixed(3);
-                timeChildCell.style.backgroundColor = getColorForValue(node.sum[0], maxTimeChild);
-                if (node.sum[0] / maxTimeChild &gt; 0.5) &#123;
-                    timeChildCell.classList.add(&#39;dark-text&#39;);
-                &#125;
+        function renderAllScopes(scopes, maxTimeChild) {
+            scopesContainer.innerHTML = '';
+            if (scopes.length === 0) return;
 
-                tr.innerHTML = `
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;usage&#125;%&lt;/td&gt;
-                    $&#123;nameCell.outerHTML&#125;
-                    $&#123;timeChildCell.outerHTML&#125;
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;node.sum[1].toFixed(2)&#125;&lt;/td&gt;
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;node.avgFrame[0].toFixed(3)&#125;&lt;/td&gt;
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;node.avgFrame[1].toFixed(2)&#125;&lt;/td&gt;
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;node.avgCall[0].toFixed(3)&#125;&lt;/td&gt;
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;node.avgCall[1].toFixed(2)&#125;&lt;/td&gt;
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;node.count&#125;&lt;/td&gt;
-                    &lt;td class=&quot;numeric-cell&quot;&gt;$&#123;node.peak.toFixed(2)&#125;&lt;/td&gt;
-                `;
-                
-                const attachedNameCell = tr.cells[1];
-                if (node.children.length &gt; 0) &#123;
-                    attachedNameCell.style.cursor = &#39;pointer&#39;;
-                    attachedNameCell.addEventListener(&#39;click&#39;, () =&gt; &#123;
-                        const isExpanded = tr.classList.toggle(&#39;expanded&#39;);
-                        attachedNameCell.querySelector(&#39;.toggle&#39;).textContent = isExpanded ? &#39;▼&#39; : &#39;►&#39;;
-                        document.querySelectorAll(`tr[data-parent-id=&quot;$&#123;currentRowId&#125;&quot;]`).forEach(childRow =&gt; &#123;
-                            childRow.classList.toggle(&#39;hidden&#39;, !isExpanded);
-                            if (!isExpanded &amp;&amp; childRow.classList.contains(&#39;expanded&#39;)) &#123;
-                                childRow.classList.remove(&#39;expanded&#39;);
-                                childRow.querySelector(&#39;.toggle&#39;).textContent = &#39;►&#39;;
-                                document.querySelectorAll(`tr[data-parent-id=&quot;$&#123;childRow.id&#125;&quot;]`).forEach(grandChild =&gt; grandChild.classList.add(&#39;hidden&#39;));
-                            &#125;
-                        &#125;);
-                    &#125;);
-                &#125;
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+            tbody.id = 'scopes-tbody';
 
+            const headers = Object.keys(scopes[0]);
+            const tr = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                th.dataset.column = header;
+                if(header !== 'Scope') th.classList.add('numeric-cell');
+                th.addEventListener('click', sortTable);
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+
+            table.append(thead, tbody);
+            scopesContainer.appendChild(table);
+
+            renderScopesTBody(scopes, maxTimeChild);
+        }
+
+        function renderScopesTBody(scopes, maxTimeChild) {
+            const tbody = document.getElementById('scopes-tbody');
+            tbody.innerHTML = '';
+            if(!scopes || scopes.length === 0) return;
+
+            const headers = Object.keys(scopes[0]);
+            
+            scopes.forEach(scope => {
+                const tr = document.createElement('tr');
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.textContent = scope[header];
+                    if (typeof scope[header] === 'number') {
+                         td.classList.add('numeric-cell');
+                         td.textContent = scope[header].toFixed(3);
+                    }
+                    if (header === 'Time+Child') {
+                        td.classList.add('heatmap-cell');
+                        td.style.backgroundColor = getColorForValue(scope[header], maxTimeChild);
+                        if (scope[header] / maxTimeChild > 0.5) {
+                            td.classList.add('dark-text');
+                        }
+                    }
+                    tr.appendChild(td);
+                });
                 tbody.appendChild(tr);
-
-                if (node.children.length &gt; 0) &#123;
-                    appendRows(node.children, currentRowId, true);
-                &#125;
-            &#125;
-        &#125;
-
-        appendRows(hierarchy);
-        hierarchyContainer.appendChild(table);
-    &#125;
-
-    function renderAllScopes(scopes, maxTimeChild) &#123;
-        scopesContainer.innerHTML = &#39;&#39;;
-        if (scopes.length === 0) return;
-
-        const table = document.createElement(&#39;table&#39;);
-        const thead = document.createElement(&#39;thead&#39;);
-        const tbody = document.createElement(&#39;tbody&#39;);
-        tbody.id = &#39;scopes-tbody&#39;;
-
-        const headers = Object.keys(scopes[0]);
-        const tr = document.createElement(&#39;tr&#39;);
-        headers.forEach(header =&gt; &#123;
-            const th = document.createElement(&#39;th&#39;);
-            th.textContent = header;
-            th.dataset.column = header;
-            if(header !== &#39;Scope&#39;) th.classList.add(&#39;numeric-cell&#39;);
-            th.addEventListener(&#39;click&#39;, sortTable);
-            tr.appendChild(th);
-        &#125;);
-        thead.appendChild(tr);
-
-        table.append(thead, tbody);
-        scopesContainer.appendChild(table);
-
-        renderScopesTBody(scopes, maxTimeChild);
-    &#125;
-
-    function renderScopesTBody(scopes, maxTimeChild) &#123;
-        const tbody = document.getElementById(&#39;scopes-tbody&#39;);
-        tbody.innerHTML = &#39;&#39;;
-        if(!scopes || scopes.length === 0) return;
-
-        const headers = Object.keys(scopes[0]);
+            });
+        }
         
-        scopes.forEach(scope =&gt; &#123;
-            const tr = document.createElement(&#39;tr&#39;);
-            headers.forEach(header =&gt; &#123;
-                const td = document.createElement(&#39;td&#39;);
-                td.textContent = scope[header];
-                if (typeof scope[header] === &#39;number&#39;) &#123;
-                     td.classList.add(&#39;numeric-cell&#39;);
-                     td.textContent = scope[header].toFixed(3);
-                &#125;
-                if (header === &#39;Time+Child&#39;) &#123;
-                    td.classList.add(&#39;heatmap-cell&#39;);
-                    td.style.backgroundColor = getColorForValue(scope[header], maxTimeChild);
-                    if (scope[header] / maxTimeChild &gt; 0.5) &#123;
-                        td.classList.add(&#39;dark-text&#39;);
-                    &#125;
-                &#125;
-                tr.appendChild(td);
-            &#125;);
-            tbody.appendChild(tr);
-        &#125;);
-    &#125;
-    
-    let sortState = &#123;&#125;;
-    function sortTable(event) &#123;
-        const th = event.currentTarget;
-        const column = th.dataset.column;
-        const currentDirection = sortState[column] || &#39;desc&#39;;
-        const newDirection = currentDirection === &#39;desc&#39; ? &#39;asc&#39; : &#39;desc&#39;;
+        let sortState = {};
+        function sortTable(event) {
+            const th = event.currentTarget;
+            const column = th.dataset.column;
+            const currentDirection = sortState[column] || 'desc';
+            const newDirection = currentDirection === 'desc' ? 'asc' : 'desc';
 
-        document.querySelectorAll(&#39;#allscopesView th&#39;).forEach(h =&gt; h.classList.remove(&#39;sort-asc&#39;, &#39;sort-desc&#39;));
-        sortState = &#123;&#125;;
+            document.querySelectorAll('#allscopesView th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+            sortState = {};
 
-        th.classList.add(newDirection === &#39;asc&#39; ? &#39;sort-asc&#39; : &#39;sort-desc&#39;);
-        sortState[column] = newDirection;
+            th.classList.add(newDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            sortState[column] = newDirection;
 
-        parsedData.scopes.sort((a, b) =&gt; &#123;
-            const valA = a[column];
-            const valB = b[column];
+            parsedData.scopes.sort((a, b) => {
+                const valA = a[column];
+                const valB = b[column];
 
-            if (typeof valA === &#39;string&#39;) &#123;
-                return newDirection === &#39;asc&#39; ? valA.localeCompare(valB) : valB.localeCompare(valA);
-            &#125; else &#123;
-                return newDirection === &#39;asc&#39; ? valA - valB : valB - valA;
-            &#125;
-        &#125;);
+                if (typeof valA === 'string') {
+                    return newDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                } else {
+                    return newDirection === 'asc' ? valA - valB : valB - valA;
+                }
+            });
 
-        renderScopesTBody(parsedData.scopes, parsedData.maxTimeChild);
-    &#125;
+            renderScopesTBody(parsedData.scopes, parsedData.maxTimeChild);
+        }
 
-&#125;);
-&lt;/script&gt;
-</code></pre>
+    });
+    </script>
 </body>
 </html>
 	</div>

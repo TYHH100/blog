@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valve Profiler Analyzer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h1, h2 {
+            color: #444;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .controls, .view-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #eef;
+            border-radius: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+        button, input[type="file"] {
+            margin-top: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #summary {
+            background-color: #f9f9f9;
+            border-left: 5px solid #4CAF50;
+            padding: 10px 20px;
+            margin: 20px 0;
+        }
+        #error {
+            color: red;
+            font-weight: bold;
+        }
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+        /* Common Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 13px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #f2f2f2;
+            cursor: pointer;
+            position: relative;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+        .numeric-cell {
+            text-align: right;
+        }
+        .name-col {
+            text-align: left;
+            white-space: pre; /* Keep indentation */
+        }
+
+        /* All Scopes Table Styles */
+        #allscopesView th:hover {
+            background-color: #e0e0e0;
+        }
+        #allscopesView th::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 4px solid transparent;
+        }
+        #allscopesView th.sort-asc::after {
+            border-bottom-color: #333;
+        }
+        #allscopesView th.sort-desc::after {
+            border-top-color: #333;
+        }
+
+        /* Hierarchical View Styles */
+        .hierarchy-row .toggle {
+            cursor: pointer;
+            display: inline-block;
+            width: 1.5em;
+            text-align: center;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .hierarchy-row .toggle.empty {
+            cursor: default;
+            color: #ccc;
+        }
+        .hierarchy-row.hidden {
+            display: none;
+        }
+        .heatmap-cell {
+            color: black;
+        }
+        .heatmap-cell.dark-text {
+            color: white; /* For better contrast on dark red backgrounds */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Valve Profiler (vprof) Analyzer</h1>
+
+        <div class="controls">
+            <p>选择一个 vprof dump 文件或将内容粘贴到下方文本框中。</p>
+            <input type="file" id="fileInput" accept=".txt">
+            <textarea id="textInput" placeholder="或者将 vprof 报告内容粘贴在这里..."></textarea>
+            <button id="parseButton">Parse Profile Data</button>
+            <p id="error"></p>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h2>-- Summary --</h2>
+            <div id="summary"></div>
+            
+            <div class="view-selector">
+                <strong>View Mode:</strong>
+                <label><input type="radio" name="viewMode" value="hierarchical" checked> Hierarchical View</label>
+                <label><input type="radio" name="viewMode" value="allscopes"> All Scopes View</label>
+            </div>
+
+            <div id="hierarchicalView" class="view active">
+                <h2>-- Hierarchical Call Graph --</h2>
+                <div id="hierarchy-container"></div>
+            </div>
+
+            <div id="allscopesView" class="view">
+                <h2>-- All Scopes --</h2>
+                <div id="scopes-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('fileInput');
+        const textInput = document.getElementById('textInput');
+        const parseButton = document.getElementById('parseButton');
+        const errorEl = document.getElementById('error');
+        const resultsEl = document.getElementById('results');
+        const summaryEl = document.getElementById('summary');
+        const hierarchyContainer = document.getElementById('hierarchy-container');
+        const scopesContainer = document.getElementById('scopes-container');
+        const viewModeRadios = document.querySelectorAll('input[name="viewMode"]');
+
+        let parsedData = null;
+
+        fileInput.addEventListener('change', handleFileSelect);
+        parseButton.addEventListener('click', parseAndDisplay);
+        viewModeRadios.forEach(radio => radio.addEventListener('change', switchView));
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => textInput.value = e.target.result;
+                reader.readAsText(file);
+            }
+        }
+
+        function switchView() {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            const selectedView = document.querySelector('input[name="viewMode"]:checked').value;
+            document.getElementById(selectedView + 'View').classList.add('active');
+        }
+
+        function parseAndDisplay() {
+            const text = textInput.value;
+            if (!text.trim()) {
+                showError("Input is empty.");
+                return;
+            }
+            if (!text.includes("BEGIN VPROF REPORT") || !text.includes("END VPROF REPORT")) {
+                showError("Invalid vprof report format. Missing BEGIN/END markers.");
+                return;
+            }
+
+            try {
+                parsedData = parseVProf(text);
+                calculateMaxValues(parsedData);
+
+                showError("");
+                resultsEl.style.display = 'block';
+
+                renderSummary(parsedData.summary);
+                renderHierarchy(parsedData);
+                renderAllScopes(parsedData.scopes, parsedData.maxTimeChild);
+                switchView();
+
+            } catch (e) {
+                showError(`An error occurred during parsing: ${e.message}`);
+                console.error(e);
+            }
+        }
+
+        function showError(message) {
+            errorEl.textContent = message;
+        }
+
+        // --- PARSING & CALCULATION LOGIC ---
+        function parseVProf(text) {
+            const lines = text.split(/\r?\n/);
+            const sections = {};
+            let currentSection = null;
+
+            for (const line of lines) {
+                const sectionMatch = line.match(/^-- (.*?) --$/);
+                if (sectionMatch) {
+                    currentSection = sectionMatch[1].trim();
+                    sections[currentSection] = [];
+                } else if (currentSection && line.trim()) {
+                    sections[currentSection].push(line);
+                }
+            }
+
+            return {
+                summary: parseSummary(sections['Summary'] || []),
+                hierarchy: parseHierarchy(sections['Hierarchical Call Graph'] || []),
+                scopes: parseScopes(Object.entries(sections).find(([key]) => key.startsWith('Profile scopes sorted by'))?.[1] || [])
+            };
+        }
+
+        function parseSummary(lines) {
+            const summary = {};
+            lines.forEach(line => {
+                const parts = line.split(/, | for /).map(s => s.trim());
+                parts.forEach(part => {
+                    const match = part.match(/([\d.]+) (.*)/);
+                    if (match) {
+                        summary[match[2].replace(/ /g, '_')] = match[1];
+                    }
+                });
+            });
+            return summary;
+        }
+
+        function parseHierarchy(lines) {
+            const headerLine = lines.findIndex(line => line.includes('Sum (ms)'));
+            if (headerLine === -1) return [];
+
+            const dataLines = lines.slice(headerLine + 2);
+            const root = { name: 'root', children: [], depth: -1 };
+            const parentStack = [root];
+
+            for (const line of dataLines) {
+                const depth = (line.match(/\|/g) || []).length;
+                const cleanLine = line.replace(/\|  /g, '').trim();
+                const match = cleanLine.match(/([0-9.]+\s+[0-9.]+)\s+([0-9.]+\s+[0-9.]+)\s+([0-9.]+\s+[0-9.]+)\s+(\d+)\s+([0-9.]+)\s+(.*)/);
+
+                if (!match) continue;
+                
+                const node = {
+                    sum: match[1].split(/\s+/).map(Number),
+                    avgFrame: match[2].split(/\s+/).map(Number),
+                    avgCall: match[3].split(/\s+/).map(Number),
+                    count: Number(match[4]),
+                    peak: Number(match[5]),
+                    name: match[6].trim(),
+                    depth: depth,
+                    children: [],
+                    id: `node-${Math.random()}`
+                };
+
+                while (depth <= parentStack[parentStack.length - 1].depth) {
+                    parentStack.pop();
+                }
+                
+                parentStack[parentStack.length - 1].children.push(node);
+                parentStack.push(node);
+            }
+            return root.children;
+        }
+
+        function parseScopes(lines) {
+            const headerIndex = lines.findIndex(line => line.startsWith('  Scope'));
+            if (headerIndex === -1) return [];
+
+            const headers = ['Scope', 'Calls', 'Calls/Frame', 'Time+Child', 'Pct_Child', 'Time', 'Pct', 'Avg/Frame', 'Avg/Call', 'Avg-NoChild', 'Peak'];
+            const dataLines = lines.slice(headerIndex + 2);
+            const scopes = [];
+
+            for (const line of dataLines) {
+                const firstDigitIndex = line.search(/\s\d/);
+                if (firstDigitIndex === -1) continue;
+
+                const name = line.substring(0, firstDigitIndex).trim();
+                const values = line.substring(firstDigitIndex).trim().split(/\s+/);
+
+                const scope = {};
+                scope[headers[0]] = name;
+                for(let i = 0; i < values.length && i + 1 < headers.length; i++) {
+                    scope[headers[i+1]] = parseFloat(values[i]);
+                }
+                scopes.push(scope);
+            }
+            return scopes;
+        }
+
+        function calculateMaxValues(data) {
+            let maxVal = 0;
+            
+            function findMaxInHierarchy(nodes) {
+                for (const node of nodes) {
+                    if (node.sum[0] > maxVal) maxVal = node.sum[0];
+                    if (node.children.length > 0) findMaxInHierarchy(node.children);
+                }
+            }
+
+            findMaxInHierarchy(data.hierarchy);
+            data.scopes.forEach(scope => {
+                if (scope['Time+Child'] > maxVal) maxVal = scope['Time+Child'];
+            });
+
+            data.maxTimeChild = maxVal;
+
+            // ***** FIX IS HERE *****
+            // Correctly calculate total time by summing all top-level nodes
+            let totalTime = 0;
+            if (data.hierarchy.length > 0) {
+                totalTime = data.hierarchy.reduce((acc, node) => acc + node.sum[0], 0);
+            }
+            // Fallback to 1 to prevent division by zero if total is somehow still 0
+            data.totalProfileTime = totalTime > 0 ? totalTime : 1;
+            // ***** END OF FIX *****
+        }
+
+        function getColorForValue(value, max) {
+            if (max === 0) return 'transparent';
+            const ratio = Math.min(value / max, 1.0);
+            const lightness = 1.0 - (ratio * 0.4); // From white (1.0) to a light red (0.6)
+            return `hsl(0, 100%, ${lightness * 100}%)`;
+        }
+
+        // --- RENDERING LOGIC ---
+        function renderSummary(summary) {
+            summaryEl.innerHTML = '';
+            for (const key in summary) {
+                const p = document.createElement('p');
+                p.textContent = `${key.replace(/_/g, ' ')}: ${summary[key]}`;
+                summaryEl.appendChild(p);
+            }
+        }
+        
+        function renderHierarchy({ hierarchy, totalProfileTime, maxTimeChild }) {
+            hierarchyContainer.innerHTML = '';
+            const table = document.createElement('table');
+            table.className = 'hierarchy-table';
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+            
+            thead.innerHTML = `
+                <tr>
+                    <th>Usage %</th>
+                    <th>Name</th>
+                    <th class="numeric-cell">Sum (ms) TC</th>
+                    <th class="numeric-cell">Sum (ms) T</th>
+                    <th class="numeric-cell">Avg/Frame TC</th>
+                    <th class="numeric-cell">Avg/Frame T</th>
+                    <th class="numeric-cell">Avg/Call TC</th>
+                    <th class="numeric-cell">Avg/Call T</th>
+                    <th class="numeric-cell">Count</th>
+                    <th class="numeric-cell">Peak</th>
+                </tr>`;
+            table.append(thead, tbody);
+
+            let rowIdCounter = 0;
+            function appendRows(nodes, parentId = null, isHidden = false) {
+                for (const node of nodes) {
+                    const currentRowId = `row-${rowIdCounter++}`;
+                    const tr = document.createElement('tr');
+                    tr.id = currentRowId;
+                    tr.dataset.parentId = parentId;
+                    tr.className = 'hierarchy-row';
+                    if (isHidden) tr.classList.add('hidden');
+
+                    const usage = (node.sum[0] / totalProfileTime * 100).toFixed(2);
+                    
+                    const toggle = document.createElement('span');
+                    toggle.className = 'toggle';
+                    if (node.children.length > 0) {
+                        toggle.textContent = '►';
+                    } else {
+                        toggle.textContent = '•';
+                        toggle.classList.add('empty');
+                    }
+                    
+                    const nameCell = document.createElement('td');
+                    nameCell.className = 'name-col';
+                    nameCell.style.paddingLeft = `${node.depth * 20 + 8}px`;
+                    nameCell.append(toggle, ` ${node.name}`);
+                    
+                    const timeChildCell = document.createElement('td');
+                    timeChildCell.className = 'numeric-cell heatmap-cell';
+                    timeChildCell.textContent = node.sum[0].toFixed(3);
+                    timeChildCell.style.backgroundColor = getColorForValue(node.sum[0], maxTimeChild);
+                    if (node.sum[0] / maxTimeChild > 0.5) {
+                        timeChildCell.classList.add('dark-text');
+                    }
+
+                    tr.innerHTML = `
+                        <td class="numeric-cell">${usage}%</td>
+                        ${nameCell.outerHTML}
+                        ${timeChildCell.outerHTML}
+                        <td class="numeric-cell">${node.sum[1].toFixed(2)}</td>
+                        <td class="numeric-cell">${node.avgFrame[0].toFixed(3)}</td>
+                        <td class="numeric-cell">${node.avgFrame[1].toFixed(2)}</td>
+                        <td class="numeric-cell">${node.avgCall[0].toFixed(3)}</td>
+                        <td class="numeric-cell">${node.avgCall[1].toFixed(2)}</td>
+                        <td class="numeric-cell">${node.count}</td>
+                        <td class="numeric-cell">${node.peak.toFixed(2)}</td>
+                    `;
+                    
+                    const attachedNameCell = tr.cells[1];
+                    if (node.children.length > 0) {
+                        attachedNameCell.style.cursor = 'pointer';
+                        attachedNameCell.addEventListener('click', () => {
+                            const isExpanded = tr.classList.toggle('expanded');
+                            attachedNameCell.querySelector('.toggle').textContent = isExpanded ? '▼' : '►';
+                            document.querySelectorAll(`tr[data-parent-id="${currentRowId}"]`).forEach(childRow => {
+                                childRow.classList.toggle('hidden', !isExpanded);
+                                if (!isExpanded && childRow.classList.contains('expanded')) {
+                                    childRow.classList.remove('expanded');
+                                    childRow.querySelector('.toggle').textContent = '►';
+                                    document.querySelectorAll(`tr[data-parent-id="${childRow.id}"]`).forEach(grandChild => grandChild.classList.add('hidden'));
+                                }
+                            });
+                        });
+                    }
+
+                    tbody.appendChild(tr);
+
+                    if (node.children.length > 0) {
+                        appendRows(node.children, currentRowId, true);
+                    }
+                }
+            }
+
+            appendRows(hierarchy);
+            hierarchyContainer.appendChild(table);
+        }
+
+        function renderAllScopes(scopes, maxTimeChild) {
+            scopesContainer.innerHTML = '';
+            if (scopes.length === 0) return;
+
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+            tbody.id = 'scopes-tbody';
+
+            const headers = Object.keys(scopes[0]);
+            const tr = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                th.dataset.column = header;
+                if(header !== 'Scope') th.classList.add('numeric-cell');
+                th.addEventListener('click', sortTable);
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+
+            table.append(thead, tbody);
+            scopesContainer.appendChild(table);
+
+            renderScopesTBody(scopes, maxTimeChild);
+        }
+
+        function renderScopesTBody(scopes, maxTimeChild) {
+            const tbody = document.getElementById('scopes-tbody');
+            tbody.innerHTML = '';
+            if(!scopes || scopes.length === 0) return;
+
+            const headers = Object.keys(scopes[0]);
+            
+            scopes.forEach(scope => {
+                const tr = document.createElement('tr');
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.textContent = scope[header];
+                    if (typeof scope[header] === 'number') {
+                         td.classList.add('numeric-cell');
+                         td.textContent = scope[header].toFixed(3);
+                    }
+                    if (header === 'Time+Child') {
+                        td.classList.add('heatmap-cell');
+                        td.style.backgroundColor = getColorForValue(scope[header], maxTimeChild);
+                        if (scope[header] / maxTimeChild > 0.5) {
+                            td.classList.add('dark-text');
+                        }
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+        
+        let sortState = {};
+        function sortTable(event) {
+            const th = event.currentTarget;
+            const column = th.dataset.column;
+            const currentDirection = sortState[column] || 'desc';
+            const newDirection = currentDirection === 'desc' ? 'asc' : 'desc';
+
+            document.querySelectorAll('#allscopesView th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+            sortState = {};
+
+            th.classList.add(newDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            sortState[column] = newDirection;
+
+            parsedData.scopes.sort((a, b) => {
+                const valA = a[column];
+                const valB = b[column];
+
+                if (typeof valA === 'string') {
+                    return newDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                } else {
+                    return newDirection === 'asc' ? valA - valB : valB - valA;
+                }
+            });
+
+            renderScopesTBody(parsedData.scopes, parsedData.maxTimeChild);
+        }
+
+    });
+    </script>
+</body>
+</html>

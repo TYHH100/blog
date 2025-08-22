@@ -1,0 +1,150 @@
+<!-- 聊天界面示例 -->
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <title>可爱的聊天小窗</title>
+  <style>
+    body {
+      background: #f8e6ef;
+      font-family: "微软雅黑", sans-serif;
+    }
+    .chat-window {
+      width: 400px;
+      height: 350px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #eab5d1;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: #f7b8d3;
+      color: #fff;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      background: #ffeaf5;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-message {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f7b8d3;
+    }
+    .message-content {
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 14px;
+      box-shadow: 0 1px 4px #f7b8d3;
+      max-width: 260px;
+      font-size: 15px;
+      color: #333;
+      word-break: break-all;
+    }
+    .nickname {
+      font-size: 13px;
+      color: #f7b8d3;
+      margin-bottom: 2px;
+    }
+    .chat-footer {
+      padding: 10px;
+      background: #f8e6ef;
+      display: flex;
+      gap: 8px;
+    }
+    .chat-input {
+      flex: 1;
+      border: 1px solid #f7b8d3;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 15px;
+      outline: none;
+    }
+    .chat-send {
+      background: #f7b8d3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 16px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-window">
+    <div class="chat-header">
+      可爱的聊天小窗
+      <button style="background:#fff3; border:none; color:#fff; border-radius:6px; padding:2px 8px; cursor:pointer;">关于</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <!-- 聊天消息示例 -->
+      <div class="chat-message">
+        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10001&s=100" alt="头像">
+        <div>
+          <div class="nickname">小寻</div>
+          <div class="message-content">你好呀！我是可爱的聊天Bot~</div>
+        </div>
+      </div>
+      <div class="chat-message">
+        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10002&s=100" alt="头像">
+        <div>
+          <div class="nickname">你</div>
+          <div class="message-content">你好！请问你能做什么？</div>
+        </div>
+      </div>
+      <div class="chat-message">
+        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10001&s=100" alt="头像">
+        <div>
+          <div class="nickname">小寻</div>
+          <div class="message-content">我可以陪你聊天，还能帮你查资料哦~</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-footer">
+      <input class="chat-input" id="chatInput" placeholder="说点什么..." />
+      <button class="chat-send" onclick="sendMessage()">发送</button>
+    </div>
+  </div>
+  <script>
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+      const chat = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'chat-message';
+      div.innerHTML = `
+        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10002&s=100" alt="头像">
+        <div>
+          <div class="nickname">你</div>
+          <div class="message-content">${msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+        </div>
+      `;
+      chat.appendChild(div);
+      input.value = '';
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>

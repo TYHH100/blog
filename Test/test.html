@@ -1,150 +1,58 @@
-<!-- 聊天界面示例 -->
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-  <meta charset="UTF-8">
-  <title>可爱的聊天小窗</title>
-  <style>
-    body {
-      background: #f8e6ef;
-      font-family: "微软雅黑", sans-serif;
-    }
-    .chat-window {
-      width: 400px;
-      height: 350px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px #eab5d1;
-      margin: 40px auto;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .chat-header {
-      background: #f7b8d3;
-      color: #fff;
-      padding: 12px;
-      font-size: 18px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .chat-messages {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      background: #ffeaf5;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .chat-message {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #f7b8d3;
-    }
-    .message-content {
-      background: #fff;
-      border-radius: 8px;
-      padding: 8px 14px;
-      box-shadow: 0 1px 4px #f7b8d3;
-      max-width: 260px;
-      font-size: 15px;
-      color: #333;
-      word-break: break-all;
-    }
-    .nickname {
-      font-size: 13px;
-      color: #f7b8d3;
-      margin-bottom: 2px;
-    }
-    .chat-footer {
-      padding: 10px;
-      background: #f8e6ef;
-      display: flex;
-      gap: 8px;
-    }
-    .chat-input {
-      flex: 1;
-      border: 1px solid #f7b8d3;
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 15px;
-      outline: none;
-    }
-    .chat-send {
-      background: #f7b8d3;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 16px;
-      font-size: 15px;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <div class="chat-window">
-    <div class="chat-header">
-      可爱的聊天小窗
-      <button style="background:#fff3; border:none; color:#fff; border-radius:6px; padding:2px 8px; cursor:pointer;">关于</button>
+<div style="max-width: 400px; margin: 20px 0; border: 2px solid #ffb7d5; border-radius: 12px; overflow: hidden; font-family: sans-serif;">
+    <div style="padding: 12px; background: #ffecf2; text-align: center; font-weight: bold; color: #ff6699;">可爱的小真寻</div>
+    
+    <div style="height: 300px; overflow-y: auto; padding: 12px; background: #f8f8f8;">
+        <!-- 机器人消息 -->
+        <div style="display: flex; margin-bottom: 16px;">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='20' cy='20' r='18' fill='%23ffb7d5'/><text x='20' y='26' font-size='14' text-anchor='middle' fill='white'>Bot</text></svg>" 
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; border: 2px solid #ffcce0;">
+            <div style="background: white; padding: 10px 14px; border-radius: 18px; max-width: 70%;">
+                <div style="font-weight: bold; color: #ff6699; margin-bottom: 4px; font-size: 14px;">真寻Bot</div>
+                <div style="color: #333; font-size: 14px;">你好呀！我是可爱的小真寻，很高兴见到你~</div>
+            </div>
+        </div>
+        
+        <!-- 用户消息 -->
+        <div style="display: flex; margin-bottom: 16px; justify-content: flex-end;">
+            <div style="background: linear-gradient(to right, #ff7eb3, #ff758c); color: white; padding: 10px 14px; border-radius: 18px; max-width: 70%;">
+                <div style="font-size: 14px;">你好，能告诉我你的版本信息吗？</div>
+            </div>
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='20' cy='20' r='18' fill='%236b9cff'/><text x='20' y='26' font-size='14' text-anchor='middle' fill='white'>User</text></svg>" 
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; object-fit: cover; border: 2px solid #cce0ff;">
+        </div>
+        
+        <!-- 机器人回复 -->
+        <div style="display: flex; margin-bottom: 16px;">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='20' cy='20' r='18' fill='%23ffb7d5'/><text x='20' y='26' font-size='14' text-anchor='middle' fill='white'>Bot</text></svg>" 
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; border: 2px solid #ffcce0;">
+            <div style="background: white; padding: 10px 14px; border-radius: 18px; max-width: 70%;">
+                <div style="font-weight: bold; color: #ff6699; margin-bottom: 4px; font-size: 14px;">真寻Bot</div>
+                <div style="color: #333; font-size: 14px;">
+                    <strong>版本:</strong> dev<br>
+                    <strong>简介:</strong> 基于Nodebot2开发，支持多平台，是一个非常可爱的bot呀，希望与大家要好好相处哦!<br>
+                    <strong>项目地址:</strong> https://github.com/zhenxun-org/zhenxun-bot<br>
+                    <strong>文档地址:</strong> https://zhenxun-bot.readthedocs.io/
+                </div>
+            </div>
+        </div>
+        
+        <!-- 用户回复 -->
+        <div style="display: flex; margin-bottom: 16px; justify-content: flex-end;">
+            <div style="background: linear-gradient(to right, #ff7eb3, #ff758c); color: white; padding: 10px 14px; border-radius: 18px; max-width: 70%;">
+                <div style="font-size: 14px;">谢谢你的信息！我会去看看你的文档</div>
+            </div>
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='20' cy='20' r='18' fill='%236b9cff'/><text x='20' y='26' font-size='14' text-anchor='middle' fill='white'>User</text></svg>" 
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; object-fit: cover; border: 2px solid #cce0ff;">
+        </div>
+        
+        <!-- 机器人回复 -->
+        <div style="display: flex; margin-bottom: 16px;">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><circle cx='20' cy='20' r='18' fill='%23ffb7d5'/><text x='20' y='26' font-size='14' text-anchor='middle' fill='white'>Bot</text></svg>" 
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; border: 2px solid #ffcce0;">
+            <div style="background: white; padding: 10px 14px; border-radius: 18px; max-width: 70%;">
+                <div style="font-weight: bold; color: #ff6699; margin-bottom: 4px; font-size: 14px;">真寻Bot</div>
+                <div style="color: #333; font-size: 14px;">有什么我可以帮助你的吗？尽管问我吧！</div>
+            </div>
+        </div>
     </div>
-    <div class="chat-messages" id="chatMessages">
-      <!-- 聊天消息示例 -->
-      <div class="chat-message">
-        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10001&s=100" alt="头像">
-        <div>
-          <div class="nickname">小寻</div>
-          <div class="message-content">你好呀！我是可爱的聊天Bot~</div>
-        </div>
-      </div>
-      <div class="chat-message">
-        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10002&s=100" alt="头像">
-        <div>
-          <div class="nickname">你</div>
-          <div class="message-content">你好！请问你能做什么？</div>
-        </div>
-      </div>
-      <div class="chat-message">
-        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10001&s=100" alt="头像">
-        <div>
-          <div class="nickname">小寻</div>
-          <div class="message-content">我可以陪你聊天，还能帮你查资料哦~</div>
-        </div>
-      </div>
-    </div>
-    <div class="chat-footer">
-      <input class="chat-input" id="chatInput" placeholder="说点什么..." />
-      <button class="chat-send" onclick="sendMessage()">发送</button>
-    </div>
-  </div>
-  <script>
-    function sendMessage() {
-      const input = document.getElementById('chatInput');
-      const msg = input.value.trim();
-      if (!msg) return;
-      const chat = document.getElementById('chatMessages');
-      const div = document.createElement('div');
-      div.className = 'chat-message';
-      div.innerHTML = `
-        <img class="avatar" src="https://q1.qlogo.cn/g?b=qq&nk=10002&s=100" alt="头像">
-        <div>
-          <div class="nickname">你</div>
-          <div class="message-content">${msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-        </div>
-      `;
-      chat.appendChild(div);
-      input.value = '';
-      chat.scrollTop = chat.scrollHeight;
-    }
-  </script>
-</body>
-</html>
+</div>

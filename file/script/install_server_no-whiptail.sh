@@ -8,6 +8,13 @@ BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # 重置颜色
+BOLD='\033[1m'
+PLAIN='\033[0m'
+WORKING='\033[1;33m[*]\033[0m'
+OK='\033[1;32m[✓]\033[0m'
+FAIL='\033[1;31m[✗]\033[0m'
+WARN='\033[1;33m[!]\033[0m'
+TIP='\033[1;34m[+]\033[0m'
 
 # 清除屏幕
 clear_screen() {
@@ -53,7 +60,22 @@ show_progress() {
     local title="$1"
     local message="$2"
     local percentage="$3"
-    echo -e "\r${YELLOW}[${title}]${NC} $message - ${CYAN}${percentage}%${NC}\c"
+    
+    # 使用printf替代echo -e，避免%字符被解释为转义序列
+    if [ -n "$percentage" ]; then
+        # 三参数模式：标题 + 消息 + 百分比
+        # 对message中的%进行转义，避免被printf解释为格式字符串
+        local escaped_message="$(echo "$message" | sed 's/%/%%/g')"
+        printf "\r${YELLOW}[${title}]${NC} %s - ${CYAN}%s%%${NC}\c" "$escaped_message" "$percentage"
+    elif [ -n "$message" ]; then
+        # 两参数模式：标题 + 消息
+        # 对message中的%进行转义
+        local escaped_message="$(echo "$message" | sed 's/%/%%/g')"
+        printf "\r${YELLOW}[${title}]${NC} %s\c" "$escaped_message"
+    else
+        # 一参数模式：仅标题
+        printf "\r${YELLOW}[${title}]${NC}\c"
+    fi
 }
 
 # 显示文本文件内容
@@ -98,7 +120,7 @@ confirm() {
     local message="$2"
     local default_option="$3"
     local result
-    
+
     clear_screen
     show_title "$title"
     echo -e "$message\n"
@@ -120,40 +142,212 @@ confirm() {
     fi
 }
 
-# 显示菜单
-show_menu() {
-    local title="$1"
-    local subtitle="$2"
-    shift 2
-    local options=($@)
-    local choice
-    local valid_choices=()
+# 交互式选择器 - 多选一
+interactive_select_mirror() {
+    _SELECT_RESULT=""
+    local options=("$@")
+    local message="${options[${#options[@]} - 1]}"
+    unset options[${#options[@]}-1]
+    local selected=0
+    local start=0
+    local page_size=$(($(tput lines 2>/dev/null) - 3))
+    function clear_menu() {
+        tput rc 2>/dev/null
+        for ((i = 0; i < ${#options[@]} + 1; i++)); do
+            echo -e "\r\033[K"
+        done
+        tput rc 2>/dev/null
+    }
+    function cleanup() {
+        clear_menu
+        tput rc 2>/dev/null
+        tput cnorm 2>/dev/null
+        tput rmcup 2>/dev/null
+        echo -e "\n\033[1;44m 提示 \033[0m \033[31m操作已取消\033[0m\n"
+        return 1
+    }
+    function draw_menu() {
+        tput clear 2>/dev/null
+        tput cup 0 0 2>/dev/null
+        echo -e "$message"
+        local end=$((start + page_size - 1))
+        if [ $end -ge ${#options[@]} ]; then
+            end=${#options[@]}-1
+        fi
+        for ((i = start; i <= end; i++)); do
+            if [ "$i" -eq "$selected" ]; then
+                echo -e "\e[34;4m> ${options[$i]}\e[0m"
+            else
+                echo -e "  ${options[$i]}"
+            fi
+        done
+    }
+    function read_key() {
+        IFS= read -rsn1 key
+        if [[ $key == $'\x1b' ]]; then
+            IFS= read -rsn2 key
+            key="$key"
+        fi
+        echo "$key"
+    }
     
-    clear_screen
-    show_title "$title"
-    
-    if [ -n "$subtitle" ]; then
-        echo -e "${BLUE}$subtitle${NC}\n"
+    # 检查tput命令是否可用
+    if ! command -v tput >/dev/null 2>&1; then
+        # 如果tput不可用，回退到简单的选择方式
+        clear_screen
+        show_title "选择菜单"
+        echo -e "$message\n"
+        for ((i = 0; i < ${#options[@]}; i++)); do
+            echo -e "${YELLOW}$((i+1)).${NC} ${options[$i]}"
+        done
+        echo
+        read -p "请输入选择 [1-${#options[@]}]: " choice
+        if [[ $choice =~ ^[0-9]+$ ]] && [ $choice -ge 1 ] && [ $choice -le ${#options[@]} ]; then
+            _SELECT_RESULT="${options[$((choice-1))]}"
+            return 0
+        else
+            return 1
+        fi
     fi
     
-    # 显示选项
-    for ((i=0; i<${#options[@]}; i+=2)); do
-        valid_choices+=(${options[i]})
-        echo -e "${CYAN}[${options[i]}]${NC} ${options[i+1]}"
-    done
-    
-    echo -e "\n${YELLOW}请输入选项编号:${NC}"
-    
-    # 读取用户选择
+    tput smcup 2>/dev/null
+    tput sc 2>/dev/null
+    tput civis 2>/dev/null
+    trap "cleanup" INT
+    draw_menu
     while true; do
-        read -p "请选择: " choice
-        if [[ " ${valid_choices[*]} " == *" $choice "* ]]; then
-            echo "$choice"
+        key=$(read_key)
+        case "$key" in
+        "[A" | "w" | "W")
+            if [ "$selected" -gt 0 ]; then
+                selected=$((selected - 1))
+                if [ "$selected" -lt "$start" ]; then
+                    start=$((start - 1))
+                fi
+            fi
+            ;;
+        "[B" | "s" | "S")
+            if [ "$selected" -lt $((${#options[@]} - 1)) ]; then
+                selected=$((selected + 1))
+                if [ "$selected" -ge $((start + page_size)) ]; then
+                    start=$((start + 1))
+                fi
+            fi
+            ;;
+        "")
+            tput rmcup
             break
-        else
-            echo -e "${RED}无效的选项，请重新输入！${NC}"
-        fi
+            ;;
+        *) ;;
+        esac
+        draw_menu
     done
+    tput cnorm 2>/dev/null
+    tput rmcup 2>/dev/null
+    _SELECT_RESULT="${options[$selected]}"
+}
+
+# 交互式布尔选择器
+interactive_select_boolean() {
+    _SELECT_RESULT=""
+    local selected=0
+    local message="$1"
+    local positive_title="${2:-是}"
+    local negative_title="${3:-否}"
+    local original_line
+    
+    # 计算消息的行数（包括菜单行）
+    local message_lines=$(echo -e "$message" | wc -l)
+    local menu_height=$((message_lines + 2)) # 消息行 + 分隔线 + 选项行
+    
+    function store_position() {
+        original_line=$(tput lines 2>/dev/null)
+    }
+    function clear_menu() {
+        for ((i = 0; i < $menu_height; i++)); do
+            tput cuu1 2>/dev/null
+            tput el 2>/dev/null
+        done
+    }
+    function cleanup() {
+        clear_menu
+        tput cnorm 2>/dev/null
+        echo -e "\n\033[1;44m 提示 \033[0m \033[31m操作已取消\033[0m\n"
+        return 1
+    }
+    function draw_menu() {
+        echo -e "╭─ $message"
+        echo -e "│"
+        if [ "$selected" -eq 0 ]; then
+            echo -e "╰─ \033[34m●\033[0m $positive_title\033[2m / ○ $negative_title\033[0m"
+        else
+            echo -e "╰─ \033[2m○ $positive_title / \033[0m\033[34m●\033[0m $negative_title"
+        fi
+    }
+    function read_key() {
+        IFS= read -rsn1 key
+        if [[ $key == $'\x1b' ]]; then
+            IFS= read -rsn2 key
+            key="$key"
+        fi
+        echo "$key"
+    }
+    
+    # 检查tput命令是否可用
+    if ! command -v tput >/dev/null 2>&1; then
+        # 如果tput不可用，回退到简单的选择方式
+        clear_screen
+        show_title "确认操作"
+        echo -e "$message\n"
+        echo -e "${YELLOW}1.${NC} $positive_title"
+        echo -e "${YELLOW}2.${NC} $negative_title"
+        echo
+        read -p "请输入选择 [1-2]: " choice
+        if [ "$choice" = "1" ]; then
+            _SELECT_RESULT="true"
+            return 0
+        elif [ "$choice" = "2" ]; then
+            _SELECT_RESULT="false"
+            return 0
+        else
+            return 1
+        fi
+    fi
+    
+    tput civis 2>/dev/null
+    store_position
+    trap "cleanup" INT
+    draw_menu
+    while true; do
+        key=$(read_key)
+        case "$key" in
+        "[D" | "a" | "A")
+            if [ "$selected" -gt 0 ]; then
+                selected=$((selected - 1))
+                clear_menu
+                draw_menu
+            fi
+            ;;
+        "[C" | "d" | "D")
+            if [ "$selected" -lt 1 ]; then
+                selected=$((selected + 1))
+                clear_menu
+                draw_menu
+            fi
+            ;;
+        "")
+            clear_menu
+            break
+            ;;
+        *) ;;
+        esac
+    done
+    if [ "$selected" -eq 0 ]; then
+        _SELECT_RESULT="true"
+    else
+        _SELECT_RESULT="false"
+    fi
+    tput cnorm 2>/dev/null
 }
 
 # 显示进度（模拟）
@@ -301,7 +495,7 @@ enable_multilib() {
     # 检查multilib仓库是否已启用
     if ! grep -q '^\[multilib\]' /etc/pacman.conf; then
         # 启用multilib仓库
-        echo -e "${GREEN}[Info]${NC} 启用Arch Linux的multilib仓库..."
+        show_info "启用Arch Linux的multilib仓库..."
         #sed -i.bak -e 's/^#\s*\[multilib\]/[multilib]/' -e 's/^#\s*Include\s*=\s*\/etc\/pacman\.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' /etc/pacman.conf
         cp /etc/pacman.conf /etc/pacman.conf.bak
         echo [multilib] >> /etc/pacman.conf
@@ -318,7 +512,7 @@ install_aur_package() {
 
     # 检查是否已安装
     if pacman -Qq $pkg_name &>/dev/null; then
-        echo -e "${GREEN}[Info]${NC} $pkg_name 已安装"
+        #show_info "$pkg_name 已安装"
         return 0
     fi
 
@@ -327,7 +521,7 @@ install_aur_package() {
         local prebuilt_url="https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
         local temp_pkg="/tmp/lib32-ncurses5-compat-libs.pkg.tar.zst"
         
-        echo -e "${GREEN}[Info]${NC} 尝试安装预构建包: $pkg_name"
+        show_info "尝试安装预构建包: $pkg_name"
         axel -q -n 10 "$prebuilt_url" -o "$temp_pkg"
         
         if [ -f "$temp_pkg" ]; then
@@ -335,7 +529,7 @@ install_aur_package() {
             rm -f "$temp_pkg"
             
             if pacman -Qq $pkg_name &>/dev/null; then
-                echo -e "${GREEN}[Info]${NC} 预构建包安装成功: $pkg_name"
+                show_info "预构建包安装成功: $pkg_name"
                 return 0
             else
                 echo -e "${YELLOW}[Warning]${NC} 预构建包安装失败，尝试从AUR构建"
@@ -356,7 +550,7 @@ install_aur_package() {
             return 1
         fi
     else
-        echo -e "${GREEN}[Info]${NC} $pkg_name 已存在，跳过下载"
+        show_info "$pkg_name 已存在，跳过下载"
     fi
 
     # 如果是root，自动创建临时用户
@@ -390,7 +584,7 @@ install_aur_package() {
 
     # 检查安装结果
     if pacman -Qq $pkg_name &>/dev/null; then
-        echo -e "${GREEN}[Info]${NC} $pkg_name 安装成功"
+        show_info "$pkg_name 安装成功"
         return 0
     else
         echo -e "${RED}[Error]${NC} $pkg_name 安装失败"
@@ -497,6 +691,17 @@ set_server_user() {
     local current_user=$(id -un)
     local user_list=()
     local i=1
+    local cancelled=false
+    
+    # 处理Ctrl+C信号
+    function cleanup() {
+        cancelled=true
+        echo -e "\n\033[1;44m 提示 \033[0m \033[31m操作已取消\033[0m\n"
+        return 1
+    }
+    
+    # 设置信号捕获
+    trap "cleanup" INT
     
     # 生成用户列表选项
     for user in $users; do
@@ -511,7 +716,7 @@ set_server_user() {
 
     clear_screen
     show_title "选择游戏服务器账户"
-    echo -e "${BLUE}请选择用于运行游戏服务器的账户\n\n(推荐使用非root账户)${NC}\n"
+    show_info "请选择用于运行游戏服务器的账户\n\n(推荐使用非root账户)"
     
     # 显示选项
     for ((j=0; j<${#user_list[@]}; j+=2)); do
@@ -522,13 +727,28 @@ set_server_user() {
     
     # 读取用户选择
     while true; do
+        if $cancelled; then
+            trap - INT
+            return 1
+        fi
+        
         read -p "请选择: " choice
+        
+        # 如果用户取消操作（cancelled标志被设置）
+        if $cancelled; then
+            trap - INT
+            return 1
+        fi
+        
         if [[ $choice -ge 1 && $choice -le $i ]]; then
             break
         else
             echo -e "${RED}无效的选项，请重新输入！${NC}"
         fi
     done
+    
+    # 取消信号捕获
+    trap - INT
     
     # 处理选择
     if [ $choice -eq $i ]; then
@@ -575,13 +795,30 @@ set_server_user() {
 
 # 安装SteamCMD
 install_steamcmd() {
-    local choice=$(show_menu "SteamCMD 安装选项" "请选择SteamCMD安装方式" \
-        "1" "自动安装最新版SteamCMD" \
-        "2" "使用已安装的SteamCMD" \
-        "3" "返回")
+    # 创建菜单项数组
+    local menu_items=(
+        "自动安装最新版SteamCMD"
+        "使用已安装的SteamCMD"
+        "返回"
+    )
     
-    case $choice in
-        1)
+    # 创建菜单提示信息
+    local menu_message="${BOLD}SteamCMD 安装选项${PLAIN}\n\n"
+    menu_message+="请选择SteamCMD安装方式\n"
+    menu_message+="(使用方向键或W/S键选择，回车确认)"
+    
+    # 使用交互式选择器显示菜单
+    interactive_select_mirror "${menu_items[@]}" "$menu_message"
+    local choice_status=$?
+    local selected_item="$_SELECT_RESULT"
+    
+    # 如果用户取消操作，返回
+    if [ $choice_status -ne 0 ]; then
+        return
+    fi
+    
+    case "$selected_item" in
+        "自动安装最新版SteamCMD")
             clear_screen
             show_title "安装SteamCMD"
             echo -e "${BLUE}正在下载并安装SteamCMD...${NC}\n"
@@ -597,7 +834,7 @@ install_steamcmd() {
             save_config
             show_message "SteamCMD 已安装到: $STEAMCMD_PATH"
             ;;
-        2)
+        "使用已安装的SteamCMD")
             while true; do
                 # 使用配置中的路径作为默认值
                 local default_path="$STEAMCMD_PATH"
@@ -621,7 +858,7 @@ install_steamcmd() {
                 break
             done
             ;;
-        3)
+        "返回")
             return 1
             ;;
     esac
@@ -631,6 +868,17 @@ install_steamcmd() {
 get_install_location() {
     # 默认安装位置
     local default_dir="$STEAM_HOME/${GAME_NAME// /_}_server"
+    local cancelled=false
+    
+    # 处理Ctrl+C信号
+    function cleanup() {
+        cancelled=true
+        echo -e "\n\033[1;44m 提示 \033[0m \033[31m操作已取消\033[0m\n"
+        return 1
+    }
+    
+    # 设置信号捕获
+    trap "cleanup" INT
     
     # 如果配置中有路径，使用配置中的路径
     if [ -n "$SERVER_DIR" ] && [ -d "$SERVER_DIR" ]; then
@@ -638,6 +886,10 @@ get_install_location() {
     fi
     
     while true; do
+        if $cancelled; then
+            trap - INT
+            return 1
+        fi
         local custom_dir=$(get_input "选择安装位置" "请输入 $GAME_NAME 服务器的安装路径:" "$default_dir")
         
         if [ -z "$custom_dir" ]; then
@@ -679,11 +931,21 @@ get_install_location() {
         mkdir -p "$SERVER_DIR"
         chown -R "$STEAM_USER:$STEAM_USER" "$SERVER_DIR"
         
+        # 检查是否被取消
+        if $cancelled; then
+            trap - INT
+            return 1
+        fi
+        
         # 保存配置
         save_config
         
         break
     done
+    
+    # 取消信号捕获
+    trap - INT
+    return 0
 }
 
 # 下载游戏服务器
@@ -707,8 +969,8 @@ download_game() {
     
     clear_screen
     show_title "下载游戏服务器"
-    echo -e "${BLUE}正在安装 $GAME_NAME 服务器，请耐心等待...\n" >&2
-    echo -e "${YELLOW}详细信息请查看日志: $log_file${NC}\n" >&2
+    show_info "正在安装 $GAME_NAME 服务器，请耐心等待..."
+    show_info "详细信息请查看日志: $log_file"
     
     # 执行安装并捕获输出
     if [ "$app_id" == "222860" ]; then
@@ -773,7 +1035,7 @@ install_sourcemod() {
     local error_file=$(mktemp)
     clear_screen
     show_title "安装插件"
-    echo -e "${BLUE}正在下载并安装SourceMod+Metamod...${NC}\n"
+    show_info "正在下载并安装SourceMod+Metamod...${NC}\n"
     
     local total_steps=4
     local current_step=1
@@ -782,7 +1044,7 @@ install_sourcemod() {
     show_progress "安装进度" "下载Metamod:Source" "$((current_step * 100 / total_steps))"
     axel -q -n 10 "https://mms.alliedmods.net/mmsdrop/1.12/mmsource-1.12.0-git1219-linux.tar.gz" -o $SERVER_DIR/mms.tar.gz
     if [ ! -s $SERVER_DIR/mms.tar.gz ]; then
-        echo -e "\n${RED}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
+        show_error "Metamod:Source下载失败！" > "$error_file"
         echo ""
     else
         current_step=$((current_step + 1))
@@ -791,7 +1053,7 @@ install_sourcemod() {
         show_progress "安装进度" "下载SourceMod" "$((current_step * 100 / total_steps))"
         axel -q -n 10 "https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7210-linux.tar.gz" -o $SERVER_DIR/sourcemod.tar.gz
         if [ ! -s $SERVER_DIR/sourcemod.tar.gz ]; then
-            echo -e "\n${RED}[Error]${NC} SourceMod下载失败！" > "$error_file"
+            show_error "SourceMod下载失败！" > "$error_file"
             echo ""
         else
             current_step=$((current_step + 1))
@@ -841,25 +1103,38 @@ manage_start_scripts() {
     fi
     
     while true; do
-        clear_screen
-        show_title "管理启动脚本 ($game_dir)"
-        echo -e "${YELLOW}选择操作：${NC}\n"
-        echo -e "${YELLOW}1.${NC} 创建启动脚本"
-        echo -e "${YELLOW}2.${NC} 创建游戏服务器systemctl"
-        echo -e "${YELLOW}3.${NC} 返回"
-        read -p "请输入 [1-3]: " choice
+        # 创建菜单项数组
+        local menu_items=(
+            "创建启动脚本"
+            "创建游戏服务器systemctl"
+            "返回"
+        )
         
-        case $choice in
-            1)
+        # 创建菜单提示信息
+        local menu_message="${BOLD}管理启动脚本 ($game_dir)${PLAIN}\n\n"
+        menu_message+="(使用方向键或W/S键选择，回车确认)"
+        
+        # 使用交互式选择器显示菜单
+        interactive_select_mirror "${menu_items[@]}" "$menu_message"
+        local choice_status=$?
+        local selected_item="$_SELECT_RESULT"
+        
+        # 如果用户取消操作，返回
+        if [ $choice_status -ne 0 ]; then
+            return
+        fi
+        
+        case "$selected_item" in
+            "创建启动脚本")
                 create_start_script ;;  
-            2)
+            "更新现有游戏服务器")
                 if [ ! -f "$SERVER_DIR/start.sh" ]; then
                     show_error "未找到启动脚本！请先创建启动脚本"
                 else
                     create_systemd_service
                 fi
                 ;;
-            *) 
+            "返回") 
                 return 
                 ;;
         esac
@@ -883,48 +1158,60 @@ manage_systemd_service() {
     
     # 服务管理菜单
     while true; do
-        clear_screen
-        show_title "管理服务: $service_name"
-        echo -e "${BLUE}选择操作：${NC}\n"
-        echo "1. 启动服务"
-        echo "2. 停止服务"
-        echo "3. 重启服务"
-        echo "4. 查看服务状态"
-        echo "5. 启用开机自启"
-        echo "6. 禁用开机自启"
-        echo "7. 返回"
-        echo -e "\n${YELLOW}请输入选项编号 (1-7):${NC}"
-        read -p "请输入: " choice
+        # 创建菜单项数组
+        local menu_items=(
+            "启动服务"
+            "停止服务"
+            "重启服务"
+            "查看服务状态"
+            "启用开机自启"
+            "禁用开机自启"
+            "返回"
+        )
         
-        case $choice in
-            1)
+        # 创建菜单提示信息
+        local menu_message="${BOLD}管理服务: $service_name${PLAIN}\n\n"
+        menu_message+="(使用方向键或W/S键选择，回车确认)"
+        
+        # 使用交互式选择器显示菜单
+        interactive_select_mirror "${menu_items[@]}" "$menu_message"
+        local choice_status=$?
+        local selected_item="$_SELECT_RESULT"
+        
+        # 如果用户取消操作，返回
+        if [ $choice_status -ne 0 ]; then
+            return
+        fi
+        
+        case "$selected_item" in
+            "启动服务")
                 systemctl start "$service_name"
                 show_message "服务 $service_name 已启动"
                 ;;
-            2)
+            "停止服务")
                 systemctl stop "$service_name"
                 show_message "服务 $service_name 已停止"
                 ;;
-            3)
+            "重启服务")
                 systemctl restart "$service_name"
                 show_message "服务 $service_name 已重启"
                 ;;
-            4)
+            "查看服务状态")
                 clear
                 echo -e "${YELLOW}=== $service_name 状态 ===${NC}"
                 systemctl status "$service_name"
                 echo -e "\n${YELLOW}按 Enter 返回...${NC}"
                 read
                 ;;
-            5)
+            "启用开机自启")
                 systemctl enable "$service_name"
                 show_message "服务 $service_name 已设置为开机自启"
                 ;;
-            6)
+            "禁用开机自启")
                 systemctl disable "$service_name"
                 show_message "服务 $service_name 已禁用开机自启"
                 ;;
-            *) 
+            "返回") 
                 return 
                 ;;
         esac
@@ -1056,7 +1343,7 @@ EOF
     # 询问是否使用自定义别名
     clear_screen
     show_title "自定义别名"
-    echo "请输入自定义别名（留空则使用默认别名: $default_alias）:"
+    show_info "请输入自定义别名（留空则使用默认别名: $default_alias）:"
     echo
     read -p "别名: " alias_input
     
@@ -1103,7 +1390,7 @@ show_config() {
     clear_screen
     show_title "脚本配置文件内容"
     if [ -f "$CONFIG_FILE" ]; then
-        echo -e "${CYAN}配置文件:${NC} $CONFIG_FILE\n"
+        show_info "配置文件: $CONFIG_FILE\n"
         cat "$CONFIG_FILE"
         echo
     else
@@ -1114,32 +1401,49 @@ show_config() {
 
 # 管理SteamCMD
 manage_steamcmd() {
-    clear_screen
-    show_title "管理 SteamCMD"
-    echo -e "${YELLOW}请选择操作:${NC}"
-    echo -e "${YELLOW}1.${NC} 安装SteamCMD"
-    echo -e "${YELLOW}2.${NC} 重新安装SteamCMD"
-    echo -e "${YELLOW}3.${NC} 更改现有的SteamCMD路径"
-    echo -e "${YELLOW}4.${NC} 返回主菜单"
-    echo
-    read -p "请输入选择 [1-4]: " choice
+    # 创建菜单项数组
+    local menu_items=(
+        "安装SteamCMD"
+        "重新安装SteamCMD"
+        "更改现有的SteamCMD路径"
+        "返回主菜单"
+    )
     
-    case $choice in
-        1) install_steamcmd ;;        2) 
+    # 创建菜单提示信息
+    local menu_message="${BOLD}管理 SteamCMD${PLAIN}\n\n"
+    menu_message+="(使用方向键或W/S键选择，回车确认)"
+    
+    # 使用交互式选择器显示菜单
+    interactive_select_mirror "${menu_items[@]}" "$menu_message"
+    local choice_status=$?
+    local selected_item="$_SELECT_RESULT"
+    
+    # 如果用户取消操作，返回
+    if [ $choice_status -ne 0 ]; then
+        return
+    fi
+    
+    case "$selected_item" in
+        "安装SteamCMD") 
+            install_steamcmd 
+            ;;
+        "重新安装SteamCMD") 
             # 删除现有安装
             if [ -n "$STEAMCMD_PATH" ] && [ -f "$STEAMCMD_PATH" ]; then
-                if confirm "确定要删除现有安装并重新安装SteamCMD吗？\n\n当前路径: $STEAMCMD_PATH"; then
+                interactive_select_boolean "确定要删除现有安装并重新安装SteamCMD吗？\n\n当前路径: $STEAMCMD_PATH" "确定重新安装" "取消"
+                if [ "$_SELECT_RESULT" = "true" ]; then
                     rm -rf "$(dirname "$STEAMCMD_PATH")"
                     STEAMCMD_PATH=""
                     save_config
                 fi
             fi
             install_steamcmd 
-            ;;        3) 
+            ;;
+        "更改现有的SteamCMD路径") 
             while true; do
                 clear_screen
                 show_title "输入 SteamCMD 路径"
-                echo -e "当前路径: ${GREEN}$STEAMCMD_PATH${NC}\n"
+                show_info "当前路径: ${GREEN}$STEAMCMD_PATH${NC}\n"
                 read -p "请输入已安装的 steamcmd 脚本完整路径: " steam_path
                 
                 if [ -z "$steam_path" ]; then
@@ -1157,7 +1461,11 @@ manage_steamcmd() {
                 show_message "已更新 SteamCMD 路径为: $STEAMCMD_PATH"
                 break
             done
-            ;;        4|*) return ;;        *)
+            ;;
+        "返回主菜单") 
+            return 
+            ;;
+        *)
             show_error "无效的选择，请重新输入！"
             ;;
     esac
@@ -1165,29 +1473,42 @@ manage_steamcmd() {
 
 # 管理游戏服务器
 manage_game_server() {
-    clear_screen
+    # 创建菜单项数组
+    local menu_items=(
+        "安装新游戏服务器"
+        "更新现有游戏服务器"
+        "验证现有游戏服务器"
+        "更改安装位置"
+        "选择/切换游戏"
+        "删除游戏服务器"
+        "返回主菜单"
+    )
+    
+    # 创建菜单标题
     local menu_title="管理游戏服务器"
     if [ -n "$GAME_NAME" ]; then
         menu_title+=" [当前游戏: $GAME_NAME]"
     else
         menu_title+=" [未选择游戏]"
     fi
-
-    show_title "$menu_title"
-    echo -e "${YELLOW}请选择操作:${NC}"
-    echo -e "${YELLOW}1.${NC} 安装新游戏服务器"
-    echo -e "${YELLOW}2.${NC} 更新现有游戏服务器"
-    echo -e "${YELLOW}3.${NC} 验证现有游戏服务器"
-    echo -e "${YELLOW}4.${NC} 更改安装位置"
-    echo -e "${YELLOW}5.${NC} 选择/切换游戏"
-    echo -e "${YELLOW}6.${NC} 删除游戏服务器"
-    echo -e "${YELLOW}7.${NC} 返回主菜单"
-    echo
-    read -p "请输入选择 [1-7]: " choice
-
-    case $choice in
-        1) download_game ;;
-        2)
+    
+    # 创建菜单提示信息
+    local menu_message="${BOLD}$menu_title${PLAIN}\n\n"
+    menu_message+="(使用方向键或W/S键选择，回车确认)"
+    
+    # 使用交互式选择器显示菜单
+    interactive_select_mirror "${menu_items[@]}" "$menu_message"
+    local choice_status=$?
+    local selected_item="$_SELECT_RESULT"
+    
+    # 如果用户取消操作，返回
+    if [ $choice_status -ne 0 ]; then
+        return
+    fi
+    
+    case "$selected_item" in
+        "安装新游戏服务器") download_game ;;
+        "更新现有游戏服务器")
             if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
                 show_error "未选择游戏或未设置安装路径！"
                 return
@@ -1201,14 +1522,14 @@ manage_game_server() {
             
             clear_screen
             show_title "更新游戏服务器"
-            echo -e "${CYAN}正在更新 $GAME_NAME，请耐心等待...${NC}\n"
-            echo "详细信息请查看日志: $log_file"
+            show_info "正在更新 $GAME_NAME，请耐心等待..."
+            show_info "详细信息请查看日志: $log_file"
             echo
 
             su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" +quit" 2>&1 | tee "$log_file"
 
             if grep -qi "Success!" "$log_file"; then
-                mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                mv "$log_file" "$SERVER_DIR/update.log" 2>/dev/null
                 show_message "更新完成 $GAME_NAME 服务器路径: $SERVER_DIR"
             else
                 if grep -qi "Error! App '$app_id' state is 0x[0-9a-fA-F]\+ after update job" "$log_file"; then
@@ -1224,14 +1545,14 @@ manage_game_server() {
                             error_msg+="请检查日志以获取详细信息：\n$(cat "$log_file")"
                             ;;
                     esac
-                    mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                    mv "$log_file" "$SERVER_DIR/update.log" 2>/dev/null
 
                     # 显示错误信息
                     show_error "$error_msg"
                 else
                     # 其他错误（非状态码错误）
                     clear_screen
-                    show_title "安装失败"
+                    show_title "更新失败"
                     echo "日志内容："
                     echo
                     cat "$log_file"
@@ -1242,7 +1563,7 @@ manage_game_server() {
                 return
             fi
             ;;
-        3)
+        "验证现有游戏服务器")
             if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
                 show_error "未选择游戏或未设置安装路径！"
                 return
@@ -1256,14 +1577,14 @@ manage_game_server() {
             
             clear_screen
             show_title "验证游戏服务器"
-            echo -e "${CYAN}正在验证 $GAME_NAME，请耐心等待...${NC}\n"
-            echo "详细信息请查看日志: $log_file"
+            show_info "正在验证 $GAME_NAME，请耐心等待..."
+            show_info "详细信息请查看日志: $log_file"
             echo
 
             su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" validate +quit" 2>&1 | tee "$log_file"
 
             if grep -qi "Success!" "$log_file"; then
-                mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                mv "$log_file" "$SERVER_DIR/validate.log" 2>/dev/null
                 show_message "验证完成 $GAME_NAME 服务器路径: $SERVER_DIR"
             else
                 if grep -qi "Error! App '$app_id' state is 0x[0-9a-fA-F]\+ after update job" "$log_file"; then
@@ -1279,14 +1600,14 @@ manage_game_server() {
                             error_msg+="请检查日志以获取详细信息：\n$(cat "$log_file")"
                             ;;
                     esac
-                    mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                    mv "$log_file" "$SERVER_DIR/validate.log" 2>/dev/null
 
                     # 显示错误信息
                     show_error "$error_msg"
                 else
                     # 其他错误（非状态码错误）
                     clear_screen
-                    show_title "安装失败"
+                    show_title "验证失败"
                     echo "日志内容："
                     echo
                     cat "$log_file"
@@ -1297,7 +1618,7 @@ manage_game_server() {
                 return
             fi
             ;;
-        4)
+        "更改安装位置")
             if [ -z "$GAME_NAME" ]; then
                 show_error "请先选择游戏！"
                 return
@@ -1306,7 +1627,7 @@ manage_game_server() {
             get_install_location
             show_message "游戏安装位置已更新为: $SERVER_DIR"
             ;;
-        5)
+        "选择/切换游戏")
             clear_screen
             show_title "切换游戏"
             echo "请选择游戏："
@@ -1335,17 +1656,19 @@ manage_game_server() {
                 show_message "当前游戏已切换为: $GAME_NAME"
             fi
             ;;
-        6)
+        "删除游戏服务器")
             if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
                 show_error "未选择游戏或未设置安装路径！"
                 return
             fi
             
-            if ! confirm "您确定要完全删除以下游戏服务器吗？\n\n游戏: $GAME_NAME\n路径: $SERVER_DIR\n\n此操作不可恢复！"; then
+            interactive_select_boolean "您确定要完全删除以下游戏服务器吗？\n│ 游戏: $GAME_NAME\n│ 路径: $SERVER_DIR\n│ 此操作不可恢复！" "确认删除" "取消"
+            if [ "$_SELECT_RESULT" != "true" ]; then
                 return
             fi
             
-            if ! confirm "再次确认：您确定要永久删除 '$GAME_NAME' 服务器及其所有文件吗？"; then
+            interactive_select_boolean "再次确认：您确定要永久删除 '$GAME_NAME' 服务器及其所有文件吗？" "最终确认" "取消"
+            if [ "$_SELECT_RESULT" != "true" ]; then
                 return
             fi
             
@@ -1380,7 +1703,7 @@ manage_game_server() {
             fi
             ;;
 
-        7|*) return ;;        *)
+        "返回主菜单") return ;;        *)
             show_error "无效的选择，请重新输入！"
             ;;
 
@@ -1390,22 +1713,35 @@ manage_game_server() {
 # 管理SM
 manage_sm_mms() {
     check_server_dir || return
-
-    clear_screen
-    show_title "管理SM"
-    echo -e "${YELLOW}1.${NC} 安装 SourceMod+Metamod:Source[v12]"
-    echo -e "${YELLOW}2.${NC} 更新 SourceMod+Metamod:Source[v12]"
-    echo -e "${YELLOW}3.${NC} 卸载 SourceMod+Metamod:Source[v12]"
-    echo -e "${YELLOW}4.${NC} 返回主菜单"
-    echo
-    read -p "请输入选择 [1-4]: " choice
-    echo
-
-    case $choice in
-        1) 
+    
+    # 创建菜单项数组
+    local menu_items=(
+        "安装 SourceMod+Metamod:Source[v12]"
+        "更新 SourceMod+Metamod:Source[v12]"
+        "卸载 SourceMod+Metamod:Source[v12]"
+        "返回主菜单"
+    )
+    
+    # 创建菜单提示信息
+    local menu_message="${BOLD}管理SM${PLAIN}\n\n"
+    menu_message+="(使用方向键或W/S键选择，回车确认)"
+    
+    # 使用交互式选择器显示菜单
+    interactive_select_mirror "${menu_items[@]}" "$menu_message"
+    local choice_status=$?
+    local selected_item="$_SELECT_RESULT"
+    
+    # 如果用户取消操作，返回
+    if [ $choice_status -ne 0 ]; then
+        return
+    fi
+    
+    case "$selected_item" in
+        "安装 SourceMod+Metamod:Source[v12]") 
             # 检查是否已安装
             if [ -d "$SERVER_DIR/addons/sourcemod" ]; then
-                if confirm "SourceMod 已安装，是否重新安装？"; then
+                interactive_select_boolean "SourceMod 已安装，是否重新安装？" "重新安装" "取消"
+                if [ "$_SELECT_RESULT" = "true" ]; then
                     rm -rf "$SERVER_DIR/addons/sourcemod"
                     rm -rf "$SERVER_DIR/addons/metamod"
                 else
@@ -1437,32 +1773,28 @@ manage_sm_mms() {
 
             local error_file=$(mktemp)
             
-            show_progress "正在更新 SourceMod+Metamod:Source..." <<'EOF'
-                echo 20
-                echo -e "${GREEN}[Info]${NC} 下载最新 Metamod:Source..."
+            show_progress "正在更新 SourceMod+Metamod:Source..."
+                show_info "下载最新 Metamod:Source..."
                 MM_INDEX_URL="https://www.metamodsource.net/mmsdrop/1.12/"
                 MM_LATEST_NAME=$(curl -s "https://www.metamodsource.net/mmsdrop/1.12/mmsource-latest-linux")
-                MM_FILENAME=$(echo "$MM_LATEST_NAME" | tr -d '\r\n')
+                MM_FILENAME=$(echo "$MM_LATEST_NAME" | tr -d '\n')
                 MM_DOWNLOAD_URL="${MM_INDEX_URL}${MM_FILENAME}"
                 axel -q -n 10 "$MM_DOWNLOAD_URL" -o "$SERVER_DIR/$MM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$MM_FILENAME" ]; then
-                    echo -e "${RED}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
-                    exit 1
+                    show_error "Metamod:Source下载失败！" > "$error_file"
                 fi
 
-                echo 50
-                echo -e "${GREEN}[Info]${NC} 下载最新 SourceMod..."
+                show_info "下载最新 SourceMod..."
                 SM_INDEX_URL="https://sm.alliedmods.net/smdrop/1.12/"
                 SM_LATEST_NAME=$(curl -s "https://sm.alliedmods.net/smdrop/1.12/sourcemod-latest-linux")
-                SM_FILENAME=$(echo "$SM_LATEST_NAME" | tr -d '\r\n')
+                SM_FILENAME=$(echo "$SM_LATEST_NAME" | tr -d '\n')
                 SM_DOWNLOAD_URL="${SM_INDEX_URL}${SM_FILENAME}"
                 axel -q -n 10 "$SM_DOWNLOAD_URL" -o "$SERVER_DIR/$SM_FILENAME"
                 if [ ! -s "$SERVER_DIR/$SM_FILENAME" ]; then
-                    echo -e "${RED}[Error]${NC} SourceMod下载失败！" > "$error_file"
-                    exit 1
+                    show_error "SourceMod下载失败！" > "$error_file"
                 fi
 
-                echo 80
+                show_progress "正在更新 Metamod:Source..."
                 # 创建临时目录
                 local temp_dir=$(mktemp -d)
 
@@ -1483,8 +1815,6 @@ manage_sm_mms() {
                 rm "$SERVER_DIR/$MM_FILENAME" "$SERVER_DIR/$SM_FILENAME"
 
                 chown -R "$STEAM_USER:$STEAM_USER" "$addons_dir"
-                echo 100
-EOF
 
             if [ -s "$error_file" ]; then
                 error_msg=$(cat "$error_file")
@@ -1511,7 +1841,8 @@ EOF
                 return
             fi
 
-            if confirm "确定要卸载 SourceMod 和 Metamod:Source 吗？"; then
+            interactive_select_boolean "确定要卸载 SourceMod 和 Metamod:Source 吗？" "确认卸载" "取消"
+            if [ "$_SELECT_RESULT" = "true" ]; then
                 rm -rf "$SERVER_DIR/addons/sourcemod"
                 rm -rf "$addons_dir/addons/metamod"
                 show_message "SourceMod 和 Metamod:Source 已卸载"
@@ -1535,17 +1866,29 @@ manage_workshop() {
 
     while true; do
         clear_screen
-        show_title "管理创意工坊内容 (Garry's Mod)"
-        echo "当前集合ID: ${collection_id:-未设置}"
-        echo
-        echo -e "${YELLOW}1.${NC} 设置创意工坊集合ID"
-        echo -e "${YELLOW}2.${NC} 返回"
-        echo
-        read -p "请输入选择 [1-2]: " choice
-        echo
-
-        case $choice in
-            1)
+        # 创建菜单项数组
+        local menu_items=(
+            "设置创意工坊集合ID"
+            "返回"
+        )
+        
+        # 创建菜单提示信息
+        local menu_message="${BOLD}管理创意工坊内容 (Garry's Mod)${PLAIN}\n\n"
+        menu_message+="当前集合ID: ${collection_id:-未设置}\n\n"
+        menu_message+="(使用方向键或W/S键选择，回车确认)"
+        
+        # 使用交互式选择器显示菜单
+        interactive_select_mirror "${menu_items[@]}" "$menu_message"
+        local choice_status=$?
+        local selected_item="$_SELECT_RESULT"
+        
+        # 如果用户取消操作，返回
+        if [ $choice_status -ne 0 ]; then
+            continue
+        fi
+        
+        case "$selected_item" in
+            "设置创意工坊集合ID")
                 local new_id
                 get_input "请输入创意工坊集合ID:" "$collection_id"
                 new_id=$input_value
@@ -1622,24 +1965,36 @@ manage_source_python() {
     local addons_dir="$SERVER_DIR/$game_short_name/addons"
     local sp_dir="$addons_dir/source-python"
     
-    while true; do
-        clear_screen
-        show_title "管理 Source.Python ($GAME_NAME)"
-        echo -e "${YELLOW}1.${NC} 安装 Source.Python"
-        echo -e "${YELLOW}2.${NC} 删除 Source.Python"
-        echo -e "${YELLOW}3.${NC} 使用本地文件安装Source.Python"
-        echo -e "${YELLOW}4.${NC} 返回"
-        echo
-        read -p "请输入选择 [1-4]: " choice
-        echo
-
-        case $choice in
-            1)
+    while true;
+    do
+        # 创建菜单项数组
+        local menu_items=(
+            "安装 Source.Python"
+            "删除 Source.Python"
+            "使用本地文件安装Source.Python"
+            "返回"
+        )
+        
+        # 创建菜单提示信息
+        local menu_message="${BOLD}管理 Source.Python ($GAME_NAME)${PLAIN}\n\n"
+        menu_message+="(使用方向键或W/S键选择，回车确认)"
+        
+        # 使用交互式选择器显示菜单
+        interactive_select_mirror "${menu_items[@]}" "$menu_message"
+        local choice_status=$?
+        local selected_item="$_SELECT_RESULT"
+        
+        # 如果用户取消操作，返回
+        if [ $choice_status -ne 0 ]; then
+            continue
+        fi
+        
+        case "$selected_item" in
+            "安装 Source.Python")
                 # 如果是Arch Linux系统，安装额外依赖
                 if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
-                    show_progress "正在安装 Source.Python 的额外依赖..." <<'EOF'
-                        echo 10
-                        echo "检测到Arch Linux系统，安装额外依赖..."
+                    show_progress "正在安装 Source.Python 的额外依赖..."
+                        show_info "检测到Arch Linux系统，安装额外依赖..."
 
                         # 创建临时目录
                         local temp_dir=$(mktemp -d)
@@ -1653,19 +2008,15 @@ manage_source_python() {
                         # 下载并安装每个依赖
                         for dep_url in "${deps[@]}"; do
                             local dep_file="${dep_url##*/}"
-                            echo 20
-                            echo -e "${GREEN}[Info]${NC} 下载 $dep_file..."
+                            show_info "下载 $dep_file..."
                             axel -q -n 5 "$dep_url" -o "$temp_dir/$dep_file"
                             
-                            echo 40
-                            echo -e "${GREEN}[Info]${NC} 安装 $dep_file..."
+                            show_info "安装 $dep_file..."
                             pacman -U --noconfirm --overwrite=* "$temp_dir/$dep_file" >/dev/null 2>&1
                         done
                         
                         # 清理临时目录
                         rm -rf "$temp_dir"
-                        echo 60
-EOF
                 fi
                 
                 # 创建临时目录
@@ -1675,26 +2026,22 @@ EOF
                     return 1
                 fi
                 
-                show_progress "正在安装 Source.Python[$game_id]..." <<'EOF'
-                    echo 20
-                    echo "获取最新下载链接..."
+                show_progress "正在安装 Source.Python[$game_id]..."
+                    show_info "获取最新下载链接..."
                     
                     local full_url="http://downloads.sourcepython.com/release/742/source-python-$game_id-July-06-2025.zip"
-                    
-                    echo 30
-                    echo "下载 Source.Python ($game_id)..."
-                    echo "URL: $full_url"
+
+                    show_info "下载 Source.Python ($game_id)..."
+                    show_info "URL: $full_url"
                     
                     # 下载 Source.Python
                     axel -q -n 10 "$full_url" -o "$temp_dir/source-python.zip"
                     
                     if [ ! -s "$temp_dir/source-python.zip" ]; then
-                        echo -e "${RED}[Error]${NC} 下载失败: $full_url" > "$temp_dir/error.log"
-                        exit 1
+                        show_error "下载失败: $full_url" > "$temp_dir/error.log"
                     fi
-                    
-                    echo 60
-                    echo "解压文件..."
+
+                    show_info "解压文件..."
                     
                     # 创建目标目录
                     mkdir -p "$sp_dir"
@@ -1702,18 +2049,15 @@ EOF
                     # 解压到临时目录
                     unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
                     
-                    echo 80
-                    echo "安装文件..."
+                    show_info "安装文件..."
                     
                     # 移动文件到游戏目录
                     cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
                     
                     # 设置权限
                     chown -R "$STEAM_USER:$STEAM_USER" "$sp_dir"
-                    
-                    echo 100
+
                     sleep 1
-EOF
                 
                 # 检查安装结果
                 if [ -f "$temp_dir/error.log" ]; then
@@ -1731,39 +2075,34 @@ EOF
                 fi
                 ;;
                 
-            2)
+            "删除 Source.Python")
                 # 卸载 Source.Python
                 if [ ! -d "$sp_dir" ]; then
                     show_error "Source.Python 未安装！"
                     continue
                 fi
 
-                if confirm "确定要删除 Source.Python 吗？此操作不可恢复！"; then
-                    show_progress "正在删除 Source.Python..." <<'EOF'
-                        echo 10
-                        echo -e "${GREEN}[Info]${NC} 删除文件..."
+                interactive_select_boolean "确定要删除 Source.Python 吗？此操作不可恢复！" "确认删除" "取消"
+                if [ "$_SELECT_RESULT" = "true" ]; then
+                    show_progress "正在删除 Source.Python..."
+                        show_info "删除文件..."
                         rm -rf "$addons_dir/source-python"
                         rm -rf "$addons_dir/source-python.dll"
                         rm -rf "$addons_dir/source-python.so"
                         rm -rf "$addons_dir/source-python.vdf"
 
                         # 确保完全卸载所有组件
-                        echo 20
-                        echo -e "${GREEN}[Info]${NC} 验证删除..."
+                        show_info "验证删除..."
                         rm -rf "$sp_dir/addons/source-python" 2>/dev/null
-
-                        echo 30
                         #sleep 1
-EOF
 
                     show_message "Source.Python 已卸载\n\n所有相关文件和目录已被删除"
                 fi
                 ;;
-            3)
+            "使用本地文件安装Source.Python")
                 if [[ "$OS_INFO" == *"arch"* ]] || [[ "$OS_INFO" == *"manjaro"* ]] || [[ "$OS_INFO" == *"artix"* ]]; then
-                    show_progress "正在安装 Source.Python 的额外依赖..." <<'EOF'
-                        echo 10
-                        echo "检测到Arch Linux系统，安装额外依赖..."
+                    show_progress "正在安装 Source.Python 的额外依赖..."
+                        show_info "检测到Arch Linux系统，安装额外依赖..."
 
                         # 创建临时目录
                         local temp_dir=$(mktemp -d)
@@ -1777,22 +2116,19 @@ EOF
                         # 下载并安装每个依赖
                         for dep_url in "${deps[@]}"; do
                             local dep_file="${dep_url##*/}"
-                            echo 20
-                            echo -e "${GREEN}[Info]${NC} 下载 $dep_file..."
+                            show_info "下载 $dep_file..."
                             axel -q -n 5 "$dep_url" -o "$temp_dir/$dep_file"
                             
-                            echo 40
-                            echo -e "${GREEN}[Info]${NC} 安装 $dep_file..."
+                            show_info "安装 $dep_file..."
                             pacman -U --noconfirm --overwrite=* "$temp_dir/$dep_file" >/dev/null 2>&1
                         done
                         
                         # 清理临时目录
                         rm -rf "$temp_dir"
-                        echo 60
-EOF
+                        show_info "完成安装额外依赖..."
                 fi
 
-                # 使用本地文件
+                # 使用本地文件安装 Source.Python
                 local test_file="source-python.zip"
                 if [ ! -f "$test_file" ]; then
                     show_error "当前目录下未找到文件: $test_file\n\n请将文件放置到当前目录: $(pwd)"
@@ -1802,23 +2138,20 @@ EOF
                 # 创建临时目录
                 local temp_dir=$(mktemp -d)
                 
-                show_progress "正在使用本地文件安装 Source.Python..." <<'EOF'
-                    echo 20
-                    echo "使用本地文件安装 Source.Python..."
+                show_progress "正在使用本地文件安装 Source.Python..."
+                    show_info "使用本地文件安装 Source.Python..."
 
                     # 复制文件到临时目录
                     cp "$test_file" "$temp_dir/source-python.zip"
                     
-                    echo 40
-                    echo "解压文件..."
+                    show_info "解压文件..."
                     # 创建目标目录
                     mkdir -p "$sp_dir"
                     
                     # 解压到临时目录
                     unzip -q "$temp_dir/source-python.zip" -d "$temp_dir"
                     
-                    echo 70
-                    echo "安装文件..."
+                    show_info "安装文件..."
 
                     # 移动文件到游戏目录
                     cp -r "$temp_dir/"* "$SERVER_DIR/$game_short_name"
@@ -1826,17 +2159,19 @@ EOF
                     # 设置权限
                     chown -R "$STEAM_USER:$STEAM_USER" "$sp_dir"
                     
-                    echo 100
+                    show_info "设置权限..."
                     #sleep 1
-EOF
                 
                 # 清理临时目录
                 rm -rf "$temp_dir"
                 execstack -c "$addons_dir/source-python/bin/core.so"
                 show_message "Source.Python 已通过本地文件安装到:\n$sp_dir\n\n启动服务器后使用 'sp info' 命令验证安装"
                 ;;
-            *)  
+            "返回")  
                 return 
+                ;;
+            *)  
+                show_error "无效的选择，请重新输入！"
                 ;;
         esac
     done
@@ -1877,52 +2212,65 @@ main_menu() {
         fi
 
         # 根据当前游戏动态设置菜单项5
-        local menu_option_5=""
         local menu_title_5=""
         if [ "$GAME_NAME" = "Garry's Mod" ]; then
-            menu_option_5="5" 
             menu_title_5="管理创意工坊内容"
         else
-            menu_option_5="5" 
             menu_title_5="管理SM+MM:S[v12]"
         fi
 
-        # 显示主菜单
-        clear_screen
-        show_title "服务器管理脚本"
-        echo -e "${GREEN}OS:${NC} $OS_INFO"
-        echo -e "${GREEN}游戏服务器账户:${NC} $account_info"
-        echo -e "${GREEN}游戏:${NC} $game_info"
-        echo -e "${GREEN}安装路径:${NC} $install_info"
-        echo
-        echo -e "${YELLOW}请选择操作:${NC}"
-        echo -e "${YELLOW}1.${NC} 安装游戏服务器依赖"
-        echo -e "${YELLOW}2.${NC} 管理游戏服务器账户"
-        echo -e "${YELLOW}3.${NC} 管理SteamCMD"
-        echo -e "${YELLOW}4.${NC} 管理游戏服务器"
-        echo -e "${YELLOW}5.${NC} $menu_title_5"
-        echo -e "${YELLOW}6.${NC} 管理启动脚本"
-        echo -e "${YELLOW}7.${NC} 管理游戏服务器systemctl服务"
-        echo -e "${YELLOW}8.${NC} 管理source.python"
-        echo -e "${YELLOW}9.${NC} 查看脚本配置信息"
-        echo -e "${YELLOW}10.${NC} 查看脚本配置文件"
-        echo -e "${YELLOW}11.${NC} 关于本脚本"
-        echo -e "${YELLOW}12.${NC} 完成并退出"
-        echo
-        read -p "请输入选择 [1-12]: " choice
-        echo
+        # 创建菜单项数组
+        local menu_items=(
+            "安装游戏服务器依赖"
+            "管理游戏服务器账户"
+            "管理SteamCMD"
+            "管理游戏服务器"
+            "$menu_title_5"
+            "管理启动脚本"
+            "管理游戏服务器systemctl服务"
+            "管理source.python"
+            "查看脚本配置信息"
+            "查看脚本配置文件"
+            "关于本脚本"
+            "完成并退出"
+        )
 
-        case $choice in
-            1) detect_os; install_dependencies ;;
-            2) set_server_user ;;
-            3) 
+        # 创建菜单提示信息
+        local menu_message="${BOLD}服务器管理脚本${PLAIN}\n\n"
+        menu_message+="${GREEN}OS:${PLAIN} $OS_INFO\n"
+        menu_message+="${GREEN}游戏服务器账户:${PLAIN} $account_info\n"
+        menu_message+="${GREEN}游戏:${PLAIN} $game_info\n"
+        menu_message+="${GREEN}安装路径:${PLAIN} $install_info\n"
+        menu_message+="${GREEN}系统时间:${PLAIN} $(date)\n\n"
+        menu_message+="${BOLD}请选择操作:${PLAIN}\n"
+        menu_message+="(使用方向键或W/S键选择，回车确认)"
+
+        # 使用交互式选择器显示菜单
+        interactive_select_mirror "${menu_items[@]}" "$menu_message"
+        local choice_status=$?
+        local selected_item="$_SELECT_RESULT"
+
+        # 如果用户取消操作，重新显示菜单
+        if [ $choice_status -ne 0 ]; then
+            continue
+        fi
+
+        # 根据选择的菜单项执行相应操作
+        case "$selected_item" in
+            "安装游戏服务器依赖")
+                detect_os; install_dependencies
+                ;;
+            "管理游戏服务器账户")
+                set_server_user
+                ;;
+            "管理SteamCMD")
                 if [ -z "$STEAM_USER" ]; then
                     show_error "请先设置游戏服务器账户!"
                     continue
                 fi
-                manage_steamcmd 
+                manage_steamcmd
                 ;;
-            4) 
+            "管理游戏服务器")
                 if [ -z "$STEAMCMD_PATH" ]; then
                     show_error "请先安装SteamCMD!"
                     continue
@@ -1935,30 +2283,40 @@ main_menu() {
                 
                 manage_game_server
                 ;;
-            5) 
+            "$menu_title_5")
                 if [ "$GAME_NAME" = "Garry's Mod" ]; then
                     manage_workshop
                 else
                     manage_sm_mms
                 fi
                 ;;
-            6) 
-                check_server_dir || return
-                manage_start_scripts 
+            "管理启动脚本")
+                check_server_dir || continue
+                manage_start_scripts
                 ;;
-            7) if [ -z "$GAME_NAME" ]; then
+            "管理游戏服务器systemctl服务")
+                if [ -z "$GAME_NAME" ]; then
                     show_error "请先选择游戏！"
                     continue
                 fi
                 manage_systemd_service
                 ;;
-            8) manage_source_python ;;
-            9) show_server_info ;;
-            10) show_config ;;
-            11) show_about ;;
-            12) 
+            "管理source.python")
+                manage_source_python
+                ;;
+            "查看脚本配置信息")
+                show_server_info
+                ;;
+            "查看脚本配置文件")
+                show_config
+                ;;
+            "关于本脚本")
+                show_about
+                ;;
+            "完成并退出")
                 if [ -z "$GAME_NAME" ] || [ -z "$SERVER_DIR" ]; then
-                    if confirm "您尚未完成全部设置，确定要退出吗？"; then
+                    interactive_select_boolean "您尚未完成全部设置，确定要退出吗？" "确定退出" "返回菜单"
+                    if [ "$_SELECT_RESULT" = "true" ]; then
                         save_config
                         exit 0
                     fi
@@ -1970,7 +2328,9 @@ main_menu() {
                     exit 0
                 fi
                 ;;
-            *) exit 1 ;;
+            *)
+                exit 1
+                ;;
         esac
     done
 }

@@ -590,7 +590,7 @@ install_sourcemod() {
     {
         echo 30
         echo "下载Metamod:Source..."
-        axel -q -n 10 "https://mms.alliedmods.net/mmsdrop/1.12/mmsource-1.12.0-git1219-linux.tar.gz" -O $SERVER_DIR/mms.tar.gz
+        axel -q -n 10 "https://mms.alliedmods.net/mmsdrop/1.12/mmsource-1.12.0-git1219-linux.tar.gz" -o $SERVER_DIR/mms.tar.gz
         if [ ! -s $SERVER_DIR/mms.tar.gz ]; then
             echo -e "${RED}[Error]${NC} Metamod:Source下载失败！" > "$error_file"
             exit 1
@@ -598,7 +598,7 @@ install_sourcemod() {
         
         echo 60
         echo "下载SourceMod..."
-        axel -q -n 10 "https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7210-linux.tar.gz" -O $SERVER_DIR/sourcemod.tar.gz
+        axel -q -n 10 "https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7210-linux.tar.gz" -o $SERVER_DIR/sourcemod.tar.gz
         if [ ! -s $SERVER_DIR/sourcemod.tar.gz ]; then
             echo -e "${RED}[Error]${NC} SourceMod下载失败！" > "$error_file"
             exit 1
@@ -982,7 +982,7 @@ manage_game_server() {
             su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" +quit" 2>&1 | tee "$log_file"
 
             if grep -qi "Success!" "$log_file"; then
-                mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                mv "$log_file" "$SERVER_DIR/update.log" 2>/dev/null
                 whiptail --title "完成" --msgbox "更新完成 $GAME_NAME 服务器路径: $SERVER_DIR" 9 70
             else
                 if grep -qi "Error! App '$app_id' state is 0x[0-9a-fA-F]\+ after update job" "$log_file"; then
@@ -998,7 +998,7 @@ manage_game_server() {
                             error_msg+="请检查日志以获取详细信息：\n$(cat "$log_file")"
                             ;;
                     esac
-                    mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                    mv "$log_file" "$SERVER_DIR/update.log" 2>/dev/null
 
                     # 显示错误信息
                     whiptail --title "安装失败" --msgbox "$error_msg" 20 70
@@ -1027,7 +1027,7 @@ manage_game_server() {
             su - "$STEAM_USER" -c "cd \"$SERVER_DIR\" && \"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +app_update \"$app_id\" validate +quit" 2>&1 | tee "$log_file"
 
             if grep -qi "Success!" "$log_file"; then
-                mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                mv "$log_file" "$SERVER_DIR/validate.log" 2>/dev/null
                 whiptail --title "完成" --msgbox "验证完成 $GAME_NAME 服务器路径: $SERVER_DIR" 9 70
             else
                 if grep -qi "Error! App '$app_id' state is 0x[0-9a-fA-F]\+ after update job" "$log_file"; then
@@ -1043,7 +1043,7 @@ manage_game_server() {
                             error_msg+="请检查日志以获取详细信息：\n$(cat "$log_file")"
                             ;;
                     esac
-                    mv "$log_file" "$SERVER_DIR/install.log" 2>/dev/null
+                    mv "$log_file" "$SERVER_DIR/validate.log" 2>/dev/null
 
                     # 显示错误信息
                     whiptail --title "安装失败" --msgbox "$error_msg" 20 70
@@ -1376,7 +1376,7 @@ manage_source_python() {
                             local dep_file="${dep_url##*/}"
                             echo 20
                             echo -e "${GREEN}[Info]${NC} 下载 $dep_file..."
-                            axel -q -n 5 "$dep_url" -O "$temp_dir/$dep_file"
+                            axel -q -n 5 "$dep_url" -o "$temp_dir/$dep_file"
                             
                             echo 40
                             echo -e "${GREEN}[Info]${NC} 安装 $dep_file..."
@@ -1499,7 +1499,7 @@ manage_source_python() {
                             local dep_file="${dep_url##*/}"
                             echo 20
                             echo -e "${GREEN}[Info]${NC} 下载 $dep_file..."
-                            axel -q -n 5 "$dep_url" -O "$temp_dir/$dep_file"
+                            axel -q -n 5 "$dep_url" -o "$temp_dir/$dep_file"
                             
                             echo 40
                             echo -e "${GREEN}[Info]${NC} 安装 $dep_file..."

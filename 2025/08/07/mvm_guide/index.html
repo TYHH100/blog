@@ -704,8 +704,8 @@ p.spoiler {
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2025-10-21 14:59:04</span>
-            <span class="mobile">2025-10-21 14:59:04</span>
+            <span class="desktop">2025-10-21 15:05:20</span>
+            <span class="mobile">2025-10-21 15:05:20</span>
             <span class="hover-info">更新</span>
         </span>
     
@@ -767,14 +767,14 @@ p.spoiler {
 </p>
 </br>
 
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言 "></a>前言 <img src='/images/posts_images/mvm_guide/image1.png' align='left' style='margin-top: -20px;' /></h3></br>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言 "></a>前言 <img src='/images/posts_images/mvm_guide/image1.webp' align='left' style='margin-top: -20px;' /></h3></br>
 &emsp;&emsp;作为TF2的核心游戏模式之一，MVM模式自2013年双城更新以来已经几乎没有过任何官方更新，但它开创了一个内容丰富，潜力充足的游戏玩法。自2017年钛合金坦克行动以来，社区MVM蓬勃发展，举办了十几场或有难度，或有乐趣的MVM社区战役，极大地补充了MVM模式的可游玩内容。
 
 <p>&emsp;&emsp;然而，即使在官方MVM任务被视为极其简单，不合难度的今天，不论是游戏内还是国内社区都没有一份完整的，涉及MVM有难度方面的MVM教程。是的，我知道国内有过双城教程和其他一些教程，但它们都毫无例外地只以官方任务作为参考，并且存在着很多偏见性的观点。例如，Pyro副武器必备纵火者的油桶，Medic用闪电战很厉害，等等。从这样的教程中学习，在官方任务中或许有一战之力，一旦要面对真正好玩但有难度的MVM，不少玩家连社区中等难度的任务都打着吃力，更别说高级、专家甚至大师难度了。<br>&emsp;&emsp;因此，本篇MVM指南的目的在于结合我和许多朋友几年来游玩社区MVM的理解与认知，尝试编写一篇能够有效指导新玩家学会如何玩MVM，如何在MVM中玩出水平的教程。<b>由于内容繁杂，这篇80多页的教程并不适合一口气读完，而是建议当作一本MVM字典，在遇到问题时查询对应条目，也方便读者快速掌握需要了解的知识。</b><br>&emsp;&emsp;遗憾的是，由于生活繁忙，这篇教程除2个需要补充的对应教程视频外，已经暂时完结。过上几个月等我彻底有空了，再来补上这两个视频，届时可以在B站搜索<a class="link"   target="_blank" rel="noopener" href="https://space.bilibili.com/401654439" >SpecNotes<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>以查看。<br>&emsp;&emsp;<b>最后，本篇MVM指南主要适用于rafmod环境</b>(包括目前国内的主流社区服，以及国外的土豆MVM服务器)，部分内容在完全官方的环境(新兵训练营、曼恩奇现等等)会存在一定的偏差，可能主要集中在Spy仇恨的部分。但这的确不影响读者学习这篇教程，因为一些明确的雷点，例如永生的回报修复与否，已经明确标出。<br>&emsp;&emsp;如果还有什么可以谈的话，本人已经制作MVM任务两年左右，为国外的主流MVM社区均有过质量可以的供稿，并已经双人通过了绝大多数的官方MVM任务，对MVM模式的熟悉程度肯定是比只玩双城的打金玩家要高的。因此，我可以略带一丝自信的说，<b>这是国内社区中最有价值的MVM教程，没有之一。</b></p>
 <p style="text-align: right; margin-left: 15px;">——SpecNotes</br>
 2025.6.13</p>
 
-<h3 id="目录"><a href="#目录" class="headerlink" title="目录 "></a>目录 <img src='/images/posts_images/mvm_guide/image2.png' align='left' style='margin-top: -20px;' /></h3></br>
+<h3 id="目录"><a href="#目录" class="headerlink" title="目录 "></a>目录 <img src='/images/posts_images/mvm_guide/image2.webp' align='left' style='margin-top: -20px;' /></h3></br>
 
 <ol>
 <li><a href="#读懂回合条">读懂回合条</a></li>
@@ -794,12 +794,12 @@ p.spoiler {
 <h3 id="读懂回合条"><a href="#读懂回合条" class="headerlink" title="读懂回合条"></a>读懂回合条</h3><p>&emsp;&emsp;回合条，即<code>Wavebar</code>，会在每回合的开始前展示在屏幕顶上，揭露下回合进攻的机器人包含哪些。不同的机器人可能有不同的武器、职业、生命值等等，但它们具有类似的定位。本文不会赘述如何对付所有你没见过的兵种标志的机器人，仅介绍主要需要注意的内容。回合开始后，回合条将只显示进度，不显示所有机器人。在控制台输入<code>cl_mvm_wave_status_visible_during_wave 1</code> 可以保持回合条持续显示机器人。<br>&emsp;&emsp;下面以这个回合条为例：<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image3.png"
+                     data-src="/images/posts_images/mvm_guide/image3.webp"
                      
                 ><br>&emsp;&emsp;当前任务共有三个回合，现在处于第一回合。<br>&emsp;&emsp;这个回合条中的四个框，分别对应四类敌人，下面将会一一介绍。<br>&emsp;&emsp;首先，很容易发现：回合条上的图标分为<b><span style="color: #a31f34">红底</span></b>和<b>白底</b>两类。红底图标代表<b>重型单位</b>，例如巨型机器人和坦克；白底图标代表<b>轻型单位</b>，例如普通机器人和迷你巨型机器人。<br>&emsp;&emsp;<b><span style="color: #00b050">图中绿色框</span></b>内是一个<b>普通机器人</b>：它们的大小跟玩家是一致的，通常数量也比较多，很容易扎堆聚团，拥有强大的火力（设想一下：12个站在一起的反曲刀Sniper，不幸落入它们之中的玩家会被攻击数次，伤害远远高于单个巨型反曲刀Sniper）。好消息是，它们的生命值通常也和玩家一样，所以对付普通机器人需要<b>群体伤害</b>，或是<b>持续性单体伤害</b>。<br>&emsp;&emsp;需要注意的是，普通机器人在拥有炸弹一定时间后，将进行<b>炸弹升级</b>，获得一系列增益效果。击杀该机器人后，炸弹升级效果会自动消失。<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image4.png"
+                     data-src="/images/posts_images/mvm_guide/image4.webp"
                      
                 ></p>
 <blockquote>
@@ -808,7 +808,7 @@ p.spoiler {
 <p>炸弹升级的细则如下所示：<br>&emsp;&emsp;5秒后，炸弹机器人获得<b>防御加成</b>，且附近的所有机器人均共享这一效果；20秒后，炸弹机器人获得<b>回复加成</b>，每秒回复45点生命值；35秒后，炸弹机器人获得<b>永久爆击效果</b>。因此尽量不要让机器人获得过多的炸弹升级效果。<br>&emsp;&emsp;<b><span style="color: #00b0f0">图中蓝色框</span></b>内是一个<b>迷你巨型机器人</b>：迷你巨型机器人属于普通机器人的一种，但它们的体型更大，通常生命值也更高，从450到1200不等。迷你巨型机器人数量比普通机器人少，但它们也可以获取炸弹升级增益。一般来说，<b>单体伤害</b>更适合杀伤迷你巨型机器人。<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image5.png"
+                     data-src="/images/posts_images/mvm_guide/image5.webp"
                      
                 ></p>
 <blockquote>
@@ -817,7 +817,7 @@ p.spoiler {
 <p>&emsp;&emsp;迷你巨型机器人目前并没有特殊的标志：一般来说，回合条上数量明显较少，或是拥有“装甲”示意标志（图中长剑标志背后的盾牌）的机器人，就有可能是迷你巨型机器人。<br>&emsp;&emsp;<b><span style="color: #ffc000ff">图中橘色框</span></b>内是一个<b>巨型机器人(Giant)</b>：巨型机器人比迷你巨型机器人还要大，通常有着沉重的脚步声。它们比起普通机器人，难以被击退或是吹飞，Spy的背刺也不能一击必杀它们，但巨型机器人没有炸弹升级效果。<br>&emsp;&emsp;巨型机器人的生命值通常在1200~8000之间，它们的火力也不容小觑。对付巨型机器人，需要<b>大量的单体伤害。</b><br>&emsp;&emsp;一类特殊的巨型机器人是<b>首领机器人(Chief)</b>:如果你看到的一个回合条像是这样，那么注意，这很有可能是一个首领机器人。<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image6.png"
+                     data-src="/images/posts_images/mvm_guide/image6.webp"
                      
                 ></p>
 <blockquote>
@@ -826,7 +826,7 @@ p.spoiler {
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image7.png"
+                     data-src="/images/posts_images/mvm_guide/image7.webp"
                      
                 ></p>
 <blockquote>
@@ -835,7 +835,7 @@ p.spoiler {
 <p>&emsp;&emsp;首领机器人的体型比巨型机器人还要大，生命值通常是以万来作为单位的，往往也会在屏幕上展示血条。对付它们需要<b>超级大量的单体伤害。</b><br>&emsp;&emsp;<b><span style="color: #a31f34">图中红色框内是一个坦克(Tank)</span></b>：坦克会沿地图上的固定路径前进，直到炸弹坑，然后扔下一枚炸弹结束游戏。坦克的生命值在几千到几万不等，某些服务器安装了自定义插件，会显示生成的坦克的生命值。对付坦克，需要<b>适合造成坦克伤害的职业</b>。关于什么是坦克伤害，会在第二章具体介绍。<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image8.png"
+                     data-src="/images/posts_images/mvm_guide/image8.webp"
                      
                 ></p>
 <blockquote>
@@ -844,18 +844,18 @@ p.spoiler {
 <p>&emsp;&emsp;此外还有一类<b>普通机器人</b>，它们需要被迅速解决——否则施展它们的效果后将很难对付。我们暂且将其称为<b>关键机器人</b>。最常见的关键机器人就是Uber Medic（无敌医生）。<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image9.png"
+                     data-src="/images/posts_images/mvm_guide/image9.webp"
                      
                 ><br>&emsp;&emsp;Uber Medic拥有150点生命值。当它们的生命值低于50点时，它们会立刻释放Uber，获得几秒的无敌时间。但如果玩家队伍里有一个Demo，他提前埋好了几颗粘弹，造成了大于150点的伤害，这样Uber Medic便无法释放Uber了。像几颗粘弹同时爆炸这样的瞬时伤害，我们称为<b>爆发性伤害</b>。<br>&emsp;&emsp;还有一类常见的关键机器人，它们以速度作为威胁，没错，就是机器Scout，以及更危险的Super Scout。<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image10.png"
+                     data-src="/images/posts_images/mvm_guide/image10.webp"
                      
                 ><br>&emsp;&emsp;机器Scout在拿到炸弹后会全速冲向炸弹坑，缩短炸弹到炸弹坑的距离，有时甚至会直接下包导致玩家输掉。漏了机器人，或者是看到了但追不上，这都很难受。尤其是巨型Scout，它们1000多点的生命值让所有人都难以快速消灭它，因此十分有必要处理这类快速机器人。至于具体方法，在第二章里会说明。<br>&emsp;&emsp;综上所述，对付不同的敌人需要不同的伤害类型，这就要求玩家组建一支合理的伤害类型的队伍，才能轻松的击败特定回合。在读完下一章后，回头看看这两个示范回合条，想一想需要哪些职业来对付它们。<br><br></p>
 </br>
 
 <h3 id="选择合适的职业"><a href="#选择合适的职业" class="headerlink" title="选择合适的职业"></a>选择合适的职业</h3><p>&emsp;&emsp;常规MVM都只支持最多<b><span style="color: #a31f34">6</span></b>个玩家一起游玩，因此，在应对不同回合时往往需要关注队内的职业搭配：哪怕是老玩家，选择错误的职业都可能导致回合玩着吃力，甚至是失败。同时，哪怕选择了正确的职业，不履行他应尽的职责就跟没选这个职业一样，更容易招致队友反感。本章将会逐个介绍九大职业能够发挥的功能，以及他们在团队中承担的主要职责。<br>&emsp;&emsp;在介绍各个职业的职责时，会用四个等级表示应该做这件事的优先程度：<br>&emsp;&emsp;<b>[主要]——这非常重要。不这么做是对整个团队不好的。</b><br>&emsp;&emsp;<b>[次要]——这是你可以做的，但在主要事项完成的前提下再做。同时如果你实在做不到这一点，那也无可厚非。</b><br>&emsp;&emsp;<b>[推荐]——如果你在完成主要和次要职责后还有余裕，做这个吧，因为你正好擅长。</b><br>&emsp;&emsp;<b>[<span style="color: #a31f34">权衡</span>]——<span style="color: #a31f34">这是你可以做的事情，但这件事很难做好，既有可能帮助团队，也有可能拖累团队。</span></b></p>
-<div class="tabs" id="tab-选择合适的职业-tabs"><ul class="nav-tabs"><li class="tab active"><a class="#选择合适的职业-tabs-1">Scout-侦察兵 <img src='/images/posts_images/mvm_guide/50px-Scout_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-2">Soldier-士兵 <img src='/images/posts_images/mvm_guide/50px-Soldier_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-3">Pyro-火焰兵 <img src='/images/posts_images/mvm_guide/50px-Pyro_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-4">Demoman-爆破手 <img src='/images/posts_images/mvm_guide/50px-Demoman_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-5">Heavy-机枪手 <img src='/images/posts_images/mvm_guide/50px-Heavy_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-6">Engineer-工程师 <img src='/images/posts_images/mvm_guide/50px-Engineer_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-7">Medic-医生 <img src='/images/posts_images/mvm_guide/50px-Medic_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-8">Sniper-狙击手 <img src='/images/posts_images/mvm_guide/50px-Sniper_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-9">Spy-间谍 <img src='/images/posts_images/mvm_guide/50px-Spy_emblem_RED.png' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-10">全能团队的职业组成</a></li></ul><div class="tab-content"><div class="tab-pane active" id="选择合适的职业-tabs-1"><p>&emsp;&emsp;Scout在MVM里是个不可或缺的职业——在绝大部分时候，如果队伍里没有Scout，刚加入的你就直接选Scout吧。Scout是团队里的<b><font size="5"><span style="color: #a31f34">全能辅助</span></font></b>，即不以造成伤害作为主要职责的职业。当然，Scout也不是不能打伤害，这只是他的次要职责。Scout能发挥的功能如下所示：</p>
+<div class="tabs" id="tab-选择合适的职业-tabs"><ul class="nav-tabs"><li class="tab active"><a class="#选择合适的职业-tabs-1">Scout-侦察兵 <img src='/images/posts_images/mvm_guide/50px-Scout_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-2">Soldier-士兵 <img src='/images/posts_images/mvm_guide/50px-Soldier_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-3">Pyro-火焰兵 <img src='/images/posts_images/mvm_guide/50px-Pyro_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-4">Demoman-爆破手 <img src='/images/posts_images/mvm_guide/50px-Demoman_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-5">Heavy-机枪手 <img src='/images/posts_images/mvm_guide/50px-Heavy_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-6">Engineer-工程师 <img src='/images/posts_images/mvm_guide/50px-Engineer_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-7">Medic-医生 <img src='/images/posts_images/mvm_guide/50px-Medic_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-8">Sniper-狙击手 <img src='/images/posts_images/mvm_guide/50px-Sniper_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-9">Spy-间谍 <img src='/images/posts_images/mvm_guide/50px-Spy_emblem_RED.webp' align='left' style='margin-top: -10px;' /></a></li><li class="tab"><a class="#选择合适的职业-tabs-10">全能团队的职业组成</a></li></ul><div class="tab-content"><div class="tab-pane active" id="选择合适的职业-tabs-1"><p>&emsp;&emsp;Scout在MVM里是个不可或缺的职业——在绝大部分时候，如果队伍里没有Scout，刚加入的你就直接选Scout吧。Scout是团队里的<b><font size="5"><span style="color: #a31f34">全能辅助</span></font></b>，即不以造成伤害作为主要职责的职业。当然，Scout也不是不能打伤害，这只是他的次要职责。Scout能发挥的功能如下所示：</p>
 <ul>
 <li><b><span style="color: #a31f34">捡钱</span>。[主要]</b></li>
 <li><b>使用<span style="color: #a31f34">疯狂的牛奶</span>为队友治疗，减速快速机器人。[主要]</b></li>
@@ -896,12 +896,12 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <li><b><span style="color: #a31f34">用身体阻挡</span>炸弹机器人前进。 [次要]</b><br>&emsp;&emsp;先从攻击的部分讲起。Heavy的转轮机枪<b>在贴脸的距离下</b>可以最大化输出，无需任何升级即可达到每秒约450点的恐怖伤害，因此在游玩Heavy时，你应该尝试去<b>主动靠近机器人</b>，然后用机枪堵着它们射。在没有穿透升级的情况下Heavy只能造成单体伤害，但因为击杀每个小机器人所需的时间极短，他依旧能够对付成群的机器人-只是得挨个来。就算是巨型机器人，能够存活的时间也是个位数，而一旦歼灭了所有机器人，回合就获胜了。从这方面来看，Heavy的基础伤害（无升级）已经足够强大了。在一些钱很少的任务早期，完全可以考虑<b>多个Heavy</b>的打法，这远比什么400块Soldier或Demo要厉害多了。<br>&emsp;&emsp;Heavy的防御也同样是最有效的，不仅是因为他有最大的300点基础生命值，还因为他有<b>自带的50%击退抗性</b>，这让Heavy能够无所畏惧地站在前线，缓慢逼近机器人，普通的机器人既无法消灭他，又不能把他打飞，就只能乖乖地被打成筛子了。但是这么强大的Heavy也有缺点，要不然所有任务都会被堆Heavy的战术暴力破解了。<br>&emsp;&emsp;首先，Heavy在PVP中的缺点还在。移动缓慢和笨重的他必须提前预判机器人的前进方向再进行拦截，而不像其他职业可以到处追杀机器人。在肆意开火时，几乎是全场焦点（后面会讲到有个更加“引人注目”的）的Heavy会同时被多个方向攻击，甚至是背刺！他没法像Scout那样躲避，因此要么<b>有足够的抗性</b>硬扛过去，要么就得<b>有足够的治疗量</b>来快速回复。对Heavy来说，补给器的治疗是远远不够的，他最需要的治疗往往是<b><span style="color: #a31f34">被泼了牛奶的巨型机器人</b></span>。因为牛奶的治疗量与输出效率挂钩，Heavy可以靠牛奶吸最多的血，进而保持自身不死；其次就是击杀回血和Medic的治疗了，前者也和输出有关，后者得看Medic会不会玩了。如果用抗性去扛伤害，75%的爆炸&#x2F;子弹&#x2F;火焰抗性加上90%的爆击抗性，能让Heavy的有效生命值达到1000点以上，血厚，无需多言。然后，Heavy机枪的弹药消耗速率也有点快，但他完全没有时间去自己捡弹药，这导致他也很依赖<b>Engi的补给器</b>。也就是说，<b><span style="color: #a31f34">Heavy想发挥能力需要至少有Scout&#x2F;Medic&#x2F;Engi的支援，单打独斗的Heavy很容易就被机器人干掉了</b></span>。以及，<b>Heavy的转轮机枪对坦克有75%的减益</b>，而他的持续攻击也会触发Uber Medic的Uber，这些敌人还是得让专门的职业来对付。<br>&emsp;&emsp;补充说明一下<b><span style="color: #a31f34">“阻挡炸弹”</b></span>这一回事：实际上这应该算是MVM小技巧之一，但一旦玩家学会，立刻就能发挥很大的作用，因此把它纳入职业章节里讲解。<b>阻挡炸弹，就是玩家利用自身的碰撞体积，不让（炸弹）机器人继续往炸弹坑推进</b>。对Heavy来说，阻挡机器人可以让机器人保持在最佳输出距离（贴脸），也能让那些以速度作为优势的机器人停下来。那么，如何来阻挡呢？下面这张图会进行讲解：<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image12.png"
+                     data-src="/images/posts_images/mvm_guide/image12.webp"
                      
                 ><br>&emsp;&emsp;可以看到，机器人总会试着走最短路线以节省时间，而两点之间线段最短，因此它们的实际路线会是从一个角落到另一个角落。在上图中，只要玩家站在红圈所示的位置，便可以有效地阻挡炸弹机器人。接下来提供两个个官方地图的路线作为阻挡炸弹参考的范例：<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image13.png"
+                     data-src="/images/posts_images/mvm_guide/image13.webp"
                      
                 ></li>
 </ul></div><div class="tab-pane" id="选择合适的职业-tabs-6"><p>&emsp;&emsp;玩PVP时觉得Engi玩起来太累？坏消息：他在MVM里也一样累。在MVM中，Engi是个上限很高，下限很低的职业——玩得好的Engi可以多点开花，帮队友分担很多责任并持续提供及时的支援；玩得差的Engi不仅建筑隐身，更有可能拖累队伍。还是说点好消息吧！在MVM想玩好Engi并不难，只需遵守一些简单的原则即可——但是累是真的累。<br>&emsp;&emsp;Engi是团队里的<b><font size="5"><span style="color: #a31f34">重要辅助+强化者</span></font></b>。Engi能发挥的功能如下所示：</p>
@@ -915,7 +915,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image14.png"
+                     data-src="/images/posts_images/mvm_guide/image14.webp"
                      
                 ></p>
 <blockquote>
@@ -924,7 +924,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image15.png"
+                     data-src="/images/posts_images/mvm_guide/image15.webp"
                      
                 ></p>
 <blockquote>
@@ -933,7 +933,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image16.png"
+                     data-src="/images/posts_images/mvm_guide/image16.webp"
                      
                 ></p>
 <blockquote>
@@ -942,7 +942,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image17.png"
+                     data-src="/images/posts_images/mvm_guide/image17.webp"
                      
                 ></p>
 <blockquote>
@@ -951,7 +951,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image18.png"
+                     data-src="/images/posts_images/mvm_guide/image18.webp"
                      
                 ></p>
 <blockquote>
@@ -960,7 +960,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image19.png"
+                     data-src="/images/posts_images/mvm_guide/image19.webp"
                      
                 ></p>
 <blockquote>
@@ -969,7 +969,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image20.png"
+                     data-src="/images/posts_images/mvm_guide/image20.webp"
                      
                 ></p>
 <blockquote>
@@ -978,7 +978,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image21.png"
+                     data-src="/images/posts_images/mvm_guide/image21.webp"
                      
                 ></p>
 <blockquote>
@@ -987,7 +987,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image22.png"
+                     data-src="/images/posts_images/mvm_guide/image22.webp"
                      
                 ></p>
 <blockquote>
@@ -996,7 +996,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image23.png"
+                     data-src="/images/posts_images/mvm_guide/image23.webp"
                      
                 ></p>
 <blockquote>
@@ -1005,7 +1005,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image24.png"
+                     data-src="/images/posts_images/mvm_guide/image24.webp"
                      
                 ></p>
 <blockquote>
@@ -1014,7 +1014,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <p><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image25.png"
+                     data-src="/images/posts_images/mvm_guide/image25.webp"
                      
                 ></p>
 <blockquote>
@@ -1058,7 +1058,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <div class="tabs" id="tab-选择好用的武器-tabs"><ul class="nav-tabs"><li class="tab active"><a class="#选择好用的武器-tabs-1">Scout的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-2">Soldier的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-3">Pyro的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-4">Demo的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-5">Heavy的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-6">Engi的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-7">Medic的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-8">Sniper的好用武器</a></li><li class="tab"><a class="#选择好用的武器-tabs-9">Spy的好用武器</a></li></ul><div class="tab-content"><div class="tab-pane active" id="选择好用的武器-tabs-1"><p>&emsp;&emsp;下面的武器排序是按照主武器&#x2F;副武器&#x2F;近战武器来的。<br>&emsp;&emsp;<b><span style="color: #a31f34">全能高效武器</span>：苏打炮手；疯狂的牛奶；军配扇。<br>&emsp;&emsp;<span style="color: #ffc000">一般武器</span>：原配、自然之力、游击手；原子能饮料、爆击可乐；原子能球棒。</b><br>&emsp;&emsp;<span style="color: #92d050">低效武器</span>：娃娃脸的冲击波、偷袭之力；菜刀和所有手枪；其余所有近战武器。<br>&emsp;&emsp;在主武器方面，苏打炮手不仅有最高的输出效率，轻松积攒的跳跃能量更是极大地提高了机动性，轻而易举地成为了最佳武器；一般武器里面，原配属于缺点不多，但也没有显著优点的，自然之力对于习惯三段跳的Scout来说会很方便，也有爆发伤害，但要谨慎使用击退效果，游击手让Scout能在中距离打伤害，但效果其实很一般；两把低效武器的问题都有点突出——娃娃脸以速度见长但限制二段跳，导致机动性严重受损，而MVM里的枪林弹雨让Scout没有任何机会保存满能量，直接就变成了一个瘸腿的Scout，十分危险，偷袭之力则是因为机器人不会轻易把后背露给你，换来的一点微不足道的迷你爆击也远不如苏打炮手的伤害。<br>&emsp;&emsp;在副武器方面，疯狂的牛奶是全MVM最强的治疗武器之一，升级的减速效果也很适合处理快速机器人，各种意义上来说都是Scout的必选副武器；原子能饮料和爆击可乐各自有一些好玩的效果，例如提供无敌或者暂时的爆击增益，只能说偶尔能用；剩下的菜刀和手枪不仅完全没法辅助队友，还打不了多少伤害，赶紧把它们扔掉。<br>&emsp;&emsp;在近战武器方面，军配扇是常规MVM里的最佳选择，因为它可以给一个敌人打上死亡标记，大幅削弱它；其他近战武器里，原子能球棒能加强机动性，不错，剩下的所有近战武器都是相对没用，或者自讨苦吃，一般也都用不到。<br>&emsp;&emsp;Scout在MVM的推荐武器搭配如下：<br>&emsp;&emsp;<b>苏打炮手+疯狂的牛奶+军配扇</b> （应对各种情况）<br>&emsp;&emsp;可以根据使用习惯选择其他可用主武器，但苏打炮手永远是最强的那个。</p></div><div class="tab-pane" id="选择好用的武器-tabs-2"><p>&emsp;&emsp;<b><span style="color: #a31f34">全能高效武器</span>：乞丐的火箭筒；三大战旗；逃生计划镐、指挥官的军鞭。<br>&emsp;&emsp;<span style="color: #ffc000">一般武器</span>：原配、黑匣子、绞牛机、空袭火箭筒；其余所有近战武器。</b><br>&emsp;&emsp;<span style="color: #92d050">低效武器</span>：精确打击者、自由推进炮、火箭伞兵；其余所有副武器。<br>&emsp;&emsp;在主武器方面，Soldier的最强专武是乞丐的火箭筒。这把在PVP里有些低调的武器在MVM里释放出了全部的潜能，凭借其独特的开火方式。其他火箭筒想要快速射出多枚火箭，不仅需要升级开火速度和换弹速度，还受到弹匣容量的限制，乞丐则不一样，只需750升级满换弹速度，你的弹匣容量就是你的载弹量——最大50发，而你的开火速度就是你的换弹速度，性价比可谓是拉满了。同时，在金钱充裕的情况下，升级弹匣容量后也可以让Soldier一口气迅速射出一大串火箭，搭配爆击等等可以稳定解决Giant Popping Medic（巨型快速Uber释放医生）那样的危险单位；其余的火箭筒均受制于常规开火方式，必须有足够金钱才能达到可以接受的输出效率。原配也是不上不下，黑匣子有个吸血功能，相当于廉价牛奶，绞牛机的无限弹药在Engi不会玩的时候稍微有点用处，空袭火箭筒只在有5000块钱以上，能够升满主武器时才好用，否则只是劣质火箭发射器，而且还需要搭配降落伞使用；精确打击者的问题在于Soldier是一个造成群体伤害的职业，而减小爆炸半径无异于自找麻烦，火箭伞兵…冷知识：即使你给火箭伞兵升级4点伤害，它也造成不了一点伤害。<br>&emsp;&emsp;副武器永远是三大战旗：战旗、军队的支援和征服者战旗，它们都很不错。战旗提供的输出增益很适合对付坦克，也能更快歼灭机器人，但此时的队伍最好还是有Medic的支持，不然只有伤害没有续航也很危险；军队的支援是对爆击宝具，直接无视所有敌方爆击攻击，还能提供防御抗性让队友受到更少伤害；征服者战旗则较为灵活，主要是靠吸血效果让队友能持续回复，尤其适合对付一些有持续火力的巨型机器人；剩下的副武器中，炮艇减免的火箭跳跃伤害完全是Soldier升级自身爆炸抗性后的附加效果，极限降落伞只适合搭配空袭火箭筒使用，但空袭火箭筒也并非最优选择，踏步靴更是不指望有什么帮助。至于霰弹枪们和正义野牛，输出远远不如你的主武器火箭筒，所以没有什么携带的必要。<br>&emsp;&emsp;Soldier的近战武器都没有什么明显的作用，带什么都不重要。如果要选两个最有用的，那就是逃生计划镐和指挥官的军鞭了，它们可以提高自身或队友的机动性。其余武器也没有多坏，但是派不上用场。<br>&emsp;&emsp;Soldier在MVM的推荐武器搭配如下：<br>&emsp;&emsp;<b>乞丐的火箭筒+战旗三选一+逃生计划镐</b> （应对各种情况）<br>在实在有武器精确度需求的时候，可以用其他的火箭发射器；如果希望在最后一回合玩得爽一点，那就用升级满的空袭火箭筒和降落伞吧。</p></div><div class="tab-pane" id="选择好用的武器-tabs-3"><p>&emsp;&emsp;<b><span style="color: #a31f34">全能高效武器</span>：燃素喷射器、龙之怒焰；起爆者；强力千斤顶、三度烧伤。<br>&emsp;&emsp;<span style="color: #ffc000">一般武器</span>：原配、偷袭火焰喷射器；热能推进器；不求人、拆迁者。</b><br>&emsp;&emsp;<span style="color: #92d050">低效武器</span>：脱油剂；其余所有的副武器；其余所有的近战武器。<br>提到Pyro的武器，不得不品鉴的一把就是<b><font size="5"><span style="color: #a31f34">纵火者的油桶</span></font></b>。有了点燃爆炸升级，这把武器是全MVM最OP的武器，没有之一，基本上是玩官服MVM的Pyro必备的“轮椅武器”。<b>被泼了汽油的机器人受到任何轻微攻击时都会额外受到350点无视抗性的伤害，几乎能秒杀一切小型机器人，这已经称得上是超模了。在几乎所有常规社区MVM服务器中，这把武器的点燃爆炸升级默认被禁用了，以让游戏变得好玩一些</b>，也让未调整过的油桶变成了一把低效武器。<b><span style="color: #a31f34">如果你对此感到抱怨或觉得不合理，并且坚持想使用点燃爆炸升级，那我想你没有任何接着读这篇教程的必要了。点燃爆炸油桶是你在MVM模式学习路上的作弊器，而依赖它会让你的技术和实力一无长进，所以忘记它吧，一个不幸的被V社随意设计和胡乱平衡造出来的畸形怪物！！！</span></b><br>&emsp;&emsp;回到主武器。燃素有快速并稳定产生爆击的方式，大大提高了输出的上限，但在爆击产生前容易出岔子，龙之怒焰则有与生俱来的高伤害与距离，对付巨型机器人也有一定优势，但是上限没有燃素那么高，综合来看这两把武器都很好；原配最大的优势在于它可以高效使用气爆，在某些需要推机器人的场景能够发挥作用，除此以外就是个输出效率一般般的武器，偷袭火焰喷射器虽然理论上也有产生爆击的方式，但和偷袭之力一样，机器人很少背对着你，适用的场景太少了；脱油剂所代表的是Combo Pyro，在MVM没有任何作用可言。<br>&emsp;&emsp;副武器所选出的两把也都是和机动性有关的。事实上，在MVM里，不管选择什么职业什么打法，合适的武器配装总是一把输出+两把辅助，既然我们的Pyro是围绕主武器打伤害，那副武器和近战武器都应考虑辅助作用，而不是它的伤害等等。起爆者能够实现起爆跳，带来一定机动性的同时更可以实现燃素取消，也算是Pyro必备的了；热能推进器则适合实在不会起爆者的新玩家，毕竟它也能提供一点机动性，落地的击退偶尔也有效果；其余的所有副武器就都很无趣了，不推荐使用。<br>&emsp;&emsp;近战武器也十分类似，强力千斤顶手持时有较高的机动性，三度烧伤则可以搭配爆击，作为Pyro唯二的终结Uber Medic的手段；不求人适合…队里没有Medic和Engi，所有人各自为战的情况，而这种情况很少，拆迁者可以帮队友Engi拆掉电子工兵，而他不能自己拆的情况也不多；其余的所有近战武器要么没有明显效果，要么就比这四把还要差。<br>&emsp;&emsp;Pyro在MVM的推荐武器搭配如下：<br>&emsp;&emsp;<b>燃素喷射器+起爆者+强力千斤顶</b> （应对各种情况）<br>&emsp;&emsp;<b>龙之怒焰+起爆者+三度烧伤</b> （巨型机器人威胁较大、需要手动对付Uber Medic时）<br>&emsp;&emsp;<b>原配+起爆者+强力千斤顶</b>（需要谨慎地使用气爆时）</p></div><div class="tab-pane" id="选择好用的武器-tabs-4"><p>&emsp;&emsp;Demo的武器关系较为错综复杂，需要结合实际玩法来讨论各武器的效率。按常见的三大玩法，讲解其中的全能高效搭配，未出现的武器即可视为低效。<br>&emsp;&emsp;<b><span style="color: #a31f34">粘弹Demo</span>：原配粘弹、苏格兰防御者；主武器任选，鞋子和榴弹都可以；近战任选。<br>&emsp;&emsp;<span style="color: #ffc000">榴弹Demo</span>：原配、铁弹；副武器力挽狂澜、冲锋盾；近战任选。</b><br>&emsp;&emsp;<span style="color: #92d050">爆破骑士</span>：苏格兰颅骨切割者、座头市之刀；副武器力挽狂澜、冲锋盾；主武器穿鞋子。<br>&emsp;&emsp;在游玩粘弹Demo时，粘弹是你的主武器，而榴弹和近战武器只是辅助用。原配粘弹拥有不错的伤害、弹匣容量和粘弹数量，不仅是埋陷阱还是spam都很舒服；苏格兰防御者虽然看着有一堆增益，但粘弹就绪时间延长这一个减益就导致Demo几乎没法用spam打法了，在这种情况下，如果你更有经验，知道回合的刷怪顺序等等，用苏格兰防御者可以打出更好的效果，不然用着反而没有原配那么舒服；至于快速粘弹，它的弹匣容量太小且有伤害减益，而尝试通过蓄力来弥补这一缺陷只是在浪费时间；粘弹跳跃者就不用多说了。<br>&emsp;&emsp;主武器比较随意，可以穿鞋子来获得多一点生命值，或者带上榴弹以打出应急的400点伤害，也可以考虑脱缰巨炮的击退效果；近战武器都没有什么明显影响，带上你最喜欢的吧！别告诉我你喜欢带波斯弯刀。<br>&emsp;&emsp;在游玩榴弹Demo时，榴弹是你的主武器。原配榴弹和铁弹都没有缺点，看个人习惯选择；双管榴弹减小的爆炸半径也和精确打击者一样，不适合MVM这样的持续战斗，而脱缰巨炮的蓄力效果和无法直击，都影响了伤害输出的效率。<br>&emsp;&emsp;在副武器选择上，三个冲锋盾显然是最方便的，可以在手持榴弹时获得机动性。冲锋盾的最大优势在于自带的50%火焰抗性和30%爆炸抗性，力挽狂澜则有最强的机动性。至于辉煌护盾，它防御抗性较低却有冲锋撞击伤害增益…这有用吗？算是个劣质冲锋盾；与冲锋盾们相比，粘弹虽然理论上可以用粘弹跳来提升机动性，但有爆炸伤害惩罚，用起来往往很危险，还得考虑粘弹的武器切换、开火部署、引爆跳跃这一整个流程所耗费的时间，是不如冲锋盾一个冲锋来得快的。近战武器依旧是无所谓。<br>&emsp;&emsp;在游玩爆破骑士时，最常用的两把武器一把长于伤害，一把长于回复。苏格兰颅骨切割者（下文简称为“爆击斧”）自带20%伤害加成，并且拥有无可替代的随机爆击效果。熟悉TF2机制的玩家们应该知道，随机爆击的触发几率与玩家在过去的一段时间内造成的伤害有关，造成伤害越多爆击概率越大。<br><img  
                      lazyload
                      src="/images/loading.svg"
-                     data-src="/images/posts_images/mvm_guide/image26.png"
+                     data-src="/images/posts_images/mvm_guide/image26.webp"
                      
                 ></p>
 <blockquote>
@@ -1069,7 +1069,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 <h3 id="一些绝对有帮助的升级加点注意事项"><a href="#一些绝对有帮助的升级加点注意事项" class="headerlink" title="一些绝对有帮助的升级加点注意事项"></a>一些绝对有帮助的升级加点注意事项</h3><p>&emsp;&emsp;职业和武器都没问题后，合理升级它就成了当务之急。由于把MVM中每把武器的升级路线等介绍一遍太耗篇幅且有重复的地方，这里就只会讲解角色升级和那些可用武器的升级——其中有好的，有坏的，也有有问题的。<br><br></p>
 </br>
 
-<div class="tabs" id="tab-一些绝对有帮助的升级加点注意事项-tabs"><ul class="nav-tabs"><li class="tab active"><a class="#一些绝对有帮助的升级加点注意事项-tabs-1">角色升级</a></li><li class="tab"><a class="#一些绝对有帮助的升级加点注意事项-tabs-2">通用武器升级</a></li><li class="tab"><a class="#一些绝对有帮助的升级加点注意事项-tabs-3">特定武器升级</a></li><li class="tab"><a class="#一些绝对有帮助的升级加点注意事项-tabs-4">增益水壶 <img src='/images/posts_images/mvm_guide/Backpack_Power_Up_Canteen.png' align='left' style='margin-top: -5px;' /></a></li></ul><div class="tab-content"><div class="tab-pane active" id="一些绝对有帮助的升级加点注意事项-tabs-1"><p>&emsp;&emsp;角色升级指的是每个职业都有的，强化自身能力而非武器的升级。一共有：<b>+25%爆炸&#x2F;子弹&#x2F;火焰抗性、+30%爆击抗性、+10%移动速度、+20%跳跃高度和+2生命值回复。</b><br>&emsp;&emsp;三大抗性升级都很好用，其中以爆炸和子弹抗性更为耐用。如果你看到回合条中有较多某一伤害类型的机器人，那么可以考虑升级对应抗性以扛住它们的攻击。需要注意：抗性升级花费<b>较为昂贵</b>，而且<b><span style="color: #a31f34">不推荐部分加点或均衡加点</span></b>，这是因为<b>抗性点满才有从量变到质变的变化</b>。我们以一发-100点伤害的直击榴弹攻击一个100点生命值上限的暴利杀手Spy为例——没有爆炸抗性，一发榴弹就可以消灭他；25%或者50%抗性，两发榴弹也可以消灭他；但是在75%抗性下，需要四发榴弹才能消灭他。均匀加点则是试图平均分配有限的金钱在多种抗性上。如果只有900块钱，且升级一点爆炸抗性、一点子弹抗性和两点火焰抗性，这只是让所有伤害稍微不疼了一点点，没有显著的效果；全部用于爆炸抗性的话，虽然子弹和火焰对付你比较厉害，但爆炸则被完全无效化了。所以说，<b><span style="color: #a31f34">在金钱不足时不要试图部分加点或均匀加点抗性，尽量一次点满某种抗性。</span></b><br>&emsp;&emsp;-30%的爆击抗性是一样的道理，如果有较多爆击攻击（注意：不要忽视迷你爆击，以及炸弹机器人的爆击升级！），花上450块把爆击抗性点满即可保平安。<br>&emsp;&emsp;两个移动上的升级<b>适合用于躲避机器人攻击，以及加强机动性以节省时间</b>。对大部分职业来说，点1~2点跳跃可以有效提升自己的移动能力，而且不贵；至于速度，要么是给Scout&#x2F;Spy&#x2F;爆破骑士&#x2F;Medic用于追逐机器人&#x2F;治疗队友，要么就是在有钱的时候点一下使自己更上一层楼了。在其他升级未完成前，不要过分升级这两项能力。<br>&emsp;&emsp;最后是比较没用的+2生命值回复，不仅贵，而且在实战中，机器人消灭你最多也就是几秒钟的时间，根本来不及回复。它唯一有效的场合是在无法接触到医疗包和队友治疗，也没有炮灰机器人用于回复时，让你有机会通过自动回血来重新获得投入战场的能力，而不是干等死。因此只在金钱特别特别充裕时，可以考虑这项升级，但是金钱充裕时就是想怎么加点都可以了。</p></div><div class="tab-pane" id="一些绝对有帮助的升级加点注意事项-tabs-2"><p>&emsp;&emsp;通用武器升级指的是大部分用于输出的武器均有的一些升级，它们虽然在不同职业和不同武器上表现为不同的价格和程度，但效果是差不多的。一共有：<b>伤害升级、穿透性升级、弹匣容量升级、载弹量升级、开火速度升级、换弹速度升级和杀敌后回复生命值升级。</b><br>&emsp;&emsp;伤害升级是最为基础，但需要配合的。只加点伤害而不加点其他提升武器效率的升级，不太会提升你的输出效率，除非伤害升级能够超过一个“血线”——我们以榴弹发射器为例。不升级伤害和一点伤害分别可以造成100和120点伤害，消灭一个机器Scout需要至少两发榴弹，但在两点伤害后就可以一击必杀了。一击必杀不仅是节省了一半的时间，更降低了容错率，省下了弹药。也就是说，<b>对于需要控制血线的武器</b>（如榴弹发射器、狙击枪之类），<b>考虑有血线需求时再一口气升够伤害。对于那些依靠持续伤害的武器</b>，如持续轰炸的火箭发射器（火箭虽然是单发攻击，但想稳定打出较高伤害比较麻烦）、火焰喷射器和转轮机枪（转轮机枪依赖开火速度升级来提高伤害），则<b>应在提升武器效率的同时适当提升伤害</b>，或等武器效率拉满后再加点伤害。<br>&emsp;&emsp;武器效率升级指的是开火&#x2F;换弹&#x2F;弹匣容量&#x2F;载弹量等这些不直接提升武器伤害的升级。一般来说，<b>换弹速度和载弹量是比较便宜且有效的</b>，前者允许玩家经过一轮攻击后快速恢复，而载弹量让玩家不用那么频繁地拜访Engi的补给器。可以优先升级这两项，再去考虑开火速度和弹匣容量。<br>&emsp;&emsp;穿透性升级是子弹类武器的一个独特升级。一般来说，只有Heavy的转轮机枪与Sniper的弓箭会非常需要这个升级，对其他职业来说效果就比较一般了，可以不点或者晚点再点。<br>&emsp;&emsp;最后是杀敌后回复生命值。前面说过，升级注重的是质变，而在<b><span style="color: #a31f34">升级杀敌回复前，每个机器人都是敌人；升级后，那些脆弱的炮灰机器人，就是你的移动血包获取器。</b></span>只需要200块钱，就可以从机器人身上源源不断地获取回复，点得越多效果越好，让玩家有足够的韧性对付一大片机器人。杀敌后回复生命值对除了Scout之外的职业来说，基本上都是必选项。<b>在升级武器的其他方面前，首先确保升级了至少一点杀敌回复。</b></p></div><div class="tab-pane" id="一些绝对有帮助的升级加点注意事项-tabs-3"><p>&emsp;&emsp;这里说的特定武器升级是指仅某些职业的某些武器可选的升级。由于我们的武器库里只会用到可用武器，这部分内容就会忽略那些低效武器的升级。下面会按照职业顺序来一一介绍。<br>&emsp;&emsp;<b>Scout</b>：牛奶一共有冷却速度加快和减速效果两个升级，这两个升级都十分好用。<b>直接拉满，优先升级减速效果。</b><br>&emsp;&emsp;<b>Soldier</b>：火箭发射器们有一项独特的升级——火箭专家。首次升级后，火箭速度加快，且直接命中敌人将无视伤害衰减造成最大伤害，击晕（表现为机器人减速）敌人并造成更大的爆炸范围，继续升级可以延长击晕效果并提升直击的爆炸范围。<b>通常情况下升级一点就够了，多了浪费钱。</b>至于战旗们的延长效果时间，也是推荐点上的。<br>&emsp;&emsp;<b>Pyro</b>：注意Pyro的<b><span style="color: #a31f34">后续燃烧伤害升级和后续燃烧时长升级都很没用</b></span>，前者是没有多少效果，后者在2017年的丛林炼狱更新后直接无效了，所以不要浪费钱在这两个升级上。压缩空气推力只适合有一定经验，熟悉在MVM中使用气爆的Pyro升级。<br>&emsp;&emsp;<b>Demoman</b>：需要提一下的升级与冲锋盾和爆破骑士的近战有关。冲锋盾的击退抗性升级能让你面对机器人火力时不被轻松打飞，能够更好地接近敌人，可以在近战武器升级后进行加点；冲锋冷却时间升级和前面的量变产生质变则刚好相反——一共12秒的冲锋冷却时间，第一次升级缩短为6秒，减少了6秒，第二次升级则只减少了3秒，越往后面升级，同样的金钱却换来了更不显著的效果。所以一般升级1~2点就足够了。在近战武器上，<b><span style="color: #a31f34">杀敌后爆击升级基本上是必选项</b></span>——350块钱就可以开始滚雪球，大幅提高你的近战斩杀血线。在升级了三点伤害后，任何一下爆击都可以秒杀所有正常生命值的小型机器人，甚至可以顶着Bigheal Medic的治疗秒杀治疗对象。<br>&emsp;&emsp;<b>Heavy</b>：机枪的内容比较多，先讲食物。食物的冷却速率完全没必要点，因为你很难有空闲的机会吃上一口。至于机枪呢，<b>穿透性升级可以点三点，但最经济的是只点一点</b>；开火速度升级是个有着不少bug的升级，只需记住，<b>点一点是经济的同时换取一些伤害，点满是追求最高伤害</b>，两点和三点就意义不大了；击落飞行物视个人喜好，可以升级，但如果有足够的抗性，扛下这些伤害也无所谓；怒气击退不太推荐升级，只在紧急情况有用。<br>&emsp;&emsp;<b>Engi</b>：Engi的角色升级有一项独特的<b>金属回复，和生命值回复一样没用；他的扳手升级开火速度很有必要</b>，因为这样可以提升你的建筑修建和修理效率；在建筑升级中，<b><span style="color: #a31f34">补给器范围升级和金属携带量升级是必须升满的</b></span>，前者让补给器能更方便地服务队友，不然不仅队友需要贴紧补给器才能补给，还容易吸引火力伤害甚至毁掉你的补给器，后者能让你有更充足的金属做一切与建筑有关的事情。<b>建筑生命值也很好，但可以在前面两项升级点满后再加点</b>；步哨枪射速升级应该是最后升的，能够提升步哨输出效率，但只点一点就够了。<b><span style="color: #a31f34">一次性步哨和双向传送升级…不建议升级</b></span>。一次性步哨没有任何火力可言，打在机器人身上跟挠痒痒一样；双向传送看起来允许玩家们在回合胜利后快速回家，但这只是实战外的省事举动，没有意义，而且玩家们完全可以通过切换职业来快速回家。在实战中，双向传送唯一的效果是支持水壶专家Medic在回合内多次回家购买水壶，但这样的情况很少见。<br>&emsp;&emsp;<b>Medic</b>：主武器若使用针筒枪，<b>牛奶升级就是必点的</b>；医疗枪的升级上，<b><span style="color: #a31f34">能量护盾升级和治疗大师升级很好，推荐优先升级</b></span>；水壶专家升级适合水壶打法的Medic升级，是可选升级；两项与Uber有关的升级对于治疗玩法Medic来说可以缓一缓再点，对于原配和疫苗这样围绕Uber的医疗枪可以尽早升级；过载治疗大师升级只适合你想完全强化自己的医疗枪时再升级，放在最后再点吧。<br>&emsp;&emsp;<b>Sniper</b>：狙击枪的升级中，<b><span style="color: #a31f34">爆头爆炸升级是得优先点且点一点就足够了的</b></span>，蓄能速度升级对于蓄力的市场还价者不需要，对于快速射击的职业杀手的手感也不需要，所以只适合实在打不中，需要攒单次高伤害射击的情况。弓箭的升级中，流血升级…点一点后可以让你一箭消灭一个Scout，没了。<br>&emsp;&emsp;<b>Spy</b>：需要注意Spy也有杀敌后爆击这一项升级，但是没有任何帮助，你需要背刺敌人而非爆击敌人。<b>破甲性升级是最推荐点满的</b>，不点满就无法快速消灭巨型机器人。<b>电子工兵升级后可以瘫痪一定范围内的小型机器人，也是点一点最经济</b>，混在机器人堆时可以让一片敌人瞬间成为你的生命值提款机。</p></div><div class="tab-pane" id="一些绝对有帮助的升级加点注意事项-tabs-4"><p>&emsp;&emsp;水壶是MVM内的一次性强化道具，使用过后就没了。MVM中一共有5种水壶效果：<b>爆击、Uber、弹药回复、回家</b>和独属于Engi的<b>建筑水壶</b>。它们都很有用处，可以在升级完毕后根据有无多余的钱，购买一些水壶以应对紧急情况。<br>&emsp;&emsp;爆击水壶和Uber水壶都是正面对付机器人时能用的，效果明显的同时都有些小贵。<br>&emsp;&emsp;弹药回复水壶在使用后不仅能填满你的后备弹药，也会把弹匣内的弹药填满，所以可以在使用火箭等武器时，先清空弹匣，然后立刻使用弹药回复水壶以再次清空弹匣，造成两波连续打击。除此以外，如果队友Engi玩得很差，也可以当作应急弹药包。<br>&emsp;&emsp;回家水壶是最被低估也最为灵活的水壶，只需10块钱，立刻回复满你的状态（生命值+弹药），并脱离最危险的战场，也可以用于需要在回合中途升级时，或紧急解决偷偷靠近炸弹坑的敌人时使用。一些会玩的大佬在MVM中很少死亡，并不是他们总能硬扛或躲开危险情况，他们只是能够在死亡的前一刻按下<kbd style="border:1px solid gray;font-size:1.2em;box-shadow:1px 0 1px 0 #eee, 0 2px 0 2px #ccc, 0 2px 0 3px #444;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;margin:2px 3px;padding:1px 5px;">H</kbd>键回家，保存实力并迅速重新投入战场。<br>&emsp;&emsp;建筑水壶基本上是Engi玩家必备的水壶。先建造所有建筑，然后激活就可以让它们立刻变为三级满状态建筑，可以在很短的时间内重新建立起防线，以阻止炸弹推进，比用扳手慢慢敲可要快多了。</p></div></div></div>
+<div class="tabs" id="tab-一些绝对有帮助的升级加点注意事项-tabs"><ul class="nav-tabs"><li class="tab active"><a class="#一些绝对有帮助的升级加点注意事项-tabs-1">角色升级</a></li><li class="tab"><a class="#一些绝对有帮助的升级加点注意事项-tabs-2">通用武器升级</a></li><li class="tab"><a class="#一些绝对有帮助的升级加点注意事项-tabs-3">特定武器升级</a></li><li class="tab"><a class="#一些绝对有帮助的升级加点注意事项-tabs-4">增益水壶 <img src='/images/posts_images/mvm_guide/Backpack_Power_Up_Canteen.webp' align='left' style='margin-top: -5px;' /></a></li></ul><div class="tab-content"><div class="tab-pane active" id="一些绝对有帮助的升级加点注意事项-tabs-1"><p>&emsp;&emsp;角色升级指的是每个职业都有的，强化自身能力而非武器的升级。一共有：<b>+25%爆炸&#x2F;子弹&#x2F;火焰抗性、+30%爆击抗性、+10%移动速度、+20%跳跃高度和+2生命值回复。</b><br>&emsp;&emsp;三大抗性升级都很好用，其中以爆炸和子弹抗性更为耐用。如果你看到回合条中有较多某一伤害类型的机器人，那么可以考虑升级对应抗性以扛住它们的攻击。需要注意：抗性升级花费<b>较为昂贵</b>，而且<b><span style="color: #a31f34">不推荐部分加点或均衡加点</span></b>，这是因为<b>抗性点满才有从量变到质变的变化</b>。我们以一发-100点伤害的直击榴弹攻击一个100点生命值上限的暴利杀手Spy为例——没有爆炸抗性，一发榴弹就可以消灭他；25%或者50%抗性，两发榴弹也可以消灭他；但是在75%抗性下，需要四发榴弹才能消灭他。均匀加点则是试图平均分配有限的金钱在多种抗性上。如果只有900块钱，且升级一点爆炸抗性、一点子弹抗性和两点火焰抗性，这只是让所有伤害稍微不疼了一点点，没有显著的效果；全部用于爆炸抗性的话，虽然子弹和火焰对付你比较厉害，但爆炸则被完全无效化了。所以说，<b><span style="color: #a31f34">在金钱不足时不要试图部分加点或均匀加点抗性，尽量一次点满某种抗性。</span></b><br>&emsp;&emsp;-30%的爆击抗性是一样的道理，如果有较多爆击攻击（注意：不要忽视迷你爆击，以及炸弹机器人的爆击升级！），花上450块把爆击抗性点满即可保平安。<br>&emsp;&emsp;两个移动上的升级<b>适合用于躲避机器人攻击，以及加强机动性以节省时间</b>。对大部分职业来说，点1~2点跳跃可以有效提升自己的移动能力，而且不贵；至于速度，要么是给Scout&#x2F;Spy&#x2F;爆破骑士&#x2F;Medic用于追逐机器人&#x2F;治疗队友，要么就是在有钱的时候点一下使自己更上一层楼了。在其他升级未完成前，不要过分升级这两项能力。<br>&emsp;&emsp;最后是比较没用的+2生命值回复，不仅贵，而且在实战中，机器人消灭你最多也就是几秒钟的时间，根本来不及回复。它唯一有效的场合是在无法接触到医疗包和队友治疗，也没有炮灰机器人用于回复时，让你有机会通过自动回血来重新获得投入战场的能力，而不是干等死。因此只在金钱特别特别充裕时，可以考虑这项升级，但是金钱充裕时就是想怎么加点都可以了。</p></div><div class="tab-pane" id="一些绝对有帮助的升级加点注意事项-tabs-2"><p>&emsp;&emsp;通用武器升级指的是大部分用于输出的武器均有的一些升级，它们虽然在不同职业和不同武器上表现为不同的价格和程度，但效果是差不多的。一共有：<b>伤害升级、穿透性升级、弹匣容量升级、载弹量升级、开火速度升级、换弹速度升级和杀敌后回复生命值升级。</b><br>&emsp;&emsp;伤害升级是最为基础，但需要配合的。只加点伤害而不加点其他提升武器效率的升级，不太会提升你的输出效率，除非伤害升级能够超过一个“血线”——我们以榴弹发射器为例。不升级伤害和一点伤害分别可以造成100和120点伤害，消灭一个机器Scout需要至少两发榴弹，但在两点伤害后就可以一击必杀了。一击必杀不仅是节省了一半的时间，更降低了容错率，省下了弹药。也就是说，<b>对于需要控制血线的武器</b>（如榴弹发射器、狙击枪之类），<b>考虑有血线需求时再一口气升够伤害。对于那些依靠持续伤害的武器</b>，如持续轰炸的火箭发射器（火箭虽然是单发攻击，但想稳定打出较高伤害比较麻烦）、火焰喷射器和转轮机枪（转轮机枪依赖开火速度升级来提高伤害），则<b>应在提升武器效率的同时适当提升伤害</b>，或等武器效率拉满后再加点伤害。<br>&emsp;&emsp;武器效率升级指的是开火&#x2F;换弹&#x2F;弹匣容量&#x2F;载弹量等这些不直接提升武器伤害的升级。一般来说，<b>换弹速度和载弹量是比较便宜且有效的</b>，前者允许玩家经过一轮攻击后快速恢复，而载弹量让玩家不用那么频繁地拜访Engi的补给器。可以优先升级这两项，再去考虑开火速度和弹匣容量。<br>&emsp;&emsp;穿透性升级是子弹类武器的一个独特升级。一般来说，只有Heavy的转轮机枪与Sniper的弓箭会非常需要这个升级，对其他职业来说效果就比较一般了，可以不点或者晚点再点。<br>&emsp;&emsp;最后是杀敌后回复生命值。前面说过，升级注重的是质变，而在<b><span style="color: #a31f34">升级杀敌回复前，每个机器人都是敌人；升级后，那些脆弱的炮灰机器人，就是你的移动血包获取器。</b></span>只需要200块钱，就可以从机器人身上源源不断地获取回复，点得越多效果越好，让玩家有足够的韧性对付一大片机器人。杀敌后回复生命值对除了Scout之外的职业来说，基本上都是必选项。<b>在升级武器的其他方面前，首先确保升级了至少一点杀敌回复。</b></p></div><div class="tab-pane" id="一些绝对有帮助的升级加点注意事项-tabs-3"><p>&emsp;&emsp;这里说的特定武器升级是指仅某些职业的某些武器可选的升级。由于我们的武器库里只会用到可用武器，这部分内容就会忽略那些低效武器的升级。下面会按照职业顺序来一一介绍。<br>&emsp;&emsp;<b>Scout</b>：牛奶一共有冷却速度加快和减速效果两个升级，这两个升级都十分好用。<b>直接拉满，优先升级减速效果。</b><br>&emsp;&emsp;<b>Soldier</b>：火箭发射器们有一项独特的升级——火箭专家。首次升级后，火箭速度加快，且直接命中敌人将无视伤害衰减造成最大伤害，击晕（表现为机器人减速）敌人并造成更大的爆炸范围，继续升级可以延长击晕效果并提升直击的爆炸范围。<b>通常情况下升级一点就够了，多了浪费钱。</b>至于战旗们的延长效果时间，也是推荐点上的。<br>&emsp;&emsp;<b>Pyro</b>：注意Pyro的<b><span style="color: #a31f34">后续燃烧伤害升级和后续燃烧时长升级都很没用</b></span>，前者是没有多少效果，后者在2017年的丛林炼狱更新后直接无效了，所以不要浪费钱在这两个升级上。压缩空气推力只适合有一定经验，熟悉在MVM中使用气爆的Pyro升级。<br>&emsp;&emsp;<b>Demoman</b>：需要提一下的升级与冲锋盾和爆破骑士的近战有关。冲锋盾的击退抗性升级能让你面对机器人火力时不被轻松打飞，能够更好地接近敌人，可以在近战武器升级后进行加点；冲锋冷却时间升级和前面的量变产生质变则刚好相反——一共12秒的冲锋冷却时间，第一次升级缩短为6秒，减少了6秒，第二次升级则只减少了3秒，越往后面升级，同样的金钱却换来了更不显著的效果。所以一般升级1~2点就足够了。在近战武器上，<b><span style="color: #a31f34">杀敌后爆击升级基本上是必选项</b></span>——350块钱就可以开始滚雪球，大幅提高你的近战斩杀血线。在升级了三点伤害后，任何一下爆击都可以秒杀所有正常生命值的小型机器人，甚至可以顶着Bigheal Medic的治疗秒杀治疗对象。<br>&emsp;&emsp;<b>Heavy</b>：机枪的内容比较多，先讲食物。食物的冷却速率完全没必要点，因为你很难有空闲的机会吃上一口。至于机枪呢，<b>穿透性升级可以点三点，但最经济的是只点一点</b>；开火速度升级是个有着不少bug的升级，只需记住，<b>点一点是经济的同时换取一些伤害，点满是追求最高伤害</b>，两点和三点就意义不大了；击落飞行物视个人喜好，可以升级，但如果有足够的抗性，扛下这些伤害也无所谓；怒气击退不太推荐升级，只在紧急情况有用。<br>&emsp;&emsp;<b>Engi</b>：Engi的角色升级有一项独特的<b>金属回复，和生命值回复一样没用；他的扳手升级开火速度很有必要</b>，因为这样可以提升你的建筑修建和修理效率；在建筑升级中，<b><span style="color: #a31f34">补给器范围升级和金属携带量升级是必须升满的</b></span>，前者让补给器能更方便地服务队友，不然不仅队友需要贴紧补给器才能补给，还容易吸引火力伤害甚至毁掉你的补给器，后者能让你有更充足的金属做一切与建筑有关的事情。<b>建筑生命值也很好，但可以在前面两项升级点满后再加点</b>；步哨枪射速升级应该是最后升的，能够提升步哨输出效率，但只点一点就够了。<b><span style="color: #a31f34">一次性步哨和双向传送升级…不建议升级</b></span>。一次性步哨没有任何火力可言，打在机器人身上跟挠痒痒一样；双向传送看起来允许玩家们在回合胜利后快速回家，但这只是实战外的省事举动，没有意义，而且玩家们完全可以通过切换职业来快速回家。在实战中，双向传送唯一的效果是支持水壶专家Medic在回合内多次回家购买水壶，但这样的情况很少见。<br>&emsp;&emsp;<b>Medic</b>：主武器若使用针筒枪，<b>牛奶升级就是必点的</b>；医疗枪的升级上，<b><span style="color: #a31f34">能量护盾升级和治疗大师升级很好，推荐优先升级</b></span>；水壶专家升级适合水壶打法的Medic升级，是可选升级；两项与Uber有关的升级对于治疗玩法Medic来说可以缓一缓再点，对于原配和疫苗这样围绕Uber的医疗枪可以尽早升级；过载治疗大师升级只适合你想完全强化自己的医疗枪时再升级，放在最后再点吧。<br>&emsp;&emsp;<b>Sniper</b>：狙击枪的升级中，<b><span style="color: #a31f34">爆头爆炸升级是得优先点且点一点就足够了的</b></span>，蓄能速度升级对于蓄力的市场还价者不需要，对于快速射击的职业杀手的手感也不需要，所以只适合实在打不中，需要攒单次高伤害射击的情况。弓箭的升级中，流血升级…点一点后可以让你一箭消灭一个Scout，没了。<br>&emsp;&emsp;<b>Spy</b>：需要注意Spy也有杀敌后爆击这一项升级，但是没有任何帮助，你需要背刺敌人而非爆击敌人。<b>破甲性升级是最推荐点满的</b>，不点满就无法快速消灭巨型机器人。<b>电子工兵升级后可以瘫痪一定范围内的小型机器人，也是点一点最经济</b>，混在机器人堆时可以让一片敌人瞬间成为你的生命值提款机。</p></div><div class="tab-pane" id="一些绝对有帮助的升级加点注意事项-tabs-4"><p>&emsp;&emsp;水壶是MVM内的一次性强化道具，使用过后就没了。MVM中一共有5种水壶效果：<b>爆击、Uber、弹药回复、回家</b>和独属于Engi的<b>建筑水壶</b>。它们都很有用处，可以在升级完毕后根据有无多余的钱，购买一些水壶以应对紧急情况。<br>&emsp;&emsp;爆击水壶和Uber水壶都是正面对付机器人时能用的，效果明显的同时都有些小贵。<br>&emsp;&emsp;弹药回复水壶在使用后不仅能填满你的后备弹药，也会把弹匣内的弹药填满，所以可以在使用火箭等武器时，先清空弹匣，然后立刻使用弹药回复水壶以再次清空弹匣，造成两波连续打击。除此以外，如果队友Engi玩得很差，也可以当作应急弹药包。<br>&emsp;&emsp;回家水壶是最被低估也最为灵活的水壶，只需10块钱，立刻回复满你的状态（生命值+弹药），并脱离最危险的战场，也可以用于需要在回合中途升级时，或紧急解决偷偷靠近炸弹坑的敌人时使用。一些会玩的大佬在MVM中很少死亡，并不是他们总能硬扛或躲开危险情况，他们只是能够在死亡的前一刻按下<kbd style="border:1px solid gray;font-size:1.2em;box-shadow:1px 0 1px 0 #eee, 0 2px 0 2px #ccc, 0 2px 0 3px #444;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;margin:2px 3px;padding:1px 5px;">H</kbd>键回家，保存实力并迅速重新投入战场。<br>&emsp;&emsp;建筑水壶基本上是Engi玩家必备的水壶。先建造所有建筑，然后激活就可以让它们立刻变为三级满状态建筑，可以在很短的时间内重新建立起防线，以阻止炸弹推进，比用扳手慢慢敲可要快多了。</p></div></div></div>
 
 <br>
 
@@ -1079,7 +1079,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
 
 </br>
 
-<h2 id="和你的队友交流合作"><a href="#和你的队友交流合作" class="headerlink" title="和你的队友交流合作 "></a>和你的队友交流合作 <img src='/images/posts_images/mvm_guide/50px-Speech_voice.png' align='left' style='margin-top: -5px;' /></h2><p>&emsp;&emsp;了解完前面的一切，你已经是个不错的MVM玩家了。但你的队友可能不是这样的，而我们的MVM模式是十分需要团队合作的。想解决队伍可能会遇到的所有问题，最好的办法还是保持沟通交流。<br>&emsp;&emsp;首先，怎么和队友交流？按下<kbd style="border:1px solid gray;font-size:1.2em;box-shadow:1px 0 1px 0 #eee, 0 2px 0 2px #ccc, 0 2px 0 3px #444;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;margin:2px 3px;padding:1px 5px;">Y</kbd>键或<kbd style="border:1px solid gray;font-size:1.2em;box-shadow:1px 0 1px 0 #eee, 0 2px 0 2px #ccc, 0 2px 0 3px #444;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;margin:2px 3px;padding:1px 5px;">U</kbd>键以打字发言，或者打开麦克风说话。接下来，在游玩时，但凡你认为遇到了自己没法解决，或者有疑惑的地方，大胆地向你的队友提问。除非你遇到了一些臭名昭著的MVM恶棍（混迹于曼恩奇现中，常见行为有歧视萌新，尝试踢掉与它们意见不合的玩家，或者故意选择能恶心队友，甚至帮助机器人的打法），大部分玩家还是乐于回答你的问题的。职业选择、站位选择等都是常见的问题。<br>&emsp;&emsp;除了询问不懂的问题以外，还可以告诉队友的是你游玩时的想法——你为什么选择你的职业，是因为能有效针对下回合的某些敌人，还是能够为队友提供辅助？等等。让队友知道你的想法也能够让他们做出更合理的决策。<br>&emsp;&emsp;在发现有队友更换职业时，注意观察此时的队伍组合：是否全能？存不存在致命的因素？如果有问题，主动在聊天栏里打出来，以提醒某些可以换其他职业的玩家去更换职业。当然，MVM也是游戏，尽量不要把自己的想法强加给其他玩家，例如认定他的玩法有问题等等（除非这是客观事实，或他确实在摸鱼乱玩）。<br>&emsp;&emsp;在实战中，尽量配合队友的行动或者互相提供优势。如果你发现正在扛线的队友暂时撤退去补充生命值或弹药，把你的攻击重心放在队友留下的缺口上；在炮灰机器人很多时，可以考虑刻意留一些机器人不杀，让需要生命值的队友将其击杀，或让惯用过载锯的Medic去积攒能量。<br>&emsp;&emsp;在最差的条件下，如果队友拒绝交流或保持沉默（没有任何互动），那你能做的就只有做好自己了。在队友差到整个队伍陷入死局时，投票踢出产生问题的人，或者干脆自己离场。<br><br></p>
+<h2 id="和你的队友交流合作"><a href="#和你的队友交流合作" class="headerlink" title="和你的队友交流合作 "></a>和你的队友交流合作 <img src='/images/posts_images/mvm_guide/50px-Speech_voice.webp' align='left' style='margin-top: -5px;' /></h2><p>&emsp;&emsp;了解完前面的一切，你已经是个不错的MVM玩家了。但你的队友可能不是这样的，而我们的MVM模式是十分需要团队合作的。想解决队伍可能会遇到的所有问题，最好的办法还是保持沟通交流。<br>&emsp;&emsp;首先，怎么和队友交流？按下<kbd style="border:1px solid gray;font-size:1.2em;box-shadow:1px 0 1px 0 #eee, 0 2px 0 2px #ccc, 0 2px 0 3px #444;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;margin:2px 3px;padding:1px 5px;">Y</kbd>键或<kbd style="border:1px solid gray;font-size:1.2em;box-shadow:1px 0 1px 0 #eee, 0 2px 0 2px #ccc, 0 2px 0 3px #444;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;margin:2px 3px;padding:1px 5px;">U</kbd>键以打字发言，或者打开麦克风说话。接下来，在游玩时，但凡你认为遇到了自己没法解决，或者有疑惑的地方，大胆地向你的队友提问。除非你遇到了一些臭名昭著的MVM恶棍（混迹于曼恩奇现中，常见行为有歧视萌新，尝试踢掉与它们意见不合的玩家，或者故意选择能恶心队友，甚至帮助机器人的打法），大部分玩家还是乐于回答你的问题的。职业选择、站位选择等都是常见的问题。<br>&emsp;&emsp;除了询问不懂的问题以外，还可以告诉队友的是你游玩时的想法——你为什么选择你的职业，是因为能有效针对下回合的某些敌人，还是能够为队友提供辅助？等等。让队友知道你的想法也能够让他们做出更合理的决策。<br>&emsp;&emsp;在发现有队友更换职业时，注意观察此时的队伍组合：是否全能？存不存在致命的因素？如果有问题，主动在聊天栏里打出来，以提醒某些可以换其他职业的玩家去更换职业。当然，MVM也是游戏，尽量不要把自己的想法强加给其他玩家，例如认定他的玩法有问题等等（除非这是客观事实，或他确实在摸鱼乱玩）。<br>&emsp;&emsp;在实战中，尽量配合队友的行动或者互相提供优势。如果你发现正在扛线的队友暂时撤退去补充生命值或弹药，把你的攻击重心放在队友留下的缺口上；在炮灰机器人很多时，可以考虑刻意留一些机器人不杀，让需要生命值的队友将其击杀，或让惯用过载锯的Medic去积攒能量。<br>&emsp;&emsp;在最差的条件下，如果队友拒绝交流或保持沉默（没有任何互动），那你能做的就只有做好自己了。在队友差到整个队伍陷入死局时，投票踢出产生问题的人，或者干脆自己离场。<br><br></p>
 </br>
 
 <blockquote>
@@ -1099,7 +1099,7 @@ theme="system"></bilibili-card><br>&emsp;&emsp;在前面提到过Demo也是像So
         
             <li>
                 <strong>更新于
-                    :</strong> 2025-10-21 14:59:04
+                    :</strong> 2025-10-21 15:05:20
             </li>
         
         <li>

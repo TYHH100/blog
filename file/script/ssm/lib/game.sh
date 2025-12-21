@@ -54,6 +54,66 @@ run_steam_update() {
     read
 }
 
+rm_server() {
+    if [ -n "$SERVER_DIR" ]; then
+        msg_warn "确认删除服务器目录 $SERVER_DIR？"
+        if whiptail --title "确认删除" --yesno "这将永久删除服务器目录及其所有内容，同时删除 Systemd 服务文件和别名" 10 60; then
+            
+            # 获取游戏短名称
+            local short_name=${GAME_SHORT_NAMES[$GAME_NAME]}
+            local service_name="${short_name}server"
+            local service_file="/etc/systemd/system/${service_name}.service"
+            
+            # 1. 停止并禁用服务
+            if systemctl is-active --quiet "$service_name"; then
+                msg_info "正在停止服务 $service_name..."
+                systemctl stop "$service_name"
+            fi
+            
+            if systemctl is-enabled --quiet "$service_name"; then
+                msg_info "正在禁用服务 $service_name..."
+                systemctl disable "$service_name"
+            fi
+            
+            # 2. 删除 Systemd 服务文件
+            if [ -f "$service_file" ]; then
+                msg_info "正在删除 Systemd 服务文件 $service_file..."
+                rm -f "$service_file"
+                systemctl daemon-reload
+                msg_ok "Systemd 服务文件已删除"
+            else
+                msg_info "未找到 Systemd 服务文件: $service_file"
+            fi
+            
+            # 3. 删除别名配置（从 /etc/profile 中移除）
+            msg_info "正在清理别名配置..."
+            
+            # 使用 sed 精确删除包含特定命令的别名行
+            if [ -n "$short_name" ]; then
+                # 删除包含特定命令的别名行
+                sed -i "\|alias .*screen -d -r ${short_name}server|d" /etc/profile
+                source /etc/profile
+                msg_ok "别名配置已清理"
+            else
+                msg_info "未找到游戏短名称，跳过别名清理"
+            fi
+            
+            # 4. 删除服务器目录
+            msg_info "正在删除服务器目录 $SERVER_DIR..."
+            rm -rf "$SERVER_DIR"
+            msg_ok "服务器目录已删除"
+            
+            # 5. 清除相关配置
+            SERVER_DIR=""
+            save_user_config
+            
+            msg_ok "服务器删除完成，所有相关文件和服务已清理"
+        fi
+    else
+        msg_warn "未设置服务器目录"
+    fi
+}
+
 menu_game_manage() {
     local choice=$(whiptail --menu "游戏服务器管理" 15 60 5 \
         "1" "选择游戏" \
@@ -61,7 +121,8 @@ menu_game_manage() {
         "3" "下载/安装服务器" \
         "4" "更新服务器" \
         "5" "验证文件完整性" \
-        "6" "返回主菜单" 3>&1 1>&2 2>&3)
+        "6" "删除服务器" \
+        "7" "返回主菜单" 3>&1 1>&2 2>&3)
 
     case $choice in
         1) select_game ;;
@@ -69,5 +130,6 @@ menu_game_manage() {
         3) [ -n "$GAME_NAME" ] && run_steam_update "install" ;;
         4) [ -n "$GAME_NAME" ] && run_steam_update "update" ;;
         5) [ -n "$GAME_NAME" ] && run_steam_update "validate" ;;
+        6) rm_server ;;
     esac
 }

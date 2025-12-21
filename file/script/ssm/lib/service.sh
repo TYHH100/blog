@@ -125,13 +125,32 @@ EOF
     systemctl daemon-reload
 
     msg_info "创建别名..."
+    
+    # 获取用户输入的别名，默认为游戏短名称
     alias_name=$(input_box "创建别名(用于打开服务器控制台)" "请输入别名:(不更改则使用默认别名:$short_name)" "$short_name")
     alias_name=${alias_name:-$short_name}
+    
+    # 构建别名行
     alias_line="alias $alias_name='sudo su -c \"screen -d -r ${short_name}server\" $STEAM_USER'"
-    if ! grep -qF "$alias_line" /etc/profile; then
+    
+    # 检查别名是否已存在（精确匹配）
+    if grep -qF "$alias_line" /etc/profile; then
+        msg_warn "别名 '$alias_name' 已存在，跳过添加"
+    else
+        # 检查别名名称是否已被其他命令使用
+        if grep -q "^alias $alias_name=" /etc/profile; then
+            msg_error "别名 '$alias_name' 已被其他命令使用，请选择不同的别名"
+            return 1
+        fi
+        
+        # 添加别名到 /etc/profile
         echo "$alias_line" >> /etc/profile
+        msg_ok "别名 '$alias_name' 已添加到 /etc/profile"
     fi
+    
+    # 重新加载配置使别名生效
     source /etc/profile
+    
     whiptail --msgbox "服务 $service_name 已创建 (别名: $alias_name)\n手动输入source /etc/profile让别名立刻生效, 或者重新登录账户" 15 60
 }
 

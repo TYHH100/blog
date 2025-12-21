@@ -12,4 +12,5 @@ for f in $script_name; do
 done
 
 chmod +x "$INSTALL_DIR/main.sh"
-exec sudo "$INSTALL_DIR/main.sh" "$@"
+echo "运行指令: sudo $INSTALL_DIR/main.sh"
+#exec sudo "$INSTALL_DIR/main.sh" "$@"

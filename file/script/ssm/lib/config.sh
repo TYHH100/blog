@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CONFIG_FILE="/etc/source_server_manager.conf"
+CUSTOM_GAME_DIR="$BASE_DIR/custom_games"
 
 # 游戏定义
 declare -A GAME_APPS=(
@@ -19,6 +20,16 @@ declare -A GAME_SHORT_NAMES=(
     ["Counter-Strike: Source"]="cstrike"
 )
 
+load_custom_games() {
+    if [ -d "$CUSTOM_GAME_DIR" ]; then
+        for game_file in "$CUSTOM_GAME_DIR"/*.sh; do
+            if [ -f "$game_file" ]; then
+                source "$game_file"
+            fi
+        done
+    fi
+}
+
 # 全局变量初始化
 STEAM_USER=""
 STEAM_HOME=""
@@ -27,6 +38,8 @@ GAME_NAME=""
 STEAMCMD_PATH=""
 
 load_user_config() {
+    load_custom_games
+
     if [ -f "$CONFIG_FILE" ]; then
         source "$CONFIG_FILE"
         # 恢复环境

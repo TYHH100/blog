@@ -4,6 +4,20 @@
 create_start_script() {
     local short_name=${GAME_SHORT_NAMES[$GAME_NAME]}
     local script_file="$SERVER_DIR/start.sh"
+    local custom_func="override_start_script_${short_name}"
+    
+    if type "$custom_func" &>/dev/null; then
+        msg_info "检测到自定义启动逻辑 ($short_name)，正在应用..."
+        # 调用自定义函数，传入 install_dir 和 script_file 路径
+        $custom_func "$SERVER_DIR" "$script_file"
+        
+        # 赋予权限并提示
+        chmod +x "$script_file"
+        chown "$STEAM_USER:$STEAM_USER" "$script_file"
+        whiptail --msgbox "自定义启动脚本已创建于: $script_file" 8 60
+        return
+    fi
+
     local default_port=$(( RANDOM % 1000 + 27015 ))
     local cfg_dir="$SERVER_DIR/$short_name/cfg"
     local config_name="server.cfg"
@@ -43,6 +57,25 @@ EOF
     -steamcmd_script "$SERVER_DIR/steamcmd/${short_name}_update.txt"
 EOF
 
+    create_server_config "$short_name" "$cfg_dir" "$config_name"
+
+    chmod +x "$script_file"
+    chown "$STEAM_USER:$STEAM_USER" "$script_file"
+    whiptail --msgbox "启动脚本已创建于: $script_file" 8 60
+}
+
+create_server_config() {
+    local short_name=$1
+    local cfg_dir=$2
+    local config_name=$3
+
+    local custom_cfg_func="override_config_gen_${short_name}"
+    if type "$custom_cfg_func" &>/dev/null; then
+        msg_info "正在生成自定义配置文件..."
+        $custom_cfg_func "$SERVER_DIR" "$cfg_dir" "$config_name"
+        return
+    fi
+
     if [ ! -f "$cfg_dir/$config_name" ]; then
         msg_info "正在创建默认配置文件..."
         cat > "$cfg_dir/$config_name" << EOF
@@ -62,10 +95,6 @@ sv_pure "0"
 EOF
         chown "$STEAM_USER:$STEAM_USER" "$cfg_dir/$config_name"
     fi
-
-    chmod +x "$script_file"
-    chown "$STEAM_USER:$STEAM_USER" "$script_file"
-    whiptail --msgbox "启动脚本已创建于: $script_file" 8 60
 }
 
 # 创建 Systemd 服务文件

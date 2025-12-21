@@ -23,7 +23,15 @@ install_dependencies() {
             # 更新软件包列表
             pacman -Sy
         fi
+        local prebuilt_url="https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
+        local temp_pkg="/tmp/lib32-ncurses5-compat-libs.pkg.tar.zst"
         pacman -Sy --noconfirm lib32-gcc-libs lib32-libcurl-gnutls lib32-openssl screen unzip axel
+        axel -n 10 "$prebuilt_url" -o "$temp_pkg"
+        pacman -Uy --noconfirm "$temp_pkg"
+        rm -f "$temp_pkg"
+    else
+        msg_warn "无法自动检测操作系统类型，请手动安装依赖"
+        return
     fi
     
     whiptail --msgbox "依赖安装完成！" 8 60

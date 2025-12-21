@@ -1,5 +1,4 @@
 #!/bin/bash
-# 文件名: main.sh
 
 # 获取当前脚本所在目录
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

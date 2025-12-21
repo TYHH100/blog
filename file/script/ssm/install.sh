@@ -1,4 +1,5 @@
 #!/bin/bash
+
 INSTALL_DIR="/tmp/ssm"
 script_filefolder="lib custom_games"
 script_name="addons.sh config.sh game.sh service.sh steam.sh system.sh utils.sh"

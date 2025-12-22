@@ -6,7 +6,7 @@ install_sourcemod_metamod() {
     local short_name=${GAME_SHORT_NAMES[$GAME_NAME]}
     local target_dir="$SERVER_DIR/$short_name"
     local addons_dir="$SERVER_DIR/$short_name/addons"
-    local sm_url="https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7210-linux.tar.gz"
+    local sm_url="https://sm.alliedmods.net/smdrop/1.12/sourcemod-1.12.0-git7221-linux.tar.gz"
     local mm_url="https://mms.alliedmods.net/mmsdrop/1.12/mmsource-1.12.0-git1219-linux.tar.gz"
 
     msg_info "下载Metamod:Source..."
@@ -41,6 +41,6 @@ menu_addons() {
     
     case $choice in
         1) install_sourcemod_metamod ;;
-        2) whiptail --msgbox "功能开发中..." 8 60 ;;
+        2) whiptail --msgbox "Zzzz..." 8 60 ;;
     esac
 }

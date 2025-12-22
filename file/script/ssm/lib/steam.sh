@@ -19,7 +19,7 @@ install_steamcmd() {
         echo 100
     ) | whiptail --gauge "正在安装 SteamCMD" 8 60 0
 
-    STEAMCMD_PATH="$install_dir/steamcmd.sh"
+    STEAMCMD_PATH="$install_dir"
     save_user_config
     whiptail --msgbox "SteamCMD 安装成功: $STEAMCMD_PATH" 8 60
 }
@@ -33,7 +33,7 @@ menu_steamcmd() {
     case $choice in
         1) install_steamcmd ;;
         2) 
-            STEAMCMD_PATH=$(input_box "路径设置" "输入 steamcmd.sh 绝对路径" "")
+            STEAMCMD_PATH=$(input_box "路径设置" "输入steamcmd路径" "")
             save_user_config 
             ;;
     esac

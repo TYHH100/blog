@@ -37,18 +37,18 @@ run_steam_update() {
         if [ "$USE_WHIPTAIL" != true ]; then
             echo -e "${BLUE}[Step 1/2]${NC} 正在下载Windows版本文件..."
         fi
-        su - "$STEAM_USER" -c "\"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType windows +app_update \"$app_id\" validate +quit"
+        su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" +force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType windows +app_update \"$app_id\" validate +quit"
         
         # 然后下载Linux版本
         if [ "$USE_WHIPTAIL" != true ]; then
             echo -e "${BLUE}[Step 2/2]${NC} 正在下载Linux版本文件..."
         fi
-        su - "$STEAM_USER" -c "\"$STEAMCMD_PATH\" +force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType linux +app_update \"$app_id\" validate +quit"
+        su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" +force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType linux +app_update \"$app_id\" validate +quit"
     fi
 
     clear
     msg_info "正在执行 SteamCMD 操作 ($mode)..."
-    su - "$STEAM_USER" -c "\"$STEAMCMD_PATH\" $cmd_flags"
+    su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $cmd_flags"
     
     echo "按回车键继续..."
     read

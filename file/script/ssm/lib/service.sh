@@ -22,16 +22,8 @@ create_start_script() {
     local cfg_dir="$SERVER_DIR/$short_name/cfg"
     local config_name="server.cfg"
     local game_update="$STEAMCMD_PATH/$short_name-update.txt"
-    local default_maps=""
     # 设置默认地图
-    case "$GAME_NAME" in
-        "Team Fortress 2") default_map="cp_5gorge" ;;
-        "Left 4 Dead 2") default_map="c2m1_highway" ;;
-        "No More Room in Hell") default_map="nmo_broadway" ;;
-        "Garry's Mod") default_map="gm_construct" ;;
-        "Counter-Strike: Source") default_map="de_dust2" ;;
-        *) default_map="dm_mario_kart" ;;
-    esac
+    local default_map=${GAME_DEFAULT_MAPS[$GAME_NAME]:-"dm_mario_kart"}
 
     msg_info "正在创建游戏更新脚本..."
     cat > "$game_update" << EOF

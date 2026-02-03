@@ -17,6 +17,12 @@ check_root          # 确保以 root 用户运行
 detect_os           # 检测操作系统
 load_user_config    # 加载用户配置
 
+# 检查 whiptail 是否安装
+if ! command -v whiptail &> /dev/null; then
+    msg_err "whiptail 未安装"
+    exit 1
+fi
+
 # 命令行参数处理 (保留原脚本的逻辑，简化实现)
 #parse_arguments "$@"
 

@@ -4,8 +4,15 @@ INSTALL_DIR="$HOME/ssm"
 script_filefolder="lib custom_games builtin_games"
 script_name="addons.sh config.sh game.sh service.sh steam.sh system.sh utils.sh"
 custom_games_script_name="examples.sh"
-builtin_games_script_name="team_fortress_2.sh left_4_dead_2.sh no_more_room_in_hell.sh garrys_mod.sh counter_strike_source.sh"
-mkdir -p "$INSTALL_DIR/$script_filefolder"
+builtin_games_script_name="team_fortress_2.sh left_4_dead_2.sh no_more_room_in_hell.sh garrys_mod.sh counter_strike_source.sh team_fortress_2_classified.sh"
+
+# 创建主目录
+mkdir -p "$INSTALL_DIR"
+
+# 逐个创建子目录
+for folder in $script_filefolder; do
+  mkdir -p "$INSTALL_DIR/$folder"
+done
 
 # 下载 main.sh
 curl -fL "https://blog.tyhh10.xyz/file/script/ssm/main.sh" -o "$INSTALL_DIR/main.sh"

@@ -8,6 +8,7 @@ BUILTIN_GAME_DIR="$BASE_DIR/builtin_games"
 declare -A GAME_APPS
 declare -A GAME_SHORT_NAMES
 declare -A GAME_DEFAULT_MAPS
+declare -A GAME_DEPENDENCIES
 
 load_builtin_games() {
     if [ -d "$BUILTIN_GAME_DIR" ]; then

@@ -41,7 +41,7 @@ EOF
     -console \\
     +ip "0.0.0.0" \\
     -port "$default_port" \\
-    +maxplayers "16" \\
+    +maxplayers "24" \\
     +map "$default_map" \\
     +exec "$config_name" \\
     -autoupdate \\

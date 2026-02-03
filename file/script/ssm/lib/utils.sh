@@ -27,7 +27,7 @@ detect_os() {
 msg_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 msg_ok() { echo -e "${GREEN}[OK]${NC} $1"; }
 msg_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-msg_err() { echo -e "${RED}[ERROR]${NC} $1"; }
+msg_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # 简单的 Whiptail 输入封装
 input_box() {

@@ -12,14 +12,14 @@ install_sourcemod_metamod() {
     msg_info "下载Metamod:Source..."
     axel -n 10 $mm_url -o $SERVER_DIR/mms.tar.gz
     if [ ! -s $SERVER_DIR/mms.tar.gz ]; then
-        msg_err "Metamod:Source下载失败！"
+        msg_error "Metamod:Source下载失败！"
         exit 1
     fi
             
     msg_info "下载SourceMod..."
     axel -n 10 $sm_url -o $SERVER_DIR/sm.tar.gz
     if [ ! -s $SERVER_DIR/sm.tar.gz ]; then
-        msg_err "SourceMod下载失败！"
+        msg_error "SourceMod下载失败！"
         exit 1
     fi
             

@@ -19,7 +19,7 @@ load_user_config    # 加载用户配置
 
 # 检查 whiptail 是否安装
 if ! command -v whiptail &> /dev/null; then
-    msg_err "whiptail 未安装"
+    msg_error "whiptail 未安装"
     exit 1
 fi
 

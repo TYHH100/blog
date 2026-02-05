@@ -79,47 +79,96 @@ run_steam_update() {
         local current_game_name="$GAME_NAME"
         local current_server_dir="$SERVER_DIR"
         
-        # 检查依赖是否为单个游戏名称（可能包含空格）
-        # 这里简化处理，假设每个游戏配置文件只定义一个依赖
-        # 检查完整的依赖游戏名称是否存在
-        if [ -n "${GAME_APPS[$dependencies]}" ]; then
-            # 临时切换到依赖游戏
-            GAME_NAME="$dependencies"
+        # 支持多个依赖，用空格分隔
+        # 使用 IFS 设置为换行符来正确处理包含空格的游戏名称
+        local IFS=$'\n'
+        local dep_list=($(echo "$dependencies" | tr ' ' '\n'))
+        
+        for dep_name in "${dep_list[@]}"; do
+            # 跳过空行
+            [ -z "$dep_name" ] && continue
             
-            # 为依赖游戏设置安装目录
-            local dep_dir="$STEAM_HOME/${dependencies// /_}_server"
-            SERVER_DIR="$dep_dir"
-            
-            # 创建依赖游戏目录
-            if [ ! -d "$SERVER_DIR" ]; then
-                mkdir -p "$SERVER_DIR"
-                chown "$STEAM_USER:$STEAM_USER" "$SERVER_DIR"
-            fi
-            
-            # 处理依赖游戏
-            msg_info "正在 $mode 依赖游戏: $dependencies"
-            local dep_app_id=${GAME_APPS[$dependencies]}
-            local dep_cmd_flags="+login anonymous +force_install_dir \"$SERVER_DIR\" +app_update \"$dep_app_id\""
-            
-            if [ "$mode" == "validate" ]; then dep_cmd_flags+=" validate"; fi
-            dep_cmd_flags+=" +quit"
-            
-            # 捕获依赖游戏操作的输出并处理错误
-            local dep_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $dep_cmd_flags" 2>&1)
-            
-            # 检查输出中是否包含错误消息
-            if echo "$dep_output" | grep -q "Error! App '" && echo "$dep_output" | grep -q "' state is " && echo "$dep_output" | grep -q " after update job."; then
-                # 恢复当前游戏信息
-                GAME_NAME="$current_game_name"
-                SERVER_DIR="$current_server_dir"
-                save_user_config
+            # 检查依赖游戏名称是否存在
+            if [ -n "${GAME_APPS[$dep_name]}" ]; then
+                # 临时切换到依赖游戏
+                GAME_NAME="$dep_name"
                 
-                handle_steamcmd_error "$dep_output" "SteamCMD 操作错误"
-                return
+                # 为依赖游戏设置安装目录
+                local dep_dir="$STEAM_HOME/${dep_name// /_}_server"
+                SERVER_DIR="$dep_dir"
+                
+                # 创建依赖游戏目录
+                if [ ! -d "$SERVER_DIR" ]; then
+                    mkdir -p "$SERVER_DIR"
+                    chown "$STEAM_USER:$STEAM_USER" "$SERVER_DIR"
+                fi
+                
+                # 处理依赖游戏
+                msg_info "正在 $mode 依赖游戏: $dep_name"
+                local dep_app_id=${GAME_APPS[$dep_name]}
+                local dep_cmd_flags="+login anonymous +force_install_dir \"$SERVER_DIR\" +app_update \"$dep_app_id\""
+                
+                if [ "$mode" == "validate" ]; then dep_cmd_flags+=" validate"; fi
+                dep_cmd_flags+=" +quit"
+                
+                # 捕获依赖游戏操作的输出并处理错误
+                local dep_output=""
+                if [ "$USE_WHIPTAIL" != true ]; then
+                    # 命令行模式：实时显示输出
+                    dep_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $dep_cmd_flags" 2>&1 | tee /dev/stderr)
+                else
+                    # whiptail 模式：捕获输出
+                    dep_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $dep_cmd_flags" 2>&1)
+                fi
+                
+                # 检查是否是 Missing configuration 错误
+                if echo "$dep_output" | grep -q "ERROR! Failed to install app" && echo "$dep_output" | grep -q "(Missing configuration)"; then
+                    msg_warn "检测到依赖游戏 Missing configuration 错误，正在自动重试..."
+                    
+                    # 重新尝试安装
+                sleep 2
+                local dep_retry_output=""
+                if [ "$USE_WHIPTAIL" != true ]; then
+                    # 命令行模式：实时显示输出
+                    dep_retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $dep_cmd_flags" 2>&1 | tee /dev/stderr)
+                else
+                    # whiptail 模式：捕获输出
+                    dep_retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $dep_cmd_flags" 2>&1)
+                fi
+                    
+                    if echo "$dep_retry_output" | grep -q "ERROR! Failed to install app" && echo "$dep_retry_output" | grep -q "(Missing configuration)"; then
+                        # 恢复当前游戏信息
+                        GAME_NAME="$current_game_name"
+                        SERVER_DIR="$current_server_dir"
+                        save_user_config
+                        
+                        msg_error "依赖游戏 SteamCMD 错误:"w
+                        msg_error "应用 ID: $dep_app_id"
+                        msg_error "错误信息: 配置缺失 (Missing configuration)"
+                        msg_error "详细输出:"
+                        echo "$dep_retry_output"
+                        msg_error "请尝试手动运行 SteamCMD 或检查网络连接"
+                        
+                        echo "按回车键继续..."
+                        read
+                        return
+                    else
+                        msg_ok "依赖游戏操作成功完成（重试后）"
+                    fi
+                # 检查是否是其他 SteamCMD 错误
+                elif echo "$dep_output" | grep -q "Error! App '" && echo "$dep_output" | grep -q "' state is " && echo "$dep_output" | grep -q " after update job."; then
+                    # 恢复当前游戏信息
+                    GAME_NAME="$current_game_name"
+                    SERVER_DIR="$current_server_dir"
+                    save_user_config
+                    
+                    handle_steamcmd_error "$dep_output" "SteamCMD 操作错误"
+                    return
+                fi
+            else
+                msg_warn "依赖游戏 '$dep_name' 未找到，跳过..."
             fi
-        else
-            msg_warn "依赖游戏 '$dependencies' 未找到，跳过..."
-        fi
+        done
         
         # 恢复当前游戏信息
         GAME_NAME="$current_game_name"
@@ -137,10 +186,35 @@ run_steam_update() {
         fi
         
         local win_cmd="+force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType windows +app_update \"$app_id\" validate +quit"
-        local win_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $win_cmd" 2>&1)
+        local win_output=""
+        if [ "$USE_WHIPTAIL" != true ]; then
+            # 命令行模式：实时显示输出
+            win_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $win_cmd" 2>&1 | tee /dev/stderr)
+        else
+            # whiptail 模式：捕获输出
+            win_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $win_cmd" 2>&1)
+        fi
         
         # 检查Windows版本下载是否有错误
-        if echo "$win_output" | grep -q "Error! App '" && echo "$win_output" | grep -q "' state is " && echo "$win_output" | grep -q " after update job."; then
+        if echo "$win_output" | grep -q "ERROR! Failed to install app" && echo "$win_output" | grep -q "(Missing configuration)"; then
+            msg_warn "检测到 Windows 版本 Missing configuration 错误，正在自动重试..."
+            
+            # 重新尝试安装
+            sleep 2
+            local win_retry_output=""
+            if [ "$USE_WHIPTAIL" != true ]; then
+                # 命令行模式：实时显示输出
+                win_retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $win_cmd" 2>&1 | tee /dev/stderr)
+            else
+                # whiptail 模式：捕获输出
+                win_retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $win_cmd" 2>&1)
+            fi
+            
+            if echo "$win_retry_output" | grep -q "ERROR! Failed to install app" && echo "$win_retry_output" | grep -q "(Missing configuration)"; then
+                handle_steamcmd_error "$win_retry_output" "SteamCMD 错误"
+                return
+            fi
+        elif echo "$win_output" | grep -q "Error! App '" && echo "$win_output" | grep -q "' state is " && echo "$win_output" | grep -q " after update job."; then
             handle_steamcmd_error "$win_output" "SteamCMD 操作错误"
             return
         fi
@@ -151,24 +225,119 @@ run_steam_update() {
         fi
         
         local linux_cmd="+force_install_dir \"$SERVER_DIR\" +login anonymous +@sSteamCmdForcePlatformType linux +app_update \"$app_id\" validate +quit"
-        local linux_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $linux_cmd" 2>&1)
+        local linux_output=""
+        if [ "$USE_WHIPTAIL" != true ]; then
+            # 命令行模式：实时显示输出
+            linux_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $linux_cmd" 2>&1 | tee /dev/stderr)
+        else
+            # whiptail 模式：捕获输出
+            linux_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $linux_cmd" 2>&1)
+        fi
         
         # 检查Linux版本下载是否有错误
-        if echo "$linux_output" | grep -q "Error! App '" && echo "$linux_output" | grep -q "' state is " && echo "$linux_output" | grep -q " after update job."; then
+        if echo "$linux_output" | grep -q "ERROR! Failed to install app" && echo "$linux_output" | grep -q "(Missing configuration)"; then
+            msg_warn "检测到 Linux 版本 Missing configuration 错误，正在自动重试..."
+            
+            # 重新尝试安装
+            sleep 2
+            local linux_retry_output=""
+            if [ "$USE_WHIPTAIL" != true ]; then
+                # 命令行模式：实时显示输出
+                linux_retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $linux_cmd" 2>&1 | tee /dev/stderr)
+            else
+                # whiptail 模式：捕获输出
+                linux_retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $linux_cmd" 2>&1)
+            fi
+            
+            if echo "$linux_retry_output" | grep -q "ERROR! Failed to install app" && echo "$linux_retry_output" | grep -q "(Missing configuration)"; then
+                handle_steamcmd_error "$linux_retry_output" "SteamCMD 错误"
+                return
+            fi
+        elif echo "$linux_output" | grep -q "Error! App '" && echo "$linux_output" | grep -q "' state is " && echo "$linux_output" | grep -q " after update job."; then
             handle_steamcmd_error "$linux_output" "SteamCMD 错误"
             return
         fi
     fi
-
-    clear
-    msg_info "正在执行 SteamCMD 操作 ($mode)..."
+    
+    # L4D2 安装完成后执行安装后处理函数
+    local short_name=${GAME_SHORT_NAMES[$GAME_NAME]}
+    if [ -n "$short_name" ]; then
+        local post_install_func="install_dependencies_$short_name"
+        if declare -f "$post_install_func" > /dev/null; then
+            msg_info "正在执行游戏特定的安装后处理..."
+            "$post_install_func"
+        fi
+    fi
     
     # 捕获 SteamCMD 输出并处理错误
-    local steamcmd_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $cmd_flags" 2>&1)
-    local exit_status=$?
+    # 在命令行模式下实时显示输出，同时捕获到变量
+    local steamcmd_output=""
+    local exit_status=0
     
-    # 检查输出中是否包含错误消息
-    if echo "$steamcmd_output" | grep -q "Error! App '" && echo "$steamcmd_output" | grep -q "' state is " && echo "$steamcmd_output" | grep -q " after update job."; then
+    if [ "$USE_WHIPTAIL" != true ]; then
+        # 命令行模式：实时显示输出
+        msg_info "正在执行 SteamCMD 操作 ($mode)..."
+        steamcmd_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $cmd_flags" 2>&1 | tee /dev/stderr)
+        exit_status=$?
+    else
+        # whiptail 模式：捕获输出
+        clear
+        msg_info "正在执行 SteamCMD 操作 ($mode)..."
+        steamcmd_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $cmd_flags" 2>&1)
+        exit_status=$?
+    fi
+    
+    # 检查是否是 Missing configuration 错误
+    if echo "$steamcmd_output" | grep -q "ERROR! Failed to install app" && echo "$steamcmd_output" | grep -q "(Missing configuration)"; then
+        msg_warn "检测到 Missing configuration 错误，正在自动重试..."
+        
+        # 重新尝试安装
+            sleep 2
+            local retry_output=""
+            local retry_status=0
+            if [ "$USE_WHIPTAIL" != true ]; then
+                # 命令行模式：实时显示输出
+                msg_info "正在重新尝试 SteamCMD 操作..."
+                retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $cmd_flags" 2>&1 | tee /dev/stderr)
+                retry_status=$?
+            else
+                # whiptail 模式：捕获输出
+                retry_output=$(su - "$STEAM_USER" -c "\"$STEAMCMD_PATH/steamcmd.sh\" $cmd_flags" 2>&1)
+                retry_status=$?
+            fi
+        
+        if echo "$retry_output" | grep -q "ERROR! Failed to install app" && echo "$retry_output" | grep -q "(Missing configuration)"; then
+            msg_error "SteamCMD 错误:"
+            msg_error "应用 ID: $app_id"
+            msg_error "错误信息: 配置缺失 (Missing configuration)"
+            msg_error "详细输出:"
+            echo "$retry_output"
+            msg_error "请尝试手动运行 SteamCMD 或检查网络连接"
+            
+            echo "按回车键继续..."
+            read
+        elif [ $retry_status -ne 0 ]; then
+            msg_error "SteamCMD 重试失败，退出码: $retry_status"
+            msg_error "详细输出:"
+            echo "$retry_output"
+            
+            echo "按回车键继续..."
+            read
+        else
+            msg_ok "SteamCMD 操作成功完成（重试后）"
+            
+            # 尝试执行游戏特定的安装后处理函数
+            local short_name=${GAME_SHORT_NAMES[$GAME_NAME]}
+            if [ -n "$short_name" ]; then
+                local post_install_func="install_dependencies_$short_name"
+                if declare -f "$post_install_func" > /dev/null; then
+                    msg_info "正在执行游戏特定的安装后处理..."
+                    "$post_install_func"
+                fi
+            fi
+        fi
+    # 检查是否是其他 SteamCMD 错误
+    elif echo "$steamcmd_output" | grep -q "Error! App '" && echo "$steamcmd_output" | grep -q "' state is " && echo "$steamcmd_output" | grep -q " after update job."; then
         handle_steamcmd_error "$steamcmd_output" "SteamCMD 错误"
     elif [ $exit_status -ne 0 ]; then
         msg_error "SteamCMD 操作失败，退出码: $exit_status"
@@ -179,6 +348,16 @@ run_steam_update() {
         read
     else
         msg_ok "SteamCMD 操作成功完成"
+        
+        # 尝试执行游戏特定的安装后处理函数
+        local short_name=${GAME_SHORT_NAMES[$GAME_NAME]}
+        if [ -n "$short_name" ]; then
+            local post_install_func="install_dependencies_$short_name"
+            if declare -f "$post_install_func" > /dev/null; then
+                msg_info "正在执行游戏特定的安装后处理..."
+                "$post_install_func"
+            fi
+        fi
     fi
     
     echo "按回车键继续..."

@@ -53,7 +53,7 @@ install_dependencies() {
         # 检查自定义脚本中是否定义了 install_dependencies_cs2 这样的函数
         if type "$dep_func" &>/dev/null; then
             echo "------------------------------------------------"
-            msg_info "检测到 [ $GAME_NAME ] 专属依赖逻辑..."
+            msg_info "检测到 [ $GAME_NAME ] 额外依赖逻辑..."
             msg_info "正在执行: $dep_func"
             
             # 调用函数 (该函数定义在 custom_games/xxx.sh 中)

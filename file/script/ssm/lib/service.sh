@@ -26,28 +26,46 @@ create_start_script() {
     local default_map=${GAME_DEFAULT_MAPS[$GAME_NAME]:-"dm_mario_kart"}
 
     msg_info "正在创建游戏更新脚本..."
-    cat > "$game_update" << EOF
+    
+    # 检查是否存在自定义的更新脚本生成函数
+    local custom_update_func="override_update_script_${short_name}"
+    if type "$custom_update_func" &>/dev/null; then
+        msg_info "正在使用自定义更新脚本生成函数..."
+        "$custom_update_func" "$game_update"
+    else
+        # 默认更新脚本
+        cat > "$game_update" << EOF
 login anonymous
 force_install_dir "$SERVER_DIR"
 app_update "$GAME_APPS"
 quit
 EOF
+    fi
 
     msg_info "正在创建启动脚本..."
-    cat > "$script_file" << EOF
+    
+    # 检查是否存在自定义的启动脚本生成函数
+    local custom_start_func="override_start_script_${short_name}"
+    if type "$custom_start_func" &>/dev/null; then
+        msg_info "正在使用自定义启动脚本生成函数..."
+        "$custom_start_func" "$SERVER_DIR" "$script_file"
+    else
+        # 默认启动脚本
+        cat > "$script_file" << EOF
 #!/bin/bash
-./srcds_run \\
-    -game "$short_name" \\
-    -console \\
-    +ip "0.0.0.0" \\
-    -port "$default_port" \\
-    +maxplayers "24" \\
-    +map "$default_map" \\
-    +exec "$config_name" \\
-    -autoupdate \\
-    -steam_dir "$SERVER_DIR/steamcmd" \\
-    -steamcmd_script "$SERVER_DIR/steamcmd/${short_name}_update.txt"
+./srcds_run \
+    -game "$short_name" \
+    -console \
+    +ip "0.0.0.0" \
+    -port "$default_port" \
+    +maxplayers "24" \
+    +map "$default_map" \
+    +exec "$config_name" \
+    -autoupdate \
+    -steam_dir "$STEAMCMD_PATH" \
+    -steamcmd_script "$game_update"
 EOF
+    fi
 
     create_server_config "$short_name" "$cfg_dir" "$config_name"
 

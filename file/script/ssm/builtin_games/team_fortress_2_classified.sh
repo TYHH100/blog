@@ -1,5 +1,5 @@
 # Team Fortress 2 Classified
-game_name="Team Fortress 2 Classified"
+game_name="Team Fortress 2 Classified[未进行部署测试]"
 game_app_id="3557020"
 game_short_name="tf2classified"
 game_default_map="cp_5gorge"
@@ -61,12 +61,21 @@ override_start_script_tf2classified() {
     local cfg_dir="$install_dir/tf2classified/cfg"
     local config_name="server.cfg"
     
-    # TF2 服务器路径（与依赖安装时的默认路径格式一致）
-    local tf_server_dir="$(eval echo ~$STEAM_USER)/Team_Fortress_2_server"
+    # TF2 服务器路径处理
+    local tf_path=""
+    local tf_server_dir="$STEAM_HOME/Team_Fortress_2_server"
     
-    # 提示用户输入 TF2 服务器路径
-    local tf_path=$(whiptail --inputbox "请输入 TF2 服务器路径:\n（默认为: $tf_server_dir）" 10 70 "$tf_server_dir" 3>&1 1>&2 2>&3)
-    tf_path=${tf_path:-$tf_server_dir}
+    # 询问用户是否已有 TF2 服务器
+    if whiptail --yesno "您是否已经安装了 Team Fortress 2 服务器？\n\n如果选择 '是'，请输入 TF2 服务器的路径\n如果选择 '否'，系统会自动安装 TF2 服务器" 12 70; then
+        # 用户已有 TF2 服务器，让用户输入路径
+        tf_path=$(whiptail --inputbox "请输入 TF2 服务器路径:\n（默认为: $tf_server_dir）" 10 70 "$tf_server_dir" 3>&1 1>&2 2>&3)
+        tf_path=${tf_path:-$tf_server_dir}
+        msg_info "使用用户指定的 TF2 服务器路径: $tf_path"
+    else
+        # 用户没有 TF2 服务器，使用默认路径（系统会自动安装）
+        tf_path="$tf_server_dir"
+        msg_info "将使用默认路径并自动安装 TF2 服务器: $tf_path"
+    fi
     
     # 创建配置文件目录
     if [ ! -d "$cfg_dir" ]; then
@@ -105,4 +114,32 @@ EOF
 EOF
     
     msg_info "Team Fortress 2 Classified 启动脚本已创建"
+}
+
+# 自定义更新脚本生成函数
+override_update_script_tf2classified() {
+    local update_script_path=$1
+    
+    # 询问用户是否已有 TF2 服务器
+    if whiptail --yesno "您是否已经安装了 Team Fortress 2 服务器？\n\n如果选择 '是'，请输入 TF2 服务器的路径\n如果选择 '否'，系统会自动安装 TF2 服务器" 12 70; then
+        # 用户已有 TF2 服务器，让用户输入路径
+        local user_tf_path=$(whiptail --inputbox "请输入 TF2 服务器路径:\n（默认为: $tf_server_dir）" 10 70 "$tf_server_dir" 3>&1 1>&2 2>&3)
+        tf_server_dir=${user_tf_path:-$tf_server_dir}
+        msg_info "使用用户指定的 TF2 服务器路径: $tf_server_dir"
+    else
+        # 用户没有 TF2 服务器，使用默认路径（系统会自动安装）
+        msg_info "将使用默认路径并自动安装 TF2 服务器: $tf_server_dir"
+    fi
+    
+    msg_info "正在创建 Team Fortress 2 Classified 特殊更新脚本..."
+    cat > "$update_script_path" << EOF
+login anonymous
+force_install_dir "$tf_server_dir"
+app_update "232250"
+force_install_dir "$SERVER_DIR"
+app_update "3557020"
+quit
+EOF
+    
+    msg_info "Team Fortress 2 Classified 特殊更新脚本已创建"
 }

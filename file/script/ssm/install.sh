@@ -33,6 +33,9 @@ for bgfc in $builtin_games_script_name; do
 done
 
 chmod +x "$INSTALL_DIR/main.sh"
+chmod +x "$INSTALL_DIR/lib/*.sh"
+chmod +x "$INSTALL_DIR/custom_games/*.sh"
+chmod +x "$INSTALL_DIR/builtin_games/*.sh"
 
 # 安装 whiptail
 if ! command -v whiptail &> /dev/null; then

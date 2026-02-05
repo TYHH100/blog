@@ -178,9 +178,9 @@ menu_service() {
     case $choice in
         1) create_start_script ;;
         2) create_systemd ;;
-        3) systemctl start "${GAME_SHORT_NAMES[$GAME_NAME]}_server" ;;
-        4) systemctl stop "${GAME_SHORT_NAMES[$GAME_NAME]}_server" ;;
-        5) systemctl restart "${GAME_SHORT_NAMES[$GAME_NAME]}_server" ;;
-        6) systemctl status "${GAME_SHORT_NAMES[$GAME_NAME]}_server" ;;
+        3) systemctl start "${GAME_SHORT_NAMES[$GAME_NAME]}.server" ;;
+        4) systemctl stop "${GAME_SHORT_NAMES[$GAME_NAME]}.server" ;;
+        5) systemctl restart "${GAME_SHORT_NAMES[$GAME_NAME]}.server" ;;
+        6) systemctl status "${GAME_SHORT_NAMES[$GAME_NAME]}.server" ;;
     esac
 }

@@ -178,7 +178,7 @@ install_aur_package() {
 
     # 尝试安装预构建包
     if [ "$pkg_name" = "lib32-ncurses5-compat-libs" ]; then
-        local prebuilt_url="https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
+        local prebuilt_url="https://tyhh100.github.io/blog/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
         local temp_pkg="/tmp/lib32-ncurses5-compat-libs.pkg.tar.zst"
         
         echo -e "${BLUE}[Info]${NC} 尝试安装预构建包: $pkg_name"

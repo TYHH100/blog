@@ -15,21 +15,21 @@ for folder in $script_filefolder; do
 done
 
 # 下载 main.sh
-curl -fL "https://blog.tyhh10.xyz/file/script/ssm/main.sh" -o "$INSTALL_DIR/main.sh"
+curl -fL "https://tyhh100.github.io/blog/file/script/ssm/main.sh" -o "$INSTALL_DIR/main.sh"
 
 # 逐个下载 lib 下的脚本
 for f in $script_name; do
-  curl -fL "https://blog.tyhh10.xyz/file/script/ssm/lib/$f" -o "$INSTALL_DIR/lib/$f"
+  curl -fL "https://tyhh100.github.io/blog/file/script/ssm/lib/$f" -o "$INSTALL_DIR/lib/$f"
 done
 
 # 逐个下载 custom_games 下的脚本
 for cgfc in $custom_games_script_name; do
-  curl -fL "https://blog.tyhh10.xyz/file/script/ssm/custom_games/$cgfc" -o "$INSTALL_DIR/custom_games/$cgfc"
+  curl -fL "https://tyhh100.github.io/blog/file/script/ssm/custom_games/$cgfc" -o "$INSTALL_DIR/custom_games/$cgfc"
 done
 
 # 逐个下载 builtin_games 下的脚本
 for bgfc in $builtin_games_script_name; do
-  curl -fL "https://blog.tyhh10.xyz/file/script/ssm/builtin_games/$bgfc" -o "$INSTALL_DIR/builtin_games/$bgfc"
+  curl -fL "https://tyhh100.github.io/blog/file/script/ssm/builtin_games/$bgfc" -o "$INSTALL_DIR/builtin_games/$bgfc"
 done
 
 chmod +x "$INSTALL_DIR/main.sh"

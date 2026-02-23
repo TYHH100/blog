@@ -125,7 +125,7 @@
     
     <!--- Seo Part-->
     
-    <link rel="canonical" href="https://blog.tyhh10.xyz/2024/04/11/tf2_server_setup_tutorial/"/>
+    <link rel="canonical" href="https://tyhh100.github.io/blog/2024/04/11/tf2_server_setup_tutorial/"/>
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
@@ -182,7 +182,7 @@
     
 
     <script id="hexo-configurations">
-    window.config = {"hostname":"blog.tyhh10.xyz","root":"/","language":"zh-CN"};
+    window.config = {"hostname":"tyhh100.github.io/blog","root":"/","language":"zh-CN"};
     window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":true,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":6,"number":false,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":["/profiler/index.html","/Chat-history_Q&A/FastDL_Q&A.html"]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":true,"custom_message":"Hello~"},"side_tools":{"gear_rotation":true,"auto_expand":false},"open_graph":false,"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/wallhaven-wqery6-light.webp","dark":"/images/wallhaven-wqery6-dark.webp"},"title":"你好呀(*´ω｀*)","subtitle":{"text":["Hi"],"hitokoto":{"enable":true,"show_author":true,"api":"https://v1.hitokoto.cn?c=b&c=a&from"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":false,"style":"default","links":{"github":null,"instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null,"lrc":null}]},"mermaid":{"enable":"enable","version":"9.3.0"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"About":{"icon":"fa-regular fa-user","submenus":{"BiliBili":"https://space.bilibili.com/196131695","Steam":"https://steamcommunity.com/profiles/76561198411866726/"}},"Links":{"icon":"fa-regular fa-link","submenus":{"SourceBans++":"https://bans.tyhh10.xyz:58092/"}}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":null},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2023/07/08 11:45:14"};
     window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
     window.data = {"masonry":false};
@@ -1081,7 +1081,7 @@ Enabling connections to your server [without portforwarding, external programs o
 
 
 <iframe
-  src="https://blog.tyhh10.xyz/Chat-history_Q&A/FastDL_Q&A.html"
+  src="https://tyhh100.github.io/blog/Chat-history_Q&A/FastDL_Q&A.html"
   title=""
   width="400"
   height="390">
@@ -1115,7 +1115,7 @@ Enabling connections to your server [without portforwarding, external programs o
                 ><br>这个你就需要选这个<code>con_logfile</code>指令来输出的控制台内容到文件中<br>在控制台中输入<code>con_logfile &quot;1.txt&quot;</code>(这里的文件名，还有扩展名都是任意的不过扩展名建议还是TXT)<br>然后再输入<code>sm prof dump vprof</code>就会输出到这个文件中<br>文件位置在服务器的根目录中(tf)<br>你可以直接发给AI来找到原因,不过在做这件事情之前最好是把无关的内容删掉<br>因为是输出控制台中的所有内容,可能会一些无关紧要比如玩家发的消息，还有插件的一些执行<br>比如下面这个示例文件<br><a href="/file/txt/1.txt" target="_blank" download>1.txt[点击后下载]</a><br>只包含了分析的输出信息</p>
 
   <div class="note p-4 mb-4 rounded-small markdown-body info icon-padding">
-    <i class="note-icon fa-solid fa-circle-info"></i><p>可以使用本站这边提供了简易查看工具<a href="https://blog.tyhh10.xyz/profiler/" target="_blank">Valve Profiler (vprof) Analyzer</a>(由<a class="link"   href="https://steamcommunity.com/id/fafaje/"  target="_blank">233fafa_junhe<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>编写的)</p>
+    <i class="note-icon fa-solid fa-circle-info"></i><p>可以使用本站这边提供了简易查看工具<a href="https://tyhh100.github.io/blog/profiler/" target="_blank">Valve Profiler (vprof) Analyzer</a>(由<a class="link"   href="https://steamcommunity.com/id/fafaje/"  target="_blank">233fafa_junhe<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>编写的)</p>
 
   </div>
 
@@ -1161,7 +1161,7 @@ Enabling connections to your server [without portforwarding, external programs o
             </li>
         
         <li>
-            <strong>链接:</strong> https://blog.tyhh10.xyz/2024/04/11/tf2_server_setup_tutorial/
+            <strong>链接:</strong> https://tyhh100.github.io/blog/2024/04/11/tf2_server_setup_tutorial/
         </li>
         <li>
             <strong>

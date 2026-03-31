@@ -2,7 +2,7 @@
     const fullUrl = window.location.href;
     const baseUrl = window.location.origin;
     const path = fullUrl.replace(baseUrl, '');
-    const prefix = "/blog/connect/?server=";
+    const prefix = "/connect/?server=";
     
     if (path.startsWith(prefix)) {
         const serverAddress = path.substring(prefix.length);

@@ -35,7 +35,7 @@ install_dependencies() {
             # 更新软件包列表
             pacman -Sy
         fi
-        local prebuilt_url="https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
+        local prebuilt_url="https://tyhh100.github.io/blog/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
         local temp_pkg="/tmp/lib32-ncurses5-compat-libs.pkg.tar.zst"
         pacman -Sy --noconfirm lib32-gcc-libs lib32-libcurl-gnutls lib32-openssl screen unzip axel
         axel -n 10 "$prebuilt_url" -o "$temp_pkg"

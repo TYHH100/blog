@@ -299,7 +299,7 @@ install_aur_package() {
 
     # 尝试安装预构建包
     if [ "$pkg_name" = "lib32-ncurses5-compat-libs" ]; then
-        local prebuilt_url="https://blog.tyhh10.xyz/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
+        local prebuilt_url="https://tyhh100.github.io/blog/file/arch-zst-file/lib32-ncurses5-compat-libs-6.5-3-x86_64.pkg.tar.zst"
         local temp_pkg="/tmp/lib32-ncurses5-compat-libs.pkg.tar.zst"
         
         echo -e "${BLUE}[Info]${NC} 尝试安装预构建包: $pkg_name"
@@ -2277,8 +2277,8 @@ manage_source_python() {
                         
                         # 定义依赖包URL
                         local deps=(
-                            "https://blog.tyhh10.xyz/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
-                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
+                            "https://tyhh100.github.io/blog/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
+                            "https://tyhh100.github.io/blog/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
                         )
                         
                         # 下载并安装每个依赖
@@ -2400,8 +2400,8 @@ manage_source_python() {
                         
                         # 定义依赖包URL
                         local deps=(
-                            "https://blog.tyhh10.xyz/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
-                            "https://blog.tyhh10.xyz/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
+                            "https://tyhh100.github.io/blog/file/arch-zst-file/execstack-20130503-10-x86_64.pkg.tar.zst"
+                            "https://tyhh100.github.io/blog/file/arch-zst-file/lib32-libffi7-3.3-2-x86_64.pkg.tar.zst"
                         )
                         
                         # 下载并安装每个依赖
@@ -3048,7 +3048,7 @@ elif $AUTO_INSTALL; then
     echo -e "${BLUE}[Info]${NC} 正在下载自动安装脚本..."
     
     # 自动安装脚本URL（使用本地文件路径）
-    AUTO_INSTALL_SCRIPT_URL="https://blog.tyhh10.xyz/file/script/auto_install_server.sh"
+    AUTO_INSTALL_SCRIPT_URL="https://tyhh100.github.io/blog/file/script/auto_install_server.sh"
     LOCAL_SCRIPT_PATH="/tmp/auto_install_server.sh"
     
     # 下载自动安装脚本
